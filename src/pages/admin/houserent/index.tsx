@@ -228,14 +228,14 @@ export default function AdminHouseRent() {
   }
 
   return (
-    <div className="flex-1 space-y-4">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-2">
+    <div className="flex-1 space-y-2">
+      <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">
         House Rent Management
       </h1>
 
-      <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex justify-between items-end">
+      <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
         <div className="flex w-full gap-2">
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-1 md:flex-none">
             <label className="text-xs font-medium text-gray-600">Start Month</label>
             <input
               type="month"
@@ -244,7 +244,7 @@ export default function AdminHouseRent() {
               value={startMonth}
             />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-1 md:flex-none">
             <label className="text-xs font-medium text-gray-600">End Month</label>
             <input
               type="month"
@@ -261,12 +261,11 @@ export default function AdminHouseRent() {
             resetForm();
             setOpen(true);
           }}
+          className="w-full md:w-auto"
         >
           <Plus /> Add house rent
         </Button>
       </div>
-
-
 
       <div className=" overflow-auto">
         <Dialog
@@ -289,8 +288,8 @@ export default function AdminHouseRent() {
               </div>
             )}
             <form onSubmit={handleAdd} className="bg-white flex flex-wrap gap-3 items-end">
-              <div className="flex gap-2 border border-gray-200 rounded-lg px-2 w-full">
-                <div className="flex flex-col py-3 w-1/2">
+              <div className="flex flex-col sm:flex-row gap-2 border border-gray-200 rounded-lg px-2 w-full">
+                <div className="flex flex-col py-3 w-full sm:w-1/2">
                   <label className="text-xs font-medium text-gray-600 mb-1">Priest</label>
                   <Select value={priestId} onValueChange={setPriestId} required>
                     <SelectTrigger className="w-full">
@@ -306,7 +305,7 @@ export default function AdminHouseRent() {
                   </Select>
                 </div>
 
-                <div className="flex flex-col py-3 w-1/2">
+                <div className="flex flex-col py-3 w-full sm:w-1/2">
                   <label className="text-xs font-medium text-gray-600 mb-1">Month</label>
                   <input
                     type="month"
@@ -357,30 +356,36 @@ export default function AdminHouseRent() {
           </DialogContent>
         </Dialog>
 
-        <div className="flex gap-2">
-          <div className="w-2/3 bg-white border border-gray-200 rounded-lg">
+        <div className="flex flex-col lg:flex-row gap-2">
+          <div className="block md:hidden w-full h-fit bg-white border border-gray-200 rounded-lg">
+            <div className="py-2 px-3 border rounded-lg border-indigo-100 bg-indigo-100 text-indigo-600 flex justify-between items-center">
+              <h2 className="font-normal ">House Rent Summary </h2>
+              <span className="font-semibold">€ {houseRentSummary?.total_payout ?? "N/A"}</span>
+            </div>
+          </div>
+          <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-3 py-2 text-left">Priest</th>
-                  <th className="px-3 py-2 text-left">Month</th>
-                  <th className="px-3 py-2 text-right">Amount</th>
-                  <th className="px-3 py-2 text-right">Actions</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Priest</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Month</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">Amount</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {houseRent.map((s) => (
                   <tr key={s.id} className="border-t border-gray-100">
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 whitespace-nowrap">
                       {s.profiles?.full_name || s.profiles?.email || s.priest_id}
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 whitespace-nowrap">
                       {new Date(s.month).toLocaleDateString(undefined, {
                         month: "short",
                         year: "numeric",
                       })}
                     </td>
-                    <td className="px-3 py-2 text-right">€ {s.rent_amount}</td>
+                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {s.rent_amount}</td>
                     <td className="px-3 py-2 flex gap-2 justify-end">
                       <Button size="sm" variant="ghost" onClick={() => handleEdit(s.id)}>
                         Edit
@@ -398,7 +403,7 @@ export default function AdminHouseRent() {
               </tbody>
             </table>
           </div>
-          <div className="w-1/3 h-fit bg-white border border-gray-200 rounded-lg">
+          <div className="hidden md:block w-1/3 h-fit bg-white border border-gray-200 rounded-lg">
             <div className="p-2 border-b border-gray-200">
               <h2 className="font-semibold">House Rent Summary</h2>
             </div>

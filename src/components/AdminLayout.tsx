@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import Link from "next/link";
+import { Button } from "./ui/button";
+import { Menu, X } from "lucide-react";
 
 type Props = {
   children: React.ReactNode;
@@ -94,26 +96,15 @@ export default function AdminLayout({ children }: Props) {
       <main className="flex gap-4 flex-1 max-w-6xl mx-auto w-full px-4 py-6 overflow-y-auto">
         {/* Mobile hamburger */}
         <div className="md:hidden mb-4 absolute top-[5rem] right-2">
-          <button
+
+          <Button
             aria-label="Open admin menu"
             onClick={() => setOpen(true)}
-            className="btn btn-ghost btn-square"
+            variant="outline"
+            size="sm"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
+            <Menu />
+          </Button>
         </div>
         {/* Desktop sidebar (hidden on small screens) */}
         <div className="hidden md:block">
@@ -121,7 +112,7 @@ export default function AdminLayout({ children }: Props) {
         </div>
 
         {/* Main content / router outlet */}
-        <div className="flex-1 space-y-4">{children}</div>
+        <div className="flex-1 overflow-x-scroll">{children}</div>
 
         {/* Mobile sidebar overlay */}
         {open && (
@@ -134,26 +125,15 @@ export default function AdminLayout({ children }: Props) {
             <div className="fixed inset-y-0 right-0 z-50 w-72 bg-white border-r border-gray-200 p-4 overflow-auto">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-semibold text-gray-700">Admin</h2>
-                <button
+
+                <Button
                   aria-label="Close admin menu"
                   onClick={() => setOpen(false)}
-                  className="btn btn-ghost btn-square"
+                  variant="outline"
+                  size="sm"
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
+                  <X />
+                </Button>
               </div>
               <AdminSidebar onNavigate={() => setOpen(false)} />
             </div>

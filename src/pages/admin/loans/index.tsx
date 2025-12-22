@@ -289,14 +289,14 @@ export default function AdminLoans() {
   }
 
   return (
-    <div className="flex-1 space-y-4">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-2">
+    <div className="flex-1 space-y-2">
+      <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">
         Loan Management
       </h1>
 
-      <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex justify-between items-end">
+      <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
         <div className="flex w-full gap-2">
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-1 md:flex-none">
             <label className="text-xs font-medium text-gray-600">Start Month</label>
             <input
               type="month"
@@ -305,7 +305,7 @@ export default function AdminLoans() {
               value={startMonth}
             />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-1 md:flex-none">
             <label className="text-xs font-medium text-gray-600">End Month</label>
             <input
               type="month"
@@ -314,11 +314,11 @@ export default function AdminLoans() {
               value={endMonth}
             />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-1 md:flex-none">
             <label className="text-xs font-medium text-gray-600">Loan Status</label>
             <div className="flex items-center gap-2">
               <Select value={loanSearchStatus.toString()} onValueChange={(value) => searchByStatus(Number(value))} required>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select loan status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -329,7 +329,7 @@ export default function AdminLoans() {
                   ))}
                 </SelectContent>
               </Select>
-              {loanSearchStatus && <XIcon className="w-4 h-4 text-gray-500 cursor-pointer" onClick={() => { searchByStatus(); setLoanSearchStatus("") }} />}
+              {loanSearchStatus && <XIcon className="w-4 h-4 text-gray-500 cursor-pointer flex-shrink-0" onClick={() => { searchByStatus(); setLoanSearchStatus("") }} />}
             </div>
           </div>
         </div>
@@ -340,6 +340,7 @@ export default function AdminLoans() {
             resetForm();
             setOpen(true);
           }}
+          className="w-full md:w-auto"
         >
           <Plus /> Add loan
         </Button>
@@ -366,8 +367,8 @@ export default function AdminLoans() {
               </div>
             )}
             <form onSubmit={handleAdd} className="bg-white flex flex-wrap gap-3 items-end">
-              <div className="flex gap-2 border border-gray-200 rounded-lg px-2 w-full">
-                <div className="flex flex-col py-3 w-1/2">
+              <div className="flex flex-col sm:flex-row gap-2 border border-gray-200 rounded-lg px-2 w-full">
+                <div className="flex flex-col py-3 w-full sm:w-1/2">
                   <label className="text-xs font-medium text-gray-600 mb-1">Priest</label>
                   <Select value={priestId} onValueChange={setPriestId} required>
                     <SelectTrigger className="w-full">
@@ -383,7 +384,7 @@ export default function AdminLoans() {
                   </Select>
                 </div>
 
-                <div className="flex flex-col py-3 w-1/2">
+                <div className="flex flex-col py-3 w-full sm:w-1/2">
                   <label className="text-xs font-medium text-gray-600 mb-1">Month</label>
                   <input
                     type="month"
@@ -472,38 +473,44 @@ export default function AdminLoans() {
           </DialogContent>
         </Dialog>
 
-        <div className="flex gap-2">
-          <div className="w-2/3 bg-white border border-gray-200 rounded-lg">
+        <div className="flex flex-col lg:flex-row gap-2">
+          <div className="block md:hidden w-full h-fit bg-white border border-gray-200 rounded-lg">
+            <div className="py-2 px-3 border rounded-lg border-indigo-100 bg-indigo-100 text-indigo-600 flex justify-between items-center">
+              <h2 className="font-normal ">Loan Summary </h2>
+              <span className="font-semibold">€ {loanSummary?.total_payout ?? "N/A"}</span>
+            </div>
+          </div>
+          <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-3 py-2 text-left">Priest</th>
-                  <th className="px-3 py-2 text-left">Month</th>
-                  <th className="px-3 py-2 text-left">Status</th>
-                  <th className="px-3 py-2 text-right">Loan Amount</th>
-                  <th className="px-3 py-2 text-right">Interest Rate</th>
-                  <th className="px-3 py-2 text-right">Repayment</th>
-                  <th className="px-3 py-2 text-right">Actions</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Priest</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Month</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Status</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">Loan Amount</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">Interest Rate</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">Repayment</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {loans.map((s) => (
                   <tr key={s.id} className="border-t border-gray-100">
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 whitespace-nowrap">
                       {s.profiles?.full_name || s.profiles?.email || s.priest_id}
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 whitespace-nowrap">
                       {new Date(s.month).toLocaleDateString(undefined, {
                         month: "short",
                         year: "numeric",
                       })}
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 whitespace-nowrap">
                       {getLoanBadge(s.status)}
                     </td>
-                    <td className="px-3 py-2 text-right">€ {s.loan_amount}</td>
-                    <td className="px-3 py-2 text-right">{s.interest_rate}%</td>
-                    <td className="px-3 py-2 text-right">€ {s.repayment_amount}</td>
+                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {s.loan_amount}</td>
+                    <td className="px-3 py-2 text-right whitespace-nowrap">{s.interest_rate}%</td>
+                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {s.repayment_amount}</td>
                     <td className="px-3 py-2 flex gap-2 justify-end">
                       <Button size="sm" variant="ghost" onClick={() => handleEdit(s.id)}>
                         Edit
@@ -521,7 +528,7 @@ export default function AdminLoans() {
               </tbody>
             </table>
           </div>
-          <div className="w-1/3 h-fit bg-white border border-gray-200 rounded-lg">
+          <div className="hidden md:block w-1/3 h-fit bg-white border border-gray-200 rounded-lg">
             <div className="p-2 border-b border-gray-200">
               <h2 className="font-semibold">Loan Summary</h2>
             </div>

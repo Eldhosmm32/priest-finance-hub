@@ -1,0 +1,74 @@
+{
+  "common": {
+    "appName": "Priester-Finanzen",
+    "logout": "Abmelden",
+    "language": {
+      "en": "Englisch",
+      "de": "Deutsch"
+    },
+    "redirecting": "Weiterleitung…"
+  },
+  "login": {
+    "title": "Anmelden",
+    "subtitle": "Verwenden Sie die vom Sekretär bereitgestellte E-Mail-Adresse und das Passwort.",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "button": "Anmelden",
+    "forgot": "Passwort vergessen?",
+    "signupLink": "Noch kein Konto? Registrieren"
+  },
+  "dashboard": {
+    "adminTitle": "Admin-Dashboard",
+    "priestTitle": "Ihr Dashboard",
+    "recentSalary": "Letztes Gehalt",
+    "insurance": "Versicherungen",
+    "loans": "Darlehen",
+    "noSalary": "Keine Gehaltsdaten.",
+    "noInsurance": "Keine Versicherungsdaten.",
+    "noLoans": "Keine Darlehen."
+  },
+  "layout": {
+    "myAccount": "Mein Konto",
+    "profile": "Profil",
+    "role": {
+      "admin": "Admin-Benutzer",
+      "priest": "Priester"
+    },
+    "footer": "© {{year}} Gemeinde – Priester-Finanzen-Portal"
+  },
+  "signup": {
+    "title": "Priester-Registrierung",
+    "subtitle": "Erstellen Sie Ihr Konto. Das Sekretariat kann Ihre Zugriffsrechte prüfen.",
+    "fullName": "Vollständiger Name",
+    "phoneOptional": "Telefon (optional)",
+    "password": "Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "button": "Registrieren",
+    "creating": "Konto wird erstellt…",
+    "already": "Bereits ein Konto? Anmelden",
+    "createdMessage": "Konto erstellt. Bitte prüfen Sie Ihre E-Mails, um Ihre Adresse zu verifizieren (falls erforderlich), und melden Sie sich anschließend an."
+  },
+  "forgot": {
+    "title": "Passwort zurücksetzen",
+    "note": "Wenn ein Konto existiert, wurde eine E-Mail zum Zurücksetzen gesendet.",
+    "button": "Zurücksetzungslink senden",
+    "sending": "Wird gesendet…",
+    "email": "E-Mail"
+  },
+  "errors": {
+    "passwordsMismatch": "Passwörter stimmen nicht überein",
+    "unableToLoadUser": "Benutzer nach der Anmeldung konnte nicht geladen werden",
+    "profileNotFound": "Profil für diesen Benutzer nicht gefunden"
+  },
+  "sidebar": {
+    "title": "Admin",
+    "dashboard": "Dashboard",
+    "priests": "Priester",
+    "salary": "Gehalt",
+    "insurance": "Versicherung",
+    "loans": "Darlehen",
+    "announcements": "Ankündigungen",
+    "houserent": "Miete",
+    "intertransfer": "Internationale Überweisung"
+  }
+}

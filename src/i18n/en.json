@@ -1,0 +1,74 @@
+{
+  "common": {
+    "appName": "Priest Finance",
+    "logout": "Logout",
+    "language": {
+      "en": "English",
+      "de": "German"
+    },
+    "redirecting": "Redirecting…"
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Use the email and password provided by the secretary.",
+    "email": "Email",
+    "password": "Password",
+    "button": "Sign in",
+    "forgot": "Forgot password?",
+    "signupLink": "Don't have an account? Sign up"
+  },
+  "dashboard": {
+    "adminTitle": "Admin Dashboard",
+    "priestTitle": "Your Dashboard",
+    "recentSalary": "Recent salary",
+    "insurance": "Insurance",
+    "loans": "Loans",
+    "noSalary": "No salary records.",
+    "noInsurance": "No insurance records.",
+    "noLoans": "No loans."
+  },
+  "layout": {
+    "myAccount": "My Account",
+    "profile": "Profile",
+    "role": {
+      "admin": "Admin User",
+      "priest": "Priest"
+    },
+    "footer": "© {{year}} Congregation – Priest Finance Portal"
+  },
+  "signup": {
+    "title": "Priest signup",
+    "subtitle": "Create your account. The secretary may review your access.",
+    "fullName": "Full name",
+    "phoneOptional": "Phone (optional)",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "button": "Sign up",
+    "creating": "Creating account…",
+    "already": "Already have an account? Login",
+    "createdMessage": "Account created. Please check your email to verify your address (if required), then log in."
+  },
+  "forgot": {
+    "title": "Reset password",
+    "note": "If an account exists, a reset email has been sent.",
+    "button": "Send reset link",
+    "sending": "Sending…",
+    "email": "Email"
+  },
+  "errors": {
+    "passwordsMismatch": "Passwords do not match",
+    "unableToLoadUser": "Unable to load user after login",
+    "profileNotFound": "Profile not found for this user"
+  },
+  "sidebar": {
+    "title": "Admin",
+    "dashboard": "Dashboard",
+    "priests": "Priests",
+    "salary": "Salary",
+    "insurance": "Insurance",
+    "loans": "Loans",
+    "announcements": "Announcements",
+    "houserent": "House Rent",
+    "intertransfer": "International Transfer"
+  }
+}

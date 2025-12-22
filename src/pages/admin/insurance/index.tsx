@@ -283,36 +283,38 @@ export default function AdminInsurance() {
   }
 
   return (
-    <div className="flex-1 space-y-4">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-2">
+    <div className="flex-1 space-y-2">
+      <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">
         Insurance Management
       </h1>
 
-      <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex justify-between items-end">
-        <div className="flex w-full gap-2">
-          <div className="flex flex-col">
-            <label className="text-xs font-medium text-gray-600">Start Month</label>
-            <input
-              type="month"
-              className="input"
-              onChange={(e) => setStartMonth(e.target.value)}
-              value={startMonth}
-            />
+      <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
+        <div className="flex w-full gap-2 flex-col md:flex-col lg:flex-row">
+          <div className="flex gap-2">
+            <div className="flex flex-col flex-1 md:flex-none">
+              <label className="text-xs font-medium text-gray-600">Start Month</label>
+              <input
+                type="month"
+                className="input"
+                onChange={(e) => setStartMonth(e.target.value)}
+                value={startMonth}
+              />
+            </div>
+            <div className="flex flex-col flex-1 md:flex-none">
+              <label className="text-xs font-medium text-gray-600">End Month</label>
+              <input
+                type="month"
+                className="input"
+                onChange={(e) => setEndMonth(e.target.value)}
+                value={endMonth}
+              />
+            </div>
           </div>
-          <div className="flex flex-col">
-            <label className="text-xs font-medium text-gray-600">End Month</label>
-            <input
-              type="month"
-              className="input"
-              onChange={(e) => setEndMonth(e.target.value)}
-              value={endMonth}
-            />
-          </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-1 md:flex-none">
             <label className="text-xs font-medium text-gray-600">Insurance Type</label>
             <div className="flex items-center gap-2">
               <Select value={insuranceSearchType.toString()} onValueChange={(value) => searchByType(Number(value))} required>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select insurance type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -323,7 +325,7 @@ export default function AdminInsurance() {
                   ))}
                 </SelectContent>
               </Select>
-              {insuranceSearchType && <XIcon className="w-4 h-4 text-gray-500 cursor-pointer" onClick={() => { searchByType(); setInsuranceSearchType("") }} />}
+              {insuranceSearchType && <XIcon className="w-4 h-4 text-gray-500 cursor-pointer flex-shrink-0" onClick={() => { searchByType(); setInsuranceSearchType("") }} />}
             </div>
           </div>
         </div>
@@ -334,14 +336,13 @@ export default function AdminInsurance() {
             resetForm();
             setOpen(true);
           }}
+          className="w-full md:w-auto"
         >
           <Plus /> Add insurance
         </Button>
       </div>
 
-
-
-      <div className=" overflow-auto">
+      <div className="overflow-auto">
         <Dialog
           open={open}
           onOpenChange={(isOpen) => {
@@ -362,9 +363,9 @@ export default function AdminInsurance() {
               </div>
             )}
             <form onSubmit={handleAdd} className="bg-white flex flex-wrap gap-3 items-end">
-              <div className="flex gap-2 border border-gray-200 rounded-lg px-2 w-full">
+              <div className="flex flex-col sm:flex-row gap-2 border border-gray-200 rounded-lg px-2 w-full">
 
-                <div className="flex flex-col py-3 w-1/2">
+                <div className="flex flex-col py-3 w-full sm:w-1/2">
                   <label className="text-xs font-medium text-gray-600 mb-1">Priest</label>
                   <Select value={priestId} onValueChange={setPriestId} required>
                     <SelectTrigger className="w-full">
@@ -380,7 +381,7 @@ export default function AdminInsurance() {
                   </Select>
                 </div>
 
-                <div className="flex flex-col py-3 w-1/2">
+                <div className="flex flex-col py-3 w-full sm:w-1/2">
                   <label className="text-xs font-medium text-gray-600 mb-1">Month</label>
                   <input
                     type="month"
@@ -459,34 +460,40 @@ export default function AdminInsurance() {
           </DialogContent>
         </Dialog>
 
-        <div className="flex gap-2">
-          <div className="w-2/3 bg-white border border-gray-200 rounded-lg">
+        <div className="flex flex-col lg:flex-row gap-2">
+          <div className="block md:hidden w-full h-fit bg-white border border-gray-200 rounded-lg">
+            <div className="py-2 px-3 border rounded-lg border-indigo-100 bg-indigo-100 text-indigo-600 flex justify-between items-center">
+              <h2 className="font-normal ">Insurance Summary </h2>
+              <span className="font-semibold">€ {insuranceSummary?.total_payout ?? "N/A"}</span>
+            </div>
+          </div>
+          <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-3 py-2 text-left">Priest</th>
-                  <th className="px-3 py-2 text-left">Month</th>
-                  <th className="px-3 py-2 text-left">Type</th>
-                  <th className="px-3 py-2 text-right">Amount</th>
-                  <th className="px-3 py-2 text-right">Actions</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Priest</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Month</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Type</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">Amount</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {insurance.map((s) => (
                   <tr key={s.id} className="border-t border-gray-100">
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 whitespace-nowrap">
                       {s.profiles?.full_name || s.profiles?.email || s.priest_id}
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 whitespace-nowrap">
                       {new Date(s.month).toLocaleDateString(undefined, {
                         month: "short",
                         year: "numeric",
                       })}
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 whitespace-nowrap">
                       {getInsuranceBadge(s.type)}
                     </td>
-                    <td className="px-3 py-2 text-right">€ {s.amount}</td>
+                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {s.amount}</td>
                     <td className="px-3 py-2 flex gap-2 justify-end">
                       <Button size="sm" variant="ghost" onClick={() => handleEdit(s.id)}>
                         Edit
@@ -496,7 +503,7 @@ export default function AdminInsurance() {
                 ))}
                 {!insurance.length && (
                   <tr>
-                    <td colSpan={4} className="px-3 py-6 text-center text-gray-500">
+                    <td colSpan={5} className="px-3 py-6 text-center text-gray-500">
                       No insurance entries yet.
                     </td>
                   </tr>
@@ -504,7 +511,7 @@ export default function AdminInsurance() {
               </tbody>
             </table>
           </div>
-          <div className="w-1/3 h-fit bg-white border border-gray-200 rounded-lg">
+          <div className="hidden md:block w-1/3 h-fit bg-white border border-gray-200 rounded-lg">
             <div className="p-2 border-b border-gray-200">
               <h2 className="font-semibold">Insurance Summary</h2>
             </div>

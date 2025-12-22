@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useUser } from "@/hooks/useUser";
 import { supabase } from "@/lib/supabaseClient";
@@ -82,7 +83,7 @@ export default function AdminPriests() {
 
 
   const openPriestDetail = (priest: PriestRow) => {
-    router.push(`/admin/priest/${priest.id}`);
+    router.push(`/admin/priests/${priest.id}`);
   };
 
   if (loading || loadingData) {
@@ -94,15 +95,27 @@ export default function AdminPriests() {
   }
 
   return (
-    <div className="flex-1 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-800">Priests</h1>
-        <input
-          className="input max-w-xs"
-          placeholder="Search by name or email"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+    <div className="flex-1 space-y-2">
+      <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">Priests</h1>
+
+      <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
+
+
+        <div className="flex flex-col flex-1 md:flex-none">
+          <label className="text-xs font-medium text-gray-600">Search by name or email</label>
+          <input
+            className="input w-full md:max-w-xs"
+            placeholder="Search by name or email"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <Badge
+          className="text-xs font-medium text-white bg-green-500 w-fit"
+        >
+          {filteredPriests.length} priests
+        </Badge>
       </div>
 
       <div className="overflow-auto bg-white border border-gray-200 rounded-lg">
@@ -118,9 +131,7 @@ export default function AdminPriests() {
             {filteredPriests.map((p) => (
               <tr key={p.id} className="border-t border-gray-100 cursor-pointer hover:bg-gray-100" onClick={() => openPriestDetail(p)}>
                 <td className="px-3 py-2 cursor-pointer">
-                  {p.full_name || (
-                    <span className="text-gray-400">(no name)</span>
-                  )}
+                  <p> {p.full_name}</p>
                 </td>
                 <td className="px-3 py-2">{p.email}</td>
                 <td className="px-3 py-2 text-center" onClick={(e) => e.stopPropagation()}>

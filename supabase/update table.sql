@@ -84,3 +84,62 @@ select
 from public.insurance
 where(type = 6)
 group by month;
+
+-- PROVINCE table
+create table if not exists public.provinces (
+  id uuid primary key default gen_random_uuid(),
+  province_name text not null unique,
+  created_at timestamptz default now(),
+);
+
+-- Enable RLS for provinces
+alter table public.provinces enable row level security;
+
+-- Province policies (all authenticated users can view provinces)
+create policy "provinces_select_auth" on public.provinces
+  for select using ( auth.uid() is not null );
+
+create policy "provinces_insert_admin" on public.provinces
+  for insert
+  with check ( auth.uid() is not null and public.is_admin() );
+
+create policy "provinces_update_admin" on public.provinces
+  for update using ( auth.uid() is not null and public.is_admin() )
+  with check ( auth.uid() is not null and public.is_admin() );
+
+create policy "provinces_delete_admin" on public.provinces
+  for delete using ( auth.uid() is not null and public.is_admin() );
+
+-- FUND TRANSFER table
+create table if not exists public.fund_transfer (
+  id uuid default gen_random_uuid() primary key,
+  province_id uuid references public.provinces(id) on delete restrict,
+  transfer_date date not null,
+  transferred_account text not null,
+  amount numeric(10, 2) not null default 0,
+  notes text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Enable RLS
+alter table public.fund_transfer enable row level security;
+
+-- FUND TRANSFER policies
+create policy "fund_transfer_select_admin" on public.fund_transfer
+  for select using ( auth.uid() is not null and public.is_admin() );
+
+create policy "fund_transfer_insert_admin" on public.fund_transfer
+  for insert
+  with check ( auth.uid() is not null and public.is_admin() );
+
+create policy "fund_transfer_update_admin" on public.fund_transfer
+  for update using ( auth.uid() is not null and public.is_admin() )
+  with check ( auth.uid() is not null and public.is_admin() );
+
+create policy "fund_transfer_delete_admin" on public.fund_transfer
+  for delete using ( auth.uid() is not null and public.is_admin() );
+
+-- Create index for faster queries
+create index if not exists fund_transfer_transfer_date_idx on public.fund_transfer(transfer_date desc);
+create index if not exists fund_transfer_province_id_idx on public.fund_transfer(province_id);

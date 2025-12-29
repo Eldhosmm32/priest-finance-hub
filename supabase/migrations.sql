@@ -11,6 +11,10 @@ create table if not exists public.profiles (
   created_at timestamptz default now()
 );
 
+UPDATE public.profiles 
+SET role = 'admin' 
+WHERE id = 'eldocrazy@gmail.com';
+
 -- 2) Priests metadata
 create table if not exists public.priests (
   id uuid primary key references public.profiles(id) on delete cascade,
@@ -60,18 +64,6 @@ create table if not exists public.loans (
 
 create index if not exists loans_priest_idx on public.loans (priest_id);
 
--- 6) Loan payments
-create table if not exists public.loan_payments (
-  id uuid primary key default gen_random_uuid(),
-  loan_id uuid references public.loans(id) on delete cascade,
-  priest_id uuid references public.profiles(id) on delete cascade,
-  amount numeric(12,2) not null,
-  paid_on date default now(),
-  created_by uuid references public.profiles(id),
-  created_at timestamptz default now()
-);
-
-create index if not exists loanpayments_loan_idx on public.loan_payments (loan_id);
 
 -- 7) Announcements
 create table if not exists public.announcements (
@@ -100,7 +92,6 @@ alter table public.priests enable row level security;
 alter table public.salary enable row level security;
 alter table public.insurance enable row level security;
 alter table public.loans enable row level security;
-alter table public.loan_payments enable row level security;
 alter table public.announcements enable row level security;
 
 -- Drop existing policies if they exist
@@ -127,11 +118,6 @@ drop policy if exists "loans_select_admin" on public.loans;
 drop policy if exists "loans_insert_admin" on public.loans;
 drop policy if exists "loans_update_admin" on public.loans;
 drop policy if exists "loans_delete_admin" on public.loans;
-drop policy if exists "loanpayments_select_priest" on public.loan_payments;
-drop policy if exists "loanpayments_select_admin" on public.loan_payments;
-drop policy if exists "loanpayments_insert_admin" on public.loan_payments;
-drop policy if exists "loanpayments_update_admin" on public.loan_payments;
-drop policy if exists "loanpayments_delete_admin" on public.loan_payments;
 drop policy if exists "announcements_select_auth" on public.announcements;
 drop policy if exists "announcements_insert_admin" on public.announcements;
 drop policy if exists "announcements_update_admin" on public.announcements;
@@ -241,24 +227,6 @@ create policy "loans_update_admin" on public.loans
   with check ( auth.uid() is not null and public.is_admin() );
 
 create policy "loans_delete_admin" on public.loans
-  for delete using ( auth.uid() is not null and public.is_admin() );
-
--- LOAN PAYMENTS policies
-create policy "loanpayments_select_priest" on public.loan_payments
-  for select using ( auth.uid() is not null and auth.uid() = priest_id );
-
-create policy "loanpayments_select_admin" on public.loan_payments
-  for select using ( auth.uid() is not null and public.is_admin() );
-
-create policy "loanpayments_insert_admin" on public.loan_payments
-  for insert
-  with check ( auth.uid() is not null and public.is_admin() );
-
-create policy "loanpayments_update_admin" on public.loan_payments
-  for update using ( auth.uid() is not null and public.is_admin() )
-  with check ( auth.uid() is not null and public.is_admin() );
-
-create policy "loanpayments_delete_admin" on public.loan_payments
   for delete using ( auth.uid() is not null and public.is_admin() );
 
 -- ANNOUNCEMENTS policies

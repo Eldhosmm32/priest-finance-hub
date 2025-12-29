@@ -7,9 +7,11 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useUser } from "../../hooks/useUser";
 import { supabase } from "../../lib/supabaseClient";
+import { useUserDetails } from "../../components/PriestLayout";
 
 export default function PriestDashboard() {
   const { user, loading } = useUser();
+  const { userDetails, loading: loadingDetails } = useUserDetails();
   const router = useRouter();
 
   const [salary, setSalary] = useState<any[]>([]);
@@ -30,12 +32,13 @@ export default function PriestDashboard() {
         { data: salaryRows },
         { data: insuranceRows },
         { data: loanRows },
-        { data: announcementRows },
+        { data: announcementRows }
       ] = await Promise.all([
         supabase
           .from("salary")
           .select("*")
           .eq("priest_id", user.id)
+          .eq("month", new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-01')
           .order("month", { ascending: false }),
         supabase.from("insurance").select("*").eq("priest_id", user.id),
         supabase.from("loans").select("*").eq("priest_id", user.id),
@@ -62,9 +65,9 @@ export default function PriestDashboard() {
     };
 
     load();
-  }, [user, loading, router]);
+  }, [user, loading]);
 
-  if (loading || !user || dataLoading) {
+  if (loading || loadingDetails || !user || dataLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
         Loading…
@@ -194,28 +197,33 @@ export default function PriestDashboard() {
               <div className="flex flex-col items-start gap-2 w-full">
                 <div className="flex justify-center w-full pt-4 pb-2 relative">
                   <Avatar className="h-32 w-32">
-                    <AvatarImage src="/priest.svg" />
+                    <AvatarImage src={userDetails?.photo ?? "/priest.svg"} />
                     {/* <AvatarFallback className="text-2xl">EM</AvatarFallback> */}
                   </Avatar>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold">Eldho Mathai</h3>
+                  <h3 className="text-lg font-semibold">{userDetails?.full_name ?? user.full_name}</h3>
                 </div>
-
-                <p className="text-sm text-muted-foreground flex items-center gap-1">
-                  <MapPin className="h-4 w-4" /> Kochi, Kerala
-                </p>
 
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  eldhose@example.com
+                  <span className="text-sm w-[80%]"> {userDetails?.email ?? user.email}</span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  +91 9876543210
-                </div>
+                {userDetails?.phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm  w-[80%]"> {userDetails.phone}</span>
+                  </div>
+                )}
+
+                {userDetails?.address && (
+                  <div className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
+                    <span className="text-sm text-muted-foreground w-[80%]"> {userDetails.address}</span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

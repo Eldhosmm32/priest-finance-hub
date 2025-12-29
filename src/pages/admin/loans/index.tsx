@@ -34,6 +34,7 @@ const INITIAL_FORM_STATE = {
   principal: "",
   emi: "",
   loan_notes: "",
+  closed_on: "",
 };
 
 // Toast utilities
@@ -113,6 +114,13 @@ export default function AdminLoans() {
     setError(null);
   };
 
+  const getClosedOn = (principal: number, emi: number) => {
+    const emis = Math.ceil(principal / emi);
+    const lastEMIDate = new Date(issuedOn);
+    lastEMIDate.setMonth(lastEMIDate.getMonth() + emis);
+    return lastEMIDate.toISOString();
+  };
+
   const handleAdd = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault();
     setError(null);
@@ -128,6 +136,7 @@ export default function AdminLoans() {
       principal: parseFloat(loanForm.principal) || 0,
       emi: parseFloat(loanForm.emi) || 0,
       issued_on: issuedOn,
+      closed_on: getClosedOn(parseFloat(loanForm.principal), parseFloat(loanForm.emi)),
     };
 
     // Add optional fields
@@ -641,7 +650,7 @@ export default function AdminLoans() {
                     <td className="px-3 py-2 text-right whitespace-nowrap">€ {loan.principal.toFixed(2)}</td>
                     <td className="px-3 py-2 text-right whitespace-nowrap">€ {loan.emi.toFixed(2)}</td>
                     <td className="px-3 py-2 whitespace-nowrap">
-                      {new Date(loan.issued_on).toLocaleDateString(undefined,{
+                      {new Date(loan.issued_on).toLocaleDateString(undefined, {
                         day: "2-digit",
                         month: "short",
                         year: "numeric",

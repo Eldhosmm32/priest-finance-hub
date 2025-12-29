@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabaseClient";
 
 type StatusCards = {
   totalSalaryThisMonth: string;
+  totalRent: string;
   totalInsurance: string;
   totalLoans: string;
   activeLoans: number;
@@ -17,7 +18,10 @@ export default function AdminDashboard() {
   const [role, setRole] = useState<string | null>(null);
 
   const fetchSummary = useCallback(async () => {
-    const [salarySummary, insuranceSummary, loansSummary] = await Promise.all([
+    const [rentSummary,salarySummary, insuranceSummary, loansSummary] = await Promise.all([
+      supabase
+        .from("admin_house_rent_summary")
+        .select("*"),
       supabase
         .from("admin_salary_summary")
         .select("*"),
@@ -25,15 +29,17 @@ export default function AdminDashboard() {
         .from("admin_insurance_summary")
         .select("*"),
       supabase
-        .from("admin_loans_summary")
-        .select("*"),
+        .from("loans")
+        .select("*")
+        .gt("closed_on", new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + (new Date().getDate()))
     ]);
     setStatusCards((prev) => ({
       ...prev,
+      totalRent: (rentSummary?.data ? rentSummary?.data?.reduce((acc: any, curr: any) => acc + curr.total_payout, 0) : 0).toString(),
       totalSalaryThisMonth: (salarySummary?.data ? salarySummary?.data?.reduce((acc: any, curr: any) => acc + curr.total_payout, 0) : 0).toString(),
       totalInsurance: (insuranceSummary?.data ? insuranceSummary?.data?.reduce((acc: any, curr: any) => acc + curr.total_payout, 0) : 0).toString(),
       totalLoans: (loansSummary?.data ? loansSummary?.data?.reduce((acc: any, curr: any) => acc + curr.total_payout, 0) : 0).toString(),
-      activeLoans: loansSummary?.data ? loansSummary?.data?.reduce((acc: any, curr: any) => acc + curr.active_loans, 0) : 0,
+      activeLoans: loansSummary?.data ? loansSummary?.data?.length : 0,
     }));
   }, []);
 
@@ -75,7 +81,7 @@ export default function AdminDashboard() {
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <p className="text-xs text-gray-500">Total Rent Paid</p>
-          <p className="text-xl font-semibold mt-1">€ {statusCards?.totalLoans}</p>
+          <p className="text-xl font-semibold mt-1">€ {statusCards?.totalRent}</p>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <p className="text-xs text-gray-500">Total Insurance Paid</p>

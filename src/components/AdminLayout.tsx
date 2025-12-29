@@ -112,7 +112,7 @@ export default function AdminLayout({ children }: Props) {
         </div>
 
         {/* Main content / router outlet */}
-        <div className="flex-1 overflow-x-scroll">{children}</div>
+        <div className="flex-1 overflow-x-auto">{children}</div>
 
         {/* Mobile sidebar overlay */}
         {open && (

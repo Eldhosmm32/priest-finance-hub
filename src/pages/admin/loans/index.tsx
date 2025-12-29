@@ -1,23 +1,24 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, XIcon } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useUser } from "../../../hooks/useUser";
 import { supabase } from "../../../lib/supabaseClient";
-import { Badge } from "@/components/ui/badge";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 type LoanRow = {
   id: string;
   priest_id: string;
-  loan_amount: number;
-  interest_rate: number;
-  repayment_amount: number;
-  loan_notes: string;
-  month: string;
-  status: number;
+  principal: number;
+  emi: number;
+  issued_on: string;
+  created_at: string;
+  loan_notes?: string;
   profiles?: { full_name: string | null; email: string | null };
 };
 
@@ -27,18 +28,11 @@ type PriestOption = {
   email: string | null;
 };
 
-type LoanSummary = {
-  total_payout: number;
-  priests_recorded: number;
-  month: string | null;
-};
-
 // Constants
-const LOAN_QUERY = "id, priest_id, loan_amount, interest_rate, repayment_amount, status, month, profiles!loans_priest_id_fkey(full_name, email)";
+const LOAN_QUERY = "id, priest_id, principal, emi, issued_on, created_at, loan_notes, profiles!loans_priest_id_fkey(full_name, email)";
 const INITIAL_FORM_STATE = {
-  loan_amount: "",
-  interest_rate: "",
-  repayment_amount: "",
+  principal: "",
+  emi: "",
   loan_notes: "",
 };
 
@@ -56,86 +50,34 @@ const showToast = (message: string, type: "success" | "error") => {
 export default function AdminLoans() {
   const { user, loading } = useUser();
   const router = useRouter();
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth() + 1;
   const [loans, setLoans] = useState<LoanRow[]>([]);
-  const [loanStatus, setLoanStatus] = useState<any>("");
-  const [loanSearchStatus, setLoanSearchStatus] = useState<any>("");
   const [priests, setPriests] = useState<PriestOption[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [priestId, setPriestId] = useState("");
-  const [startMonth, setStartMonth] = useState(`${currentYear}-${currentMonth}`);
-  const [endMonth, setEndMonth] = useState(`${currentYear}-${currentMonth}`);
-  const [dialogeMonth, setDialogeMonth] = useState("");
+  const [issuedOn, setIssuedOn] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [openView, setOpenView] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [loanSummary, setLoanSummary] = useState<LoanSummary>({
-    total_payout: 0,
-    priests_recorded: 0,
-    month: null,
-  });
+  const [selectedLoan, setSelectedLoan] = useState<LoanRow | null>(null);
   const [loanForm, setLoanForm] = useState<Record<string, string>>(INITIAL_FORM_STATE);
-  const loanStatusOptions = [
-    {
-      id: 1,
-      name: "Active",
-    },
-    {
-      id: 2,
-      name: "Repaying",
-    },
-    {
-      id: 3,
-      name: "Paid",
-    },
-    {
-      id: 4,
-      name: "Defaulted",
-    },
-  ];
-
+  const [search, setSearch] = useState("");
+  const isDesktop = useMediaQuery("(min-width: 768px)")
   // Update individual field value
   const updateField = (fieldName: string, value: string) => {
     setLoanForm((prev) => ({ ...prev, [fieldName]: value }));
   };
 
-  // Load loans and summary data
+  // Load loans data
   const loadLoanData = useCallback(async () => {
-    let query = supabase
+    const { data: loanResult } = await supabase
       .from("loans")
       .select(LOAN_QUERY)
-      .gte("month", startMonth + '-01')
-      .lte("month", endMonth + '-01')
-      .order("month", { ascending: false })
+      .order("issued_on", { ascending: false })
       .limit(100);
-    if (loanSearchStatus) {
-      query = query.eq("status", loanSearchStatus.toString());
-    }
-    const [loanResult, summaryResult] = await Promise.all([
-      query,
-      supabase
-        .from(`admin_loans_summary${loanSearchStatus ? '_' + loanSearchStatus : ''}`)
-        .select("*")
-        .gte("month", startMonth + '-01')
-        .lte("month", endMonth + '-01'),
-    ]);
 
-    setLoans((loanResult.data ?? []) as unknown as LoanRow[]);
-
-    // Aggregate summary data from multiple months
-    const summaryData = summaryResult.data ?? [];
-    const aggregatedSummary = summaryData.reduce(
-      (acc, curr: any) => ({
-        total_payout: acc.total_payout + (curr.total_payout || 0),
-        priests_recorded: Math.max(acc.priests_recorded, curr.priests_recorded || 0),
-        month: null, // Not applicable for range
-      }),
-      { total_payout: 0, priests_recorded: 0, month: null }
-    );
-
-    setLoanSummary(aggregatedSummary);
-  }, [startMonth, endMonth, loanSearchStatus]);
+    setLoans((loanResult ?? []) as unknown as LoanRow[]);
+  }, []);
 
   useEffect(() => {
     if (loading) return;
@@ -157,18 +99,16 @@ export default function AdminLoans() {
     loadPriests();
   }, [user, loading, router]);
 
-  // Reload data when month range changes
+  // Reload data when component mounts
   useEffect(() => {
     if (!user || loading) return;
     loadLoanData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startMonth, endMonth, loanSearchStatus, user, loading]);
+  }, [user, loading, loadLoanData]);
 
   const resetForm = () => {
     setPriestId("");
-    setDialogeMonth(`${currentYear}-${currentMonth}`);
+    setIssuedOn("");
     setLoanForm(INITIAL_FORM_STATE);
-    setLoanStatus("");
     setEditingId(null);
     setError(null);
   };
@@ -177,47 +117,23 @@ export default function AdminLoans() {
     e?.preventDefault();
     setError(null);
 
-    if (!priestId || !dialogeMonth || !loanStatus) {
+    if (!priestId || !issuedOn) {
       showToast("Please enter all required fields", "error");
       return;
-    }
-
-    const monthDate = `${dialogeMonth}-01`;
-
-    // Check for duplicate entry (only for new entries, not edits)
-    if (!editingId) {
-      const { data: existingEntry } = await supabase
-        .from("loans")
-        .select("id")
-        .eq("priest_id", priestId)
-        .eq("month", monthDate)
-        .eq("status", loanStatus)
-        .maybeSingle();
-
-      if (existingEntry) {
-        setError("A loan entry already exists for this priest in the selected month.");
-        return;
-      }
     }
 
     // Prepare loan data
     const loanData: Record<string, any> = {
       priest_id: priestId,
-      loan_amount: parseFloat(loanForm.loan_amount) || 0,
-      interest_rate: parseFloat(loanForm.interest_rate) || 0,
-      repayment_amount: parseFloat(loanForm.repayment_amount) || 0,
-      month: monthDate,
-      status: loanStatus,
+      principal: parseFloat(loanForm.principal) || 0,
+      emi: parseFloat(loanForm.emi) || 0,
+      issued_on: issuedOn,
     };
 
-    // Add all form fields
-    Object.keys(INITIAL_FORM_STATE).forEach((key) => {
-      if (key === "loan_notes") {
-        loanData[key] = loanForm[key];
-      } else if (!loanData[key]) {
-        loanData[key] = parseFloat(loanForm[key]) || 0;
-      }
-    });
+    // Add optional fields
+    if (loanForm.loan_notes) {
+      loanData.loan_notes = loanForm.loan_notes;
+    }
 
     const query = editingId
       ? supabase.from("loans").update(loanData).eq("id", editingId)
@@ -242,43 +158,73 @@ export default function AdminLoans() {
       resetForm();
       setOpen(false);
     }
-  }, [loanStatus, priestId, dialogeMonth, editingId, loanForm, loadLoanData]);
+  }, [priestId, issuedOn, editingId, loanForm, loadLoanData]);
 
-  const handleEdit = async (id: string) => {
-    const { data: currentLoan } = await supabase.from("loans").select("*").eq("id", id).maybeSingle();
-    if (currentLoan) {
-      const formData: Record<string, string> = { ...INITIAL_FORM_STATE };
-      Object.keys(INITIAL_FORM_STATE).forEach((key) => {
-        formData[key] = currentLoan[key] != null ? String(currentLoan[key]) : "";
-      });
-      setLoanForm(formData);
-      setPriestId(currentLoan.priest_id);
-      setDialogeMonth(currentLoan.month ? currentLoan.month.substring(0, 7) : "");
-      setLoanStatus(currentLoan.status || "");
-      setEditingId(id);
-      setOpen(true);
-    }
+  const handleEdit = async (loan: LoanRow, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLoanForm({
+      principal: loan.principal.toString(),
+      emi: loan.emi.toString(),
+      loan_notes: loan.loan_notes || "",
+    });
+    setPriestId(loan.priest_id);
+    setEditingId(loan.id);
+    setOpen(true);
   };
 
-  const searchByStatus = (status?: number) => {
-    setLoanSearchStatus(status);
-    loadLoanData();
+  const handleView = (loan: LoanRow) => {
+    setSelectedLoan(loan);
+    setOpenView(true);
   };
 
-  const getLoanBadge = (status: number) => {
-    switch (status) {
-      case 1:
-        return <Badge className="text-xs bg-green-100 text-green-800">Active</Badge>;
-      case 2:
-        return <Badge className="text-xs bg-blue-100 text-blue-800">Repaying</Badge>;
-      case 3:
-        return <Badge className="text-xs bg-gray-100 text-gray-800">Paid</Badge>;
-      case 4:
-        return <Badge className="text-xs bg-red-100 text-red-800">Defaulted</Badge>;
-      default:
-        return <Badge className="text-xs bg-gray-100 text-gray-800">Unknown</Badge>;
-    }
+  // Calculate loan details for selected loan
+  const calculateLoanDetails = (loan: LoanRow) => {
+    const principalDisbursed = loan.principal;
+    const monthlyEMI = loan.emi;
+
+    // Calculate months since issued
+    const issuedDate = new Date(loan.issued_on);
+    const today = new Date();
+    const monthsPassed = Math.max(
+      0,
+      (today.getFullYear() - issuedDate.getFullYear()) * 12 +
+      (today.getMonth() - issuedDate.getMonth())
+    );
+
+
+
+    // Calculate total EMI paid (no interest, so EMI = principal payment)
+    const totalEMIPaid = monthlyEMI * monthsPassed;
+    const principalPaid = Math.min(totalEMIPaid, principalDisbursed);
+    const outstandingBalance = Math.max(0, principalDisbursed - principalPaid);
+
+    //estimate last emi date
+    const emis = Math.ceil(principalDisbursed / monthlyEMI);
+    const lastEMIDate = new Date(issuedDate);
+    lastEMIDate.setMonth(lastEMIDate.getMonth() + emis);
+    const numberOfMonths = principalDisbursed / monthlyEMI;
+    const firstEMIDate = new Date(issuedDate);
+    firstEMIDate.setMonth(firstEMIDate.getMonth() + 1);
+    return {
+      monthlyEMI,
+      principalDisbursed,
+      emiPaid: totalEMIPaid,
+      principalPaid,
+      outstandingBalance,
+      firstEMIDate,
+      lastEMIDate,
+      numberOfMonths
+    };
   };
+
+  const filteredLoans = loans.filter((l) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      (l.profiles?.full_name ?? "").toLowerCase().includes(q) ||
+      (l.profiles?.email ?? "").toLowerCase().includes(q)
+    );
+  });
 
   if (loading || loadingData) {
     return (
@@ -295,44 +241,18 @@ export default function AdminLoans() {
       </h1>
 
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
-        <div className="flex w-full gap-2">
-          <div className="flex flex-col flex-1 md:flex-none">
-            <label className="text-xs font-medium text-gray-600">Start Month</label>
-            <input
-              type="month"
-              className="input"
-              onChange={(e) => setStartMonth(e.target.value)}
-              value={startMonth}
-            />
-          </div>
-          <div className="flex flex-col flex-1 md:flex-none">
-            <label className="text-xs font-medium text-gray-600">End Month</label>
-            <input
-              type="month"
-              className="input"
-              onChange={(e) => setEndMonth(e.target.value)}
-              value={endMonth}
-            />
-          </div>
-          <div className="flex flex-col flex-1 md:flex-none">
-            <label className="text-xs font-medium text-gray-600">Loan Status</label>
-            <div className="flex items-center gap-2">
-              <Select value={loanSearchStatus.toString()} onValueChange={(value) => searchByStatus(Number(value))} required>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select loan status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {loanStatusOptions.map((p) => (
-                    <SelectItem key={p.id} value={p.id.toString()}>
-                      {p.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {loanSearchStatus && <XIcon className="w-4 h-4 text-gray-500 cursor-pointer flex-shrink-0" onClick={() => { searchByStatus(); setLoanSearchStatus("") }} />}
-            </div>
-          </div>
+        <div className="flex flex-col flex-1 md:flex-none">
+          <label className="text-xs font-medium text-gray-600">Search by name or email</label>
+          <input
+            className="input w-full md:max-w-xs"
+            placeholder="Search by name or email"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
+        <Badge className="text-xs font-medium text-white bg-green-500 w-fit">
+          {filteredLoans.length} loans
+        </Badge>
         <Button
           type="button"
           size="sm"
@@ -347,6 +267,7 @@ export default function AdminLoans() {
       </div>
 
       <div className="overflow-auto">
+
         <Dialog
           open={open}
           onOpenChange={(isOpen) => {
@@ -356,7 +277,7 @@ export default function AdminLoans() {
             }
           }}
         >
-          <DialogContent>
+          <DialogContent aria-describedby="add-loan">
             <DialogHeader>
               <DialogTitle>{editingId ? "Edit Loan" : "Add Loan"}</DialogTitle>
             </DialogHeader>
@@ -385,67 +306,38 @@ export default function AdminLoans() {
                 </div>
 
                 <div className="flex flex-col py-3 w-full sm:w-1/2">
-                  <label className="text-xs font-medium text-gray-600 mb-1">Month</label>
+                  <label className="text-xs font-medium text-gray-600 mb-1">Issued On</label>
                   <input
-                    type="month"
+                    type="date"
                     className="input"
-                    min="1997-01"
-                    max="2030-12"
-                    value={dialogeMonth}
-                    onChange={(e) => setDialogeMonth(e.target.value)}
+                    value={issuedOn}
+                    onChange={(e) => setIssuedOn(e.target.value)}
                     required
                   />
                 </div>
               </div>
 
               <div className="flex flex-col gap-2 border border-gray-200 rounded-lg w-full max-h-[400px] p-2 overflow-y-auto">
-                <div className="flex flex-col">
-                  <label className="text-xs font-medium text-gray-600 mb-1">Loan Status</label>
-                  <Select value={loanStatus.toString()} onValueChange={(value) => { setLoanStatus(Number(value)) }} required>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select loan status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {loanStatusOptions.map((p) => (
-                        <SelectItem key={p.id} value={p.id.toString()}>
-                          {p.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <label className="text-xs font-medium w-full">Loan Amount</label>
+                <label className="text-xs font-medium w-full">Principal Amount</label>
                 <input
                   type="number"
                   className="input"
-                  onChange={(e) => updateField("loan_amount", e.target.value)}
-                  value={loanForm.loan_amount}
+                  onChange={(e) => updateField("principal", e.target.value)}
+                  value={loanForm.principal}
                   required
                   step="0.01"
-                  placeholder="Loan amount"
+                  placeholder="Principal amount"
                 />
 
-                <label className="text-xs font-medium w-full">Interest Rate (%)</label>
+                <label className="text-xs font-medium w-full">EMI Amount</label>
                 <input
                   type="number"
                   className="input"
-                  onChange={(e) => updateField("interest_rate", e.target.value)}
-                  value={loanForm.interest_rate}
+                  onChange={(e) => updateField("emi", e.target.value)}
+                  value={loanForm.emi}
                   required
                   step="0.01"
-                  placeholder="Interest rate"
-                />
-
-                <label className="text-xs font-medium w-full">Repayment Amount</label>
-                <input
-                  type="number"
-                  className="input"
-                  onChange={(e) => updateField("repayment_amount", e.target.value)}
-                  value={loanForm.repayment_amount}
-                  required
-                  step="0.01"
-                  placeholder="Repayment amount"
+                  placeholder="EMI amount"
                 />
 
                 <label className="text-xs font-medium w-full">
@@ -473,54 +365,304 @@ export default function AdminLoans() {
           </DialogContent>
         </Dialog>
 
+        {isDesktop ?
+          <Dialog
+            open={openView}
+            onOpenChange={setOpenView}
+            aria-describedby="'loan-details'"
+          >
+
+            <DialogContent >
+              <DialogHeader className="hidden">
+                <DialogTitle></DialogTitle>
+              </DialogHeader>
+              {selectedLoan &&
+                <>
+                  <div className="pb-4 border-b border-gray-200">
+                    <h2 className="text-xl font-semibold text-gray-800">Loan Details</h2>
+                    <p className="text-sm text-gray-500 mt-1">Summary of your active loan</p>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {(() => {
+                      const details = calculateLoanDetails(selectedLoan);
+                      return (
+                        <>
+                          <div className="flex gap-2">
+                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2  w-full">
+                              <span className="text-xl">📅</span>
+                              <div className="flex flex-col gap-0 text-sm">
+                                <span className="text-gray-700">Issued On</span>
+                                <span className="font-semibold text-gray-800">
+                                  {new Date(selectedLoan.issued_on).toLocaleDateString(
+                                    undefined, {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2  w-full">
+                              <span className="text-xl">📅</span>
+                              <div className="flex flex-col gap-0 text-sm">
+                                <span className="text-gray-700">First EMI Date</span>
+                                <span className="font-semibold text-gray-800">
+                                  {new Date(details.firstEMIDate).toLocaleDateString(
+                                    undefined, {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2  w-full">
+                              <span className="text-xl">📅</span>
+                              <div className="flex flex-col gap-0 text-sm">
+                                <span className="text-gray-700">Last EMI Date</span>
+                                <span className="font-semibold text-gray-800">
+                                  {new Date(details.lastEMIDate).toLocaleDateString(
+                                    undefined, {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between border border-gray-200 rounded-lg p-2  w-full">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">💰</span>
+                              <span className="text-gray-700">Principal Disbursed</span>
+                            </div>
+                            <span className="font-semibold text-gray-800">
+                              € {details.principalDisbursed.toFixed(2)}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between border border-gray-200 rounded-lg p-2  w-full">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">💵</span>
+                              <span className="text-gray-700">EMI Paid Monthly</span>
+                            </div>
+                            <div className="flex flex-col gap-0">
+                              <span className="font-semibold text-gray-800">
+                                € {details.monthlyEMI}
+                              </span>
+                              <span className="text-xs">{details.numberOfMonths} months</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between border border-gray-200 rounded-lg p-2  w-full">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">📝</span>
+                              <span className="text-gray-700">Principal Paid</span>
+                            </div>
+                            <span className="font-semibold text-gray-800">
+                              € {details.principalPaid.toFixed(2)}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">⚠️</span>
+                              <span className="text-gray-700">Outstanding Balance</span>
+                            </div>
+                            <span className="font-semibold text-red-600">
+                              € {details.outstandingBalance.toFixed(2)}
+                            </span>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </>
+              }
+
+              <DialogFooter>
+                <div className="flex justify-end gap-2 items-center w-full">
+                  <Button size="sm" type="button" variant="outline" className="border-gray-300" onClick={() => setOpenView(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          :
+          <Drawer
+            open={openView}
+            onOpenChange={setOpenView}
+            aria-describedby="'loan-details'">
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>Loan Details</DrawerTitle>
+                <DrawerDescription>Summary of the loan</DrawerDescription>
+              </DrawerHeader>
+              {selectedLoan &&
+                <>
+                  <div className="flex flex-col gap-4 p-4 ">
+                    {(() => {
+                      const details = calculateLoanDetails(selectedLoan);
+                      return (
+                        <>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2 w-full">
+                              <span className="text-xl">📅</span>
+                              <div className="flex flex-col gap-0 text-sm">
+                                <span className="text-gray-700">Issued On</span>
+                                <span className="font-semibold text-gray-800">
+                                  {new Date(selectedLoan.issued_on).toLocaleDateString(
+                                    undefined, {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2 w-full">
+                              <span className="text-xl">📅</span>
+                              <div className="flex flex-col gap-0 text-sm">
+                                <span className="text-gray-700">First EMI Date</span>
+                                <span className="font-semibold text-gray-800">
+                                  {new Date(details.firstEMIDate).toLocaleDateString(
+                                    undefined, {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2 w-full">
+                              <span className="text-xl">📅</span>
+                              <div className="flex flex-col gap-0 text-sm">
+                                <span className="text-gray-700">Last EMI Date</span>
+                                <span className="font-semibold text-gray-800">
+                                  {new Date(details.lastEMIDate).toLocaleDateString(
+                                    undefined, {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">💰</span>
+                              <span className="text-gray-700">Principal Disbursed</span>
+                            </div>
+                            <span className="font-semibold text-gray-800">
+                              € {details.principalDisbursed.toFixed(2)}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">💵</span>
+                              <span className="text-gray-700">EMI Paid Monthly</span>
+                            </div>
+                            <div className="flex flex-col gap-0">
+                              <span className="font-semibold text-gray-800">
+                                € {details.monthlyEMI}
+                              </span>
+                              <span className="text-xs">{details.numberOfMonths} months</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">📝</span>
+                              <span className="text-gray-700">Principal Paid</span>
+                            </div>
+                            <span className="font-semibold text-gray-800">
+                              € {details.principalPaid.toFixed(2)}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">⚠️</span>
+                              <span className="text-gray-700">Outstanding Balance</span>
+                            </div>
+                            <span className="font-semibold text-red-600">
+                              € {details.outstandingBalance.toFixed(2)}
+                            </span>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </>
+              }
+              <DrawerFooter>
+                <Button size="sm" type="button" variant="outline" onClick={() => setOpenView(false)}>
+                  Cancel
+                </Button>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        }
+
+
         <div className="flex flex-col lg:flex-row gap-2">
-          <div className="block md:hidden w-full h-fit bg-white border border-gray-200 rounded-lg">
-            <div className="py-2 px-3 border rounded-lg border-indigo-100 bg-indigo-100 text-indigo-600 flex justify-between items-center">
-              <h2 className="font-normal ">Loan Summary </h2>
-              <span className="font-semibold">€ {loanSummary?.total_payout ?? "N/A"}</span>
-            </div>
-          </div>
-          <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto">
+          <div className="w-full bg-white border border-gray-200 rounded-lg overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-3 py-2 text-left whitespace-nowrap">Priest</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Month</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Status</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Loan Amount</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Interest Rate</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Repayment</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">Principal</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">EMI</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Issued On</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Notes</th>
                   <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {loans.map((s) => (
-                  <tr key={s.id} className="border-t border-gray-100">
+                {filteredLoans.map((loan) => (
+                  <tr
+                    key={loan.id}
+                    className={`border-t border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${selectedLoan?.id === loan.id ? "bg-indigo-50" : ""
+                      }`}
+                    onClick={() => handleView(loan)}
+                  >
                     <td className="px-3 py-2 whitespace-nowrap">
-                      {s.profiles?.full_name || s.profiles?.email || s.priest_id}
+                      {loan.profiles?.full_name || loan.profiles?.email || loan.priest_id}
                     </td>
+                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {loan.principal.toFixed(2)}</td>
+                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {loan.emi.toFixed(2)}</td>
                     <td className="px-3 py-2 whitespace-nowrap">
-                      {new Date(s.month).toLocaleDateString(undefined, {
+                      {new Date(loan.issued_on).toLocaleDateString(undefined,{
+                        day: "2-digit",
                         month: "short",
                         year: "numeric",
                       })}
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap">
-                      {getLoanBadge(s.status)}
+                      {loan.loan_notes}
                     </td>
-                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {s.loan_amount}</td>
-                    <td className="px-3 py-2 text-right whitespace-nowrap">{s.interest_rate}%</td>
-                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {s.repayment_amount}</td>
                     <td className="px-3 py-2 flex gap-2 justify-end">
-                      <Button size="sm" variant="ghost" onClick={() => handleEdit(s.id)}>
+                      <Button size="sm" variant="ghost" onClick={(e) => handleEdit(loan, e)}>
                         Edit
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={(e) => handleView(loan)}>
+                        View
                       </Button>
                     </td>
                   </tr>
                 ))}
-                {!loans.length && (
+                {!filteredLoans.length && (
                   <tr>
-                    <td colSpan={7} className="px-3 py-6 text-center text-gray-500">
+                    <td colSpan={6} className="px-3 py-6 text-center text-gray-500">
                       No loan entries yet.
                     </td>
                   </tr>
@@ -528,26 +670,7 @@ export default function AdminLoans() {
               </tbody>
             </table>
           </div>
-          <div className="hidden md:block w-1/3 h-fit bg-white border border-gray-200 rounded-lg">
-            <div className="p-2 border-b border-gray-200">
-              <h2 className="font-semibold">Loan Summary</h2>
-            </div>
-            <div className="flex flex-col gap-2 p-2">
-              <p className="text-sm text-gray-500">
-                From{" "}
-                {startMonth && endMonth
-                  ? `${new Date(startMonth).toLocaleDateString(undefined, {
-                    month: "short",
-                    year: "numeric",
-                  })} - ${new Date(endMonth).toLocaleDateString(undefined, {
-                    month: "short",
-                    year: "numeric",
-                  })}`
-                  : "all time"}
-              </p>
-              <h1 className="font-bold text-2xl">€ {loanSummary?.total_payout ?? "N/A"}</h1>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>

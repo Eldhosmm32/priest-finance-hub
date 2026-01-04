@@ -1,7 +1,9 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Landmark, Mail, MapPin, Phone, ShieldCheck, Wallet, XIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ArrowRight, Landmark, Mail, MapPin, PencilIcon, Phone, ShieldCheck, SquarePenIcon, Wallet, XIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -18,7 +20,9 @@ export default function PriestDashboard() {
   const [insurance, setInsurance] = useState<any[]>([]);
   const [loans, setLoans] = useState<any[]>([]);
   const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [priestAnnouncements, setPriestAnnouncements] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [showProfileAlert, setShowProfileAlert] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -32,7 +36,9 @@ export default function PriestDashboard() {
         { data: salaryRows },
         { data: insuranceRows },
         { data: loanRows },
-        { data: announcementRows }
+        { data: announcementRows },
+        { data: priestAnnouncements },
+        { data: priestData, error: priestError }
       ] = await Promise.all([
         supabase
           .from("salary")
@@ -45,9 +51,20 @@ export default function PriestDashboard() {
         supabase
           .from("announcements")
           .select("*")
-          .eq("is_published", true)
           .order("created_at", { ascending: false })
           .limit(5),
+        supabase
+          .from("announcements_individual")
+          .select("*")
+          .eq("priest_id", user.id)
+          .gt("visible_until", new Date().toISOString())
+          .order("created_at", { ascending: false })
+          .limit(5),
+        supabase
+          .from("priests")
+          .select("id")
+          .eq("id", user.id)
+          .maybeSingle(),
       ]);
 
       setSalary(salaryRows ?? []);
@@ -56,11 +73,21 @@ export default function PriestDashboard() {
       setAnnouncements(
         (announcementRows ?? []).map((a: any) => ({
           id: a.id,
-          title: a.title_en ?? "",
-          body: a.body_en ?? "",
+          title: a.title ?? "",
+          body: a.body ?? "",
+          lang: a.lang ?? "",
           created_at: a.created_at,
+          isRead: false,
         }))
       );
+      setPriestAnnouncements(priestAnnouncements ?? []);
+
+      // Check if priest has data in priests table
+      // If no data exists (no record found and no error), show alert
+      if (!priestData && !priestError) {
+        setShowProfileAlert(true);
+      }
+
       setDataLoading(false);
     };
 
@@ -115,7 +142,7 @@ export default function PriestDashboard() {
   }) {
     return (
       <div>
-        <p className="text-xs text-muted-foreground">{date}</p>
+        <p className="text-xs text-muted-foreground">{new Date(date).toDateString()}</p>
         <p className="font-medium">{title}</p>
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
@@ -123,24 +150,35 @@ export default function PriestDashboard() {
   }
 
 
+  function handleRead(id: string) {
+    setPriestAnnouncements((prev: any) => prev.map((a: any) => a.id === id ? { ...a, isRead: true } : a));
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 transition-all duration-300 ease-in">
       {/* 🔔 Announcement Banner */}
-      <Alert className="flex  gap-4 bg-blue-50 border-blue-200">
-        <Image src="/announcement.png" alt="Announcement" width={48} height={48} className="object-contain" />
-        <div className="flex w-full flex-1 justify-between items-center">
-          <div className="flex flex-col">
-            <AlertTitle className="text-blue-900">
-              Upcoming Annual Meeting
-            </AlertTitle>
-            <AlertDescription className="text-blue-800">
-              The annual meeting will be held on December 10th, 2025 in the church
-              hall. Please arrive by 9:00 AM.
-            </AlertDescription>
-          </div>
-          <XIcon className="h-12 w-12 md:h-5 md:w-5 text-blue-600" />
-        </div>
-      </Alert>
+      {priestAnnouncements?.map((a: any) => (
+        !a.isRead && (
+          <Alert key={a.id} className="flex items-center w-full bg-blue-50 border-blue-200 transition-all duration-300">
+            <div className="flex gap-4 w-[97%]">
+              <Image src="/announcement.png" alt="Announcement" width={48} height={48} className="object-contain" />
+              <div className="flex w-full flex-1 justify-between items-center">
+                <div className="flex flex-col">
+                  <AlertTitle className="text-blue-900">
+                    {a.title}
+                  </AlertTitle>
+                  <AlertDescription className="text-blue-800">
+                    {a.body}
+                  </AlertDescription>
+                </div>
+              </div>
+            </div>
+            <div className="w-[3%]">
+              <XIcon onClick={() => handleRead(a.id)} className="h-5 w-5 text-blue-600 cursor-pointer" />
+            </div>
+          </Alert>
+        )
+      ))}
 
       <div className="flex flex-col-reverse md:flex-row gap-3">
 
@@ -175,17 +213,16 @@ export default function PriestDashboard() {
               <CardTitle>Announcements</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <AnnouncementItem
-                date="April 25, 2024"
-                title="Volunteer Event This Sunday"
-                description="We are organizing a volunteer event this Sunday after the morning service."
-              />
+              {announcements.map((a) => (
+                <AnnouncementItem
+                  key={a.id}
+                  date={a.created_at}
+                  title={a.title}
+                  description={a.body}
+                />
+              ))}
 
-              <AnnouncementItem
-                date="April 18, 2024"
-                title="Bible Study Meeting"
-                description="Weekly Bible study scheduled for Friday at 6:00 PM in the church hall."
-              />
+
             </CardContent>
           </Card>
         </div>
@@ -193,9 +230,10 @@ export default function PriestDashboard() {
         <div className="w-full md:w-1/4">
           {/* 👤 Personal Profile */}
           <Card>
-            <CardContent className="flex flex-col md:flex-row gap-6">
-              <div className="flex flex-col items-start gap-2 w-full">
-                <div className="flex justify-center w-full pt-4 pb-2 relative">
+            <CardContent className="flex flex-col md:flex-row gap-6 relative">
+              <ArrowRight className="text-indigo-600 absolute top-3 right-3 h-5 w-5 cursor-pointer" onClick={() => router.push("/priest/profile")} />
+              <div className="flex flex-col items-start gap-2 w-full ">
+                <div className="flex justify-center w-full pt-4 pb-2 ">
                   <Avatar className="h-32 w-32">
                     <AvatarImage src={userDetails?.photo ?? "/priest.svg"} />
                     {/* <AvatarFallback className="text-2xl">EM</AvatarFallback> */}
@@ -230,39 +268,52 @@ export default function PriestDashboard() {
         </div>
       </div>
 
-      <div>
-        {/* <Dialog
-          open={open}
-          onOpenChange={(isOpen) => {
-            setOpen(isOpen);
-            if (!isOpen) {
-              resetForm();
-            }
-          }}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Profile</DialogTitle>
-            </DialogHeader>
-          
-            
-            <DialogFooter>
-              <div className="flex justify-end gap-2 items-center w-full">
-                <Button size="sm" type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
-                </Button>
-                <Button size="sm" type="submit" className="btn" onClick={handleAdd}>
-                  {editingId ? "Update salary" : "Add salary"}
-                </Button>
-              </div>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog> */}
-      </div>
-
-
-
-
+      {/* Profile Data Alert Dialog */}
+      <Dialog
+        open={showProfileAlert}
+        onOpenChange={(open) => {
+          // Prevent closing by clicking outside or pressing escape
+          // Only allow closing via OK or Cancel buttons
+          if (!open) {
+            // If user tries to close, just close the dialog
+            setShowProfileAlert(false);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Profile Information Required</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-gray-600">
+              Your profile information is incomplete. Please fill in your profile details to continue.
+            </p>
+          </div>
+          <DialogFooter>
+            <div className="flex justify-end gap-2 items-center w-full">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowProfileAlert(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                className="bg-indigo-600 hover:bg-indigo-700"
+                onClick={() => {
+                  setShowProfileAlert(false);
+                  router.push("/priest/profile");
+                }}
+              >
+                OK
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

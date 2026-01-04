@@ -86,7 +86,7 @@ export default function PriestLayout({ children }: Props) {
   return (
     <UserDetailsContext.Provider value={{ userDetails, loading: loadingDetails }}>
       <div className="min-h-screen flex flex-col">
-        <header className="bg-white shadow-sm ">
+        <header className="bg-white shadow-sm sticky top-0 z-50">
           <div className="flex max-w-6xl mx-auto p-2 ">
             <div className="flex-1 flex items-center">
               <Link href="/" className="font-semibold text-indigo-700">
@@ -128,7 +128,7 @@ export default function PriestLayout({ children }: Props) {
                         {t("layout.myAccount")}
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem>{t("layout.profile")}</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push("/priest/profile")}>{t("layout.profile")}</DropdownMenuItem>
                       <DropdownMenuItem onClick={handleLogout}>
                         {t("common.logout")}
                       </DropdownMenuItem>

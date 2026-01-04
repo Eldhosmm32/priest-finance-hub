@@ -40,7 +40,7 @@ export default function AdminLayout({ children }: Props) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-white shadow-sm ">
+      <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="flex max-w-6xl mx-auto p-2 ">
           <div className="flex-1 flex items-center">
             <Link href="/" className="font-semibold text-indigo-700">

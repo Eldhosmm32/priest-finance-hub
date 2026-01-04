@@ -51,13 +51,14 @@ export default function AdminHouseRent() {
   const { user, loading } = useUser();
   const router = useRouter();
   const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth() + 1;
+  const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+  const currentMonthDate = `${currentYear}-${currentMonth}`;
   const [houseRent, setHouseRent] = useState<HouseRentRow[]>([]);
   const [priests, setPriests] = useState<PriestOption[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [priestId, setPriestId] = useState("");
-  const [startMonth, setStartMonth] = useState(`${currentYear}-${currentMonth}`);
-  const [endMonth, setEndMonth] = useState(`${currentYear}-${currentMonth}`);
+  const [startMonth, setStartMonth] = useState(currentMonthDate);
+  const [endMonth, setEndMonth] = useState(currentMonthDate);
   const [dialogeMonth, setDialogeMonth] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -135,7 +136,7 @@ export default function AdminHouseRent() {
 
   const resetForm = () => {
     setPriestId("");
-    setDialogeMonth(`${currentYear}-${currentMonth}`);
+    setDialogeMonth(currentMonthDate);
     setHouseRentForm(INITIAL_FORM_STATE);
     setEditingId(null);
     setError(null);

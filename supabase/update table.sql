@@ -143,3 +143,77 @@ create policy "fund_transfer_delete_admin" on public.fund_transfer
 -- Create index for faster queries
 create index if not exists fund_transfer_transfer_date_idx on public.fund_transfer(transfer_date desc);
 create index if not exists fund_transfer_province_id_idx on public.fund_transfer(province_id);
+
+-- DONATIONS table
+create table if not exists public.donations (
+  id uuid default gen_random_uuid() primary key,
+  sender text not null,
+  amount numeric(10, 2) not null default 0,
+  credited_date date not null,
+  notes text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Enable RLS
+alter table public.donations enable row level security;
+
+-- DONATIONS policies
+create policy "donations_select_admin" on public.donations
+  for select using ( auth.uid() is not null and public.is_admin() );
+
+create policy "donations_insert_admin" on public.donations
+  for insert
+  with check ( auth.uid() is not null and public.is_admin() );
+
+create policy "donations_update_admin" on public.donations
+  for update using ( auth.uid() is not null and public.is_admin() )
+  with check ( auth.uid() is not null and public.is_admin() );
+
+create policy "donations_delete_admin" on public.donations
+  for delete using ( auth.uid() is not null and public.is_admin() );
+
+-- Create index for faster queries
+create index if not exists donations_credited_date_idx on public.donations(credited_date desc);
+
+-- ANNOUNCEMENTS INDIVIDUAL table
+create table if not exists public.announcements_individual (
+  id uuid primary key default gen_random_uuid(),
+  priest_id uuid not null references public.profiles(id) on delete cascade,
+  title text,
+  body text,
+  lang text default 'en', -- 'en' or 'de'
+  visible_until timestamptz,
+  created_at timestamptz default now()
+);
+
+-- Enable RLS
+alter table public.announcements_individual enable row level security;
+
+-- ANNOUNCEMENTS INDIVIDUAL policies
+-- Priests can see their own announcements
+create policy "announcements_individual_select_priest" on public.announcements_individual
+  for select using ( auth.uid() is not null and auth.uid() = priest_id );
+
+-- Admin can see all individual announcements
+create policy "announcements_individual_select_admin" on public.announcements_individual
+  for select using ( auth.uid() is not null and public.is_admin() );
+
+-- Only admin can insert individual announcements
+create policy "announcements_individual_insert_admin" on public.announcements_individual
+  for insert
+  with check ( auth.uid() is not null and public.is_admin() );
+
+-- Only admin can update individual announcements
+create policy "announcements_individual_update_admin" on public.announcements_individual
+  for update using ( auth.uid() is not null and public.is_admin() )
+  with check ( auth.uid() is not null and public.is_admin() );
+
+-- Only admin can delete individual announcements
+create policy "announcements_individual_delete_admin" on public.announcements_individual
+  for delete using ( auth.uid() is not null and public.is_admin() );
+
+-- Create indexes for faster queries
+create index if not exists announcements_individual_priest_id_idx on public.announcements_individual(priest_id);
+create index if not exists announcements_individual_created_at_idx on public.announcements_individual(created_at desc);
+create index if not exists announcements_individual_visible_until_idx on public.announcements_individual(visible_until);

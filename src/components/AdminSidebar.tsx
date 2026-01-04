@@ -14,6 +14,7 @@ const links = [
   { href: "/admin/insurance", key: "sidebar.insurance" },
   { href: "/admin/loans", key: "sidebar.loans" },
   { href: "/admin/fund-transfer", key: "sidebar.intertransfer" },
+  { href: "/admin/donation", key: "sidebar.donation" },
   { href: "/admin/announcements", key: "sidebar.announcements" },
 ];
 

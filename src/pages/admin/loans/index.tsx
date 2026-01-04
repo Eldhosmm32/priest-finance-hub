@@ -20,6 +20,9 @@ type LoanRow = {
   created_at: string;
   loan_notes?: string;
   profiles?: { full_name: string | null; email: string | null };
+  closed_on: string;
+  last_emi_amount: number;
+  total_months: number;
 };
 
 type PriestOption = {
@@ -29,12 +32,11 @@ type PriestOption = {
 };
 
 // Constants
-const LOAN_QUERY = "id, priest_id, principal, emi, issued_on, created_at, loan_notes, profiles!loans_priest_id_fkey(full_name, email)";
+const LOAN_QUERY = "id, priest_id, principal, emi, issued_on, created_at, loan_notes, profiles!loans_priest_id_fkey(full_name, email), closed_on, last_emi_amount, total_months";
 const INITIAL_FORM_STATE = {
   principal: "",
   emi: "",
   loan_notes: "",
-  closed_on: "",
 };
 
 // Toast utilities
@@ -114,12 +116,25 @@ export default function AdminLoans() {
     setError(null);
   };
 
-  const getClosedOn = (principal: number, emi: number) => {
-    const emis = Math.ceil(principal / emi);
-    const lastEMIDate = new Date(issuedOn);
-    lastEMIDate.setMonth(lastEMIDate.getMonth() + emis);
-    return lastEMIDate.toISOString();
-  };
+  const calculateEmiSummary = (principal: number, monthlyEmi: number, firstEmiDate: string) => {
+    if (principal <= 0 || monthlyEmi <= 0) {
+      throw new Error("Principal and EMI must be greater than zero");
+    }
+
+    const totalMonths = Math.ceil(principal / monthlyEmi);
+    const lastEmiAmount =
+      principal % monthlyEmi === 0 ? monthlyEmi : principal % monthlyEmi;
+
+    const firstDate = new Date(firstEmiDate);
+    const lastEmiDate = new Date(firstDate);
+    lastEmiDate.setMonth(firstDate.getMonth() + totalMonths - 1);
+
+    return {
+      totalMonths,
+      lastEmiAmount,
+      closed_on: lastEmiDate.toISOString().split('T')[0],
+    };
+  }
 
   const handleAdd = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -131,12 +146,15 @@ export default function AdminLoans() {
     }
 
     // Prepare loan data
+    const emiSummary = calculateEmiSummary(parseFloat(loanForm.principal), parseFloat(loanForm.emi), issuedOn);
     const loanData: Record<string, any> = {
       priest_id: priestId,
       principal: parseFloat(loanForm.principal) || 0,
       emi: parseFloat(loanForm.emi) || 0,
       issued_on: issuedOn,
-      closed_on: getClosedOn(parseFloat(loanForm.principal), parseFloat(loanForm.emi)),
+      closed_on: emiSummary.closed_on,
+      last_emi_amount: emiSummary.lastEmiAmount,
+      total_months: emiSummary.totalMonths,
     };
 
     // Add optional fields
@@ -177,6 +195,7 @@ export default function AdminLoans() {
       loan_notes: loan.loan_notes || "",
     });
     setPriestId(loan.priest_id);
+    setIssuedOn(new Date(loan.issued_on).toISOString().split('T')[0]);
     setEditingId(loan.id);
     setOpen(true);
   };
@@ -190,39 +209,54 @@ export default function AdminLoans() {
   const calculateLoanDetails = (loan: LoanRow) => {
     const principalDisbursed = loan.principal;
     const monthlyEMI = loan.emi;
-
-    // Calculate months since issued
     const issuedDate = new Date(loan.issued_on);
+
+    // Calculate first EMI date (issued_on + 1 month)
+    const firstEMIDate = new Date(issuedDate);
+    firstEMIDate.setMonth(firstEMIDate.getMonth() + 1);
+
+    // Use calculateEmiSummary logic
+    const totalMonths = Math.ceil(principalDisbursed / monthlyEMI);
+    const lastEmiAmount = principalDisbursed % monthlyEMI === 0 ? monthlyEMI : principalDisbursed % monthlyEMI;
+    const lastEMIDate = new Date(firstEMIDate);
+    lastEMIDate.setMonth(firstEMIDate.getMonth() + totalMonths - 1);
+
+    // Generate EMI list
+    const emiList: Array<{ emiNumber: number; date: Date; amount: number }> = [];
+    for (let i = 0; i < totalMonths; i++) {
+      const emiDate = new Date(firstEMIDate);
+      emiDate.setMonth(firstEMIDate.getMonth() + i);
+      const isLastEmi = i === totalMonths - 1;
+      emiList.push({
+        emiNumber: i + 1,
+        date: emiDate,
+        amount: isLastEmi ? lastEmiAmount : monthlyEMI,
+      });
+    }
+
+    // Calculate months passed since first EMI date
     const today = new Date();
     const monthsPassed = Math.max(
       0,
-      (today.getFullYear() - issuedDate.getFullYear()) * 12 +
-      (today.getMonth() - issuedDate.getMonth())
+      (today.getFullYear() - firstEMIDate.getFullYear()) * 12 +
+      (today.getMonth() - firstEMIDate.getMonth())
     );
 
+    // Calculate principal paid (no interest, so EMI = principal payment)
+    let principalPaid = 0;
+    for (let i = 0; i < Math.min(monthsPassed, totalMonths); i++) {
+      principalPaid += emiList[i].amount;
+    }
+    principalPaid = Math.min(principalPaid, principalDisbursed);
 
-
-    // Calculate total EMI paid (no interest, so EMI = principal payment)
-    const totalEMIPaid = monthlyEMI * monthsPassed;
-    const principalPaid = Math.min(totalEMIPaid, principalDisbursed);
+    // Calculate outstanding balance
     const outstandingBalance = Math.max(0, principalDisbursed - principalPaid);
 
-    //estimate last emi date
-    const emis = Math.ceil(principalDisbursed / monthlyEMI);
-    const lastEMIDate = new Date(issuedDate);
-    lastEMIDate.setMonth(lastEMIDate.getMonth() + emis);
-    const numberOfMonths = principalDisbursed / monthlyEMI;
-    const firstEMIDate = new Date(issuedDate);
-    firstEMIDate.setMonth(firstEMIDate.getMonth() + 1);
     return {
-      monthlyEMI,
-      principalDisbursed,
-      emiPaid: totalEMIPaid,
+      emiList,
       principalPaid,
       outstandingBalance,
       firstEMIDate,
-      lastEMIDate,
-      numberOfMonths
     };
   };
 
@@ -397,7 +431,7 @@ export default function AdminLoans() {
                       return (
                         <>
                           <div className="flex gap-2">
-                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2  w-full">
+                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-1  w-full">
                               <span className="text-xl">📅</span>
                               <div className="flex flex-col gap-0 text-sm">
                                 <span className="text-gray-700">Issued On</span>
@@ -412,12 +446,12 @@ export default function AdminLoans() {
                                 </span>
                               </div>
                             </div>
-                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2  w-full">
+                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-1  w-full">
                               <span className="text-xl">📅</span>
                               <div className="flex flex-col gap-0 text-sm">
                                 <span className="text-gray-700">First EMI Date</span>
                                 <span className="font-semibold text-gray-800">
-                                  {new Date(details.firstEMIDate).toLocaleDateString(
+                                  {details.firstEMIDate.toLocaleDateString(
                                     undefined, {
                                     day: "2-digit",
                                     month: "short",
@@ -427,12 +461,12 @@ export default function AdminLoans() {
                                 </span>
                               </div>
                             </div>
-                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2  w-full">
+                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-1  w-full">
                               <span className="text-xl">📅</span>
                               <div className="flex flex-col gap-0 text-sm">
                                 <span className="text-gray-700">Last EMI Date</span>
                                 <span className="font-semibold text-gray-800">
-                                  {new Date(details.lastEMIDate).toLocaleDateString(
+                                  {new Date(selectedLoan.closed_on).toLocaleDateString(
                                     undefined, {
                                     day: "2-digit",
                                     month: "short",
@@ -443,32 +477,32 @@ export default function AdminLoans() {
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center justify-between border border-gray-200 rounded-lg p-2  w-full">
+                          <div className="flex items-center justify-between border border-gray-200 rounded-lg py-1 px-2 w-full">
                             <div className="flex items-center gap-3">
                               <span className="text-2xl">💰</span>
                               <span className="text-gray-700">Principal Disbursed</span>
                             </div>
                             <span className="font-semibold text-gray-800">
-                              € {details.principalDisbursed.toFixed(2)}
+                              € {selectedLoan.principal.toFixed(2)}
                             </span>
                           </div>
 
-                          <div className="flex items-center justify-between border border-gray-200 rounded-lg p-2  w-full">
+                          <div className="flex items-center justify-between border border-gray-200 rounded-lg py-1 px-2 w-full">
                             <div className="flex items-center gap-3">
                               <span className="text-2xl">💵</span>
                               <span className="text-gray-700">EMI Paid Monthly</span>
                             </div>
                             <div className="flex flex-col gap-0">
                               <span className="font-semibold text-gray-800">
-                                € {details.monthlyEMI}
+                                € {selectedLoan.emi}
                               </span>
-                              <span className="text-xs">{details.numberOfMonths} months</span>
+                              <span className="text-xs">{selectedLoan.total_months ?? 'N/A'} months</span>
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between border border-gray-200 rounded-lg p-2  w-full">
+                          <div className="flex items-center justify-between border border-gray-200 rounded-lg py-1 px-2 w-full">
                             <div className="flex items-center gap-3">
-                              <span className="text-2xl">📝</span>
+                              <span className="text-2xl">💶</span>
                               <span className="text-gray-700">Principal Paid</span>
                             </div>
                             <span className="font-semibold text-gray-800">
@@ -476,14 +510,45 @@ export default function AdminLoans() {
                             </span>
                           </div>
 
-                          <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                          <div className="flex items-center justify-between border border-gray-200 rounded-lg py-1 px-2 w-full">
                             <div className="flex items-center gap-3">
-                              <span className="text-2xl">⚠️</span>
+                              <span className="text-2xl">💷</span>
                               <span className="text-gray-700">Outstanding Balance</span>
                             </div>
-                            <span className="font-semibold text-red-600">
+                            <span className="font-semibold text-yellow-600">
                               € {details.outstandingBalance.toFixed(2)}
                             </span>
+                          </div>
+                          <span className="text-xs font-medium text-gray-600 py-2">EMI Schedule</span>
+                          <div className="h-40 overflow-y-auto border border-gray-200 rounded-lg">
+                            <table className="min-w-full text-sm">
+                              <thead className="bg-gray-50 sticky top-0">
+                                <tr>
+                                  <th className="px-3 py-2 text-left whitespace-nowrap">EMI Number</th>
+                                  <th className="px-3 py-2 text-left whitespace-nowrap">Date</th>
+                                  <th className="px-3 py-2 text-right whitespace-nowrap">Amount</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {details.emiList.map((emi) => (
+                                  <tr key={emi.emiNumber} className="border-t border-gray-100">
+                                    <td className="px-3 py-2 whitespace-nowrap text-gray-700">
+                                      EMI {emi.emiNumber}
+                                    </td>
+                                    <td className="px-3 py-2 whitespace-nowrap font-semibold text-gray-800">
+                                      {emi.date.toLocaleDateString(undefined, {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                      })}
+                                    </td>
+                                    <td className="px-3 py-2 text-right whitespace-nowrap font-semibold text-gray-800">
+                                      € {emi.amount.toFixed(2)}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
                         </>
                       );
@@ -519,7 +584,7 @@ export default function AdminLoans() {
                       return (
                         <>
                           <div className="flex flex-col gap-2">
-                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2 w-full">
+                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-1 w-full">
                               <span className="text-xl">📅</span>
                               <div className="flex flex-col gap-0 text-sm">
                                 <span className="text-gray-700">Issued On</span>
@@ -534,12 +599,12 @@ export default function AdminLoans() {
                                 </span>
                               </div>
                             </div>
-                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2 w-full">
+                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-1 w-full">
                               <span className="text-xl">📅</span>
                               <div className="flex flex-col gap-0 text-sm">
                                 <span className="text-gray-700">First EMI Date</span>
                                 <span className="font-semibold text-gray-800">
-                                  {new Date(details.firstEMIDate).toLocaleDateString(
+                                  {details.firstEMIDate.toLocaleDateString(
                                     undefined, {
                                     day: "2-digit",
                                     month: "short",
@@ -549,12 +614,12 @@ export default function AdminLoans() {
                                 </span>
                               </div>
                             </div>
-                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-2 w-full">
+                            <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-1 w-full">
                               <span className="text-xl">📅</span>
                               <div className="flex flex-col gap-0 text-sm">
                                 <span className="text-gray-700">Last EMI Date</span>
                                 <span className="font-semibold text-gray-800">
-                                  {new Date(details.lastEMIDate).toLocaleDateString(
+                                  {new Date(selectedLoan.closed_on).toLocaleDateString(
                                     undefined, {
                                     day: "2-digit",
                                     month: "short",
@@ -571,7 +636,7 @@ export default function AdminLoans() {
                               <span className="text-gray-700">Principal Disbursed</span>
                             </div>
                             <span className="font-semibold text-gray-800">
-                              € {details.principalDisbursed.toFixed(2)}
+                              € {selectedLoan.principal.toFixed(2)}
                             </span>
                           </div>
 
@@ -582,15 +647,15 @@ export default function AdminLoans() {
                             </div>
                             <div className="flex flex-col gap-0">
                               <span className="font-semibold text-gray-800">
-                                € {details.monthlyEMI}
+                                € {selectedLoan.emi}
                               </span>
-                              <span className="text-xs">{details.numberOfMonths} months</span>
+                              <span className="text-xs">{selectedLoan.total_months} months</span>
                             </div>
                           </div>
 
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <span className="text-2xl">📝</span>
+                              <span className="text-2xl">💶</span>
                               <span className="text-gray-700">Principal Paid</span>
                             </div>
                             <span className="font-semibold text-gray-800">
@@ -600,17 +665,50 @@ export default function AdminLoans() {
 
                           <div className="flex items-center justify-between pt-2 border-t border-gray-200">
                             <div className="flex items-center gap-3">
-                              <span className="text-2xl">⚠️</span>
+                              <span className="text-2xl">💷</span>
                               <span className="text-gray-700">Outstanding Balance</span>
                             </div>
-                            <span className="font-semibold text-red-600">
+                            <span className="font-semibold text-yellow-600">
                               € {details.outstandingBalance.toFixed(2)}
                             </span>
+                          </div>
+
+                          <span className="text-xs font-medium text-gray-600 py-2">EMI Schedule</span>
+                          <div className="h-40 overflow-y-auto border border-gray-200 rounded-lg">
+                            <table className="min-w-full text-sm">
+                              <thead className="bg-gray-50 sticky top-0">
+                                <tr>
+                                  <th className="px-3 py-2 text-left whitespace-nowrap">EMI Number</th>
+                                  <th className="px-3 py-2 text-left whitespace-nowrap">Date</th>
+                                  <th className="px-3 py-2 text-right whitespace-nowrap">Amount</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {details.emiList.map((emi) => (
+                                  <tr key={emi.emiNumber} className="border-t border-gray-100">
+                                    <td className="px-3 py-2 whitespace-nowrap text-gray-700">
+                                      EMI {emi.emiNumber}
+                                    </td>
+                                    <td className="px-3 py-2 whitespace-nowrap font-semibold text-gray-800">
+                                      {emi.date.toLocaleDateString(undefined, {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                      })}
+                                    </td>
+                                    <td className="px-3 py-2 text-right whitespace-nowrap font-semibold text-gray-800">
+                                      € {emi.amount.toFixed(2)}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
                         </>
                       );
                     })()}
                   </div>
+                  
                 </>
               }
               <DrawerFooter>

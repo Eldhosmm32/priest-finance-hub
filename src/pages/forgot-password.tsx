@@ -27,7 +27,7 @@ export default function ForgotPassword() {
       <header className="h-[3.6rem] px-4 border-b border-gray-200">
         <div className="flex items-center h-full justify-between m-auto max-w-6xl">
           <Link href="/" className="font-semibold text-indigo-700">
-            {t("common.appName")}s
+            {t("common.appName")}
           </Link>
 
           <div className="border border-1 border-gray-300 rounded-full flex gap-2 px-3">

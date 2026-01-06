@@ -4,6 +4,7 @@ import { useUser } from "@/hooks/useUser";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/i18n/languageContext";
 
 
 type PriestRow = {
@@ -19,6 +20,7 @@ type PriestRow = {
 export default function AdminPriests() {
   const { user, loading } = useUser();
   const router = useRouter();
+  const { t } = useTranslation();
   const [priests, setPriests] = useState<PriestRow[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [search, setSearch] = useState("");
@@ -89,23 +91,23 @@ export default function AdminPriests() {
   if (loading || loadingData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Loading…
+        {t("common.loading")}
       </div>
     );
   }
 
   return (
     <div className="flex-1 space-y-2">
-      <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">Priests</h1>
+      <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">{t("adminPriests.title")}</h1>
 
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
 
 
         <div className="flex flex-col flex-1 md:flex-none">
-          <label className="text-xs font-medium text-gray-600">Search by name or email</label>
+          <label className="text-xs font-medium text-gray-600">{t("adminPriests.searchLabel")}</label>
           <input
             className="input w-full md:max-w-xs"
-            placeholder="Search by name or email"
+            placeholder={t("adminPriests.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -114,7 +116,7 @@ export default function AdminPriests() {
         <Badge
           className="text-xs font-medium text-white bg-green-500 w-fit"
         >
-          {filteredPriests.length} priests
+          {filteredPriests.length} {t("adminPriests.priestsCount")}
         </Badge>
       </div>
 
@@ -122,9 +124,9 @@ export default function AdminPriests() {
         <table className="min-w-full text-sm">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-3 py-2 text-left">Name</th>
-              <th className="px-3 py-2 text-left">Email</th>
-              <th className="px-3 py-2">Active</th>
+              <th className="px-3 py-2 text-left">{t("adminPriests.name")}</th>
+              <th className="px-3 py-2 text-left">{t("adminPriests.email")}</th>
+              <th className="px-3 py-2">{t("adminPriests.active")}</th>
             </tr>
           </thead>
           <tbody>
@@ -147,7 +149,7 @@ export default function AdminPriests() {
                   colSpan={6}
                   className="px-3 py-6 text-center text-sm text-gray-500"
                 >
-                  No priests found.
+                  {t("adminPriests.noPriestsFound")}
                 </td>
               </tr>
             )}

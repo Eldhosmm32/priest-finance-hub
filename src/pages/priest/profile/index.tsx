@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "../../../hooks/useUser";
 import { supabase } from "../../../lib/supabaseClient";
 import { useUserDetails } from "../../../components/PriestLayout";
+import { useTranslation } from "../../../i18n/languageContext";
 
 type ExtendedProfile = {
     id: string;
@@ -32,6 +33,7 @@ export default function PriestProfile() {
     const { user, loading } = useUser();
     const { userDetails } = useUserDetails();
     const router = useRouter();
+    const { t } = useTranslation();
     const [profileData, setProfileData] = useState<ExtendedProfile | null>(null);
     const [loadingProfile, setLoadingProfile] = useState(true);
     const [open, setOpen] = useState(false);
@@ -134,7 +136,7 @@ export default function PriestProfile() {
                 });
             } catch (err) {
                 console.error("Error fetching priest data:", err);
-                setError("Failed to load profile data");
+                setError(t("priestProfile.failedToLoadProfile"));
             }
         }
     };
@@ -244,7 +246,7 @@ export default function PriestProfile() {
             handleCloseEdit();
         } catch (err: any) {
             console.error("Error updating profile:", err);
-            setError(err.message || "Failed to update profile");
+            setError(err.message || t("priestProfile.failedToUpdateProfile"));
         } finally {
             setSaving(false);
         }
@@ -253,7 +255,7 @@ export default function PriestProfile() {
     if (loading || loadingProfile || !user) {
         return (
             <div className="min-h-screen flex items-center justify-center text-gray-500">
-                Loading…
+                {t("common.loading")}
             </div>
         );
     }
@@ -281,7 +283,7 @@ export default function PriestProfile() {
         label: string;
         value: string | null | undefined;
     }) => {
-        const displayValue = value && value !== "—" ? value : "Not provided";
+        const displayValue = value && value !== "—" ? value : t("common.notProvided");
         return (
             <div className="flex items-start gap-3 py-2">
                 <div className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0">
@@ -307,7 +309,7 @@ export default function PriestProfile() {
                 <div className="flex items-center gap-2 cursor-pointer mb-4" onClick={() => router.push("/priest/dashboard")} >
                     <ArrowLeft className="text-black-600 h-6 w-6" />
 
-                    <h1 className="text-xl font-semibold">Dashboard</h1>
+                    <h1 className="text-xl font-semibold">{t("priestProfile.dashboard")}</h1>
                 </div>
                 <Card>
                     <CardContent className="p-6 relative">
@@ -333,7 +335,7 @@ export default function PriestProfile() {
                                         {profileData?.full_name ?? userDetails?.full_name ?? user.full_name ?? "—"}
                                     </h2>
                                     <p className="text-sm text-muted-foreground mt-1">
-                                        Professional Photo
+                                        {t("priestProfile.professionalPhoto")}
                                     </p>
                                 </div>
                             </div>
@@ -343,30 +345,30 @@ export default function PriestProfile() {
                                 {/* Personal Information */}
                                 <div className="space-y-1">
                                     <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
-                                        Personal Information
+                                        {t("priestProfile.personalInformation")}
                                     </h3>
 
                                     <ProfileField
                                         icon={<FileText className="h-5 w-5" />}
-                                        label="Full Name"
+                                        label={t("priestProfile.fullName")}
                                         value={profileData?.full_name ?? userDetails?.full_name ?? user.full_name ?? null}
                                     />
 
                                     <ProfileField
                                         icon={<Calendar className="h-5 w-5" />}
-                                        label="Date of Birth"
+                                        label={t("priestProfile.dateOfBirth")}
                                         value={formatDate(profileData?.date_of_birth)}
                                     />
 
                                     <ProfileField
                                         icon={<Mail className="h-5 w-5" />}
-                                        label="Email"
+                                        label={t("priestProfile.email")}
                                         value={profileData?.email ?? userDetails?.email ?? user.email ?? null}
                                     />
 
                                     <ProfileField
                                         icon={<Phone className="h-5 w-5" />}
-                                        label="Phone Number"
+                                        label={t("priestProfile.phoneNumber")}
                                         value={profileData?.phone ?? userDetails?.phone ?? null}
                                     />
                                 </div>
@@ -374,22 +376,22 @@ export default function PriestProfile() {
                                 {/* Address Information */}
                                 <div className="space-y-1">
                                     <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
-                                        Address Information
+                                        {t("priestProfile.addressInformation")}
                                     </h3>
 
                                     <ProfileField
                                         icon={<MapPin className="h-5 w-5" />}
-                                        label="Current Address"
+                                        label={t("priestProfile.currentAddress")}
                                         value={profileData?.address ?? userDetails?.address ?? null}
                                     />
 
                                     <div className="flex items-start gap-3 py-2 ml-8">
                                         <div className="flex flex-col gap-1 flex-1">
                                             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                                Pin Code
+                                                {t("priestProfile.pinCode")}
                                             </span>
                                             <span className={`text-sm ${profileData?.pin_code ? "text-foreground" : "text-muted-foreground italic"}`}>
-                                                {profileData?.pin_code ?? "Not provided"}
+                                                {profileData?.pin_code ?? t("common.notProvided")}
                                             </span>
                                         </div>
                                     </div>
@@ -398,18 +400,18 @@ export default function PriestProfile() {
                                 {/* Religious Information */}
                                 <div className="space-y-1">
                                     <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
-                                        Religious Information
+                                        {t("priestProfile.religiousInformation")}
                                     </h3>
 
                                     <ProfileField
                                         icon={<Building2 className="h-5 w-5" />}
-                                        label="Province"
+                                        label={t("priestProfile.province")}
                                         value={profileData?.province ?? null}
                                     />
 
                                     <ProfileField
                                         icon={<Globe className="h-5 w-5" />}
-                                        label="Diocese"
+                                        label={t("priestProfile.diocese")}
                                         value={profileData?.diocese ?? null}
                                     />
                                 </div>
@@ -417,30 +419,30 @@ export default function PriestProfile() {
                                 {/* Visa & Passport Information */}
                                 <div className="space-y-1">
                                     <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
-                                        Visa & Passport Information
+                                        {t("priestProfile.visaPassportInformation")}
                                     </h3>
 
                                     <ProfileField
                                         icon={<CreditCard className="h-5 w-5" />}
-                                        label="Visa Number"
+                                        label={t("priestProfile.visaNumber")}
                                         value={profileData?.visa_number ?? null}
                                     />
 
                                     <ProfileField
                                         icon={<FileText className="h-5 w-5" />}
-                                        label="Visa Category"
+                                        label={t("priestProfile.visaCategory")}
                                         value={profileData?.visa_category ?? null}
                                     />
 
                                     <ProfileField
                                         icon={<CalendarDays className="h-5 w-5" />}
-                                        label="Visa Expiry Date"
+                                        label={t("priestProfile.visaExpiryDate")}
                                         value={formatDate(profileData?.visa_expiry_date)}
                                     />
 
                                     <ProfileField
                                         icon={<FileText className="h-5 w-5" />}
-                                        label="Passport Number"
+                                        label={t("priestProfile.passportNumber")}
                                         value={profileData?.passport_number ?? null}
                                     />
                                 </div>
@@ -458,7 +460,7 @@ export default function PriestProfile() {
             }}>
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Edit Profile</DialogTitle>
+                        <DialogTitle>{t("priestProfile.editProfile")}</DialogTitle>
                     </DialogHeader>
 
                     {error && (
@@ -472,11 +474,11 @@ export default function PriestProfile() {
                         <div className="p-2 mb-4 h-[calc(100vh-15rem)] overflow-y-auto space-y-4">
                             {/* Personal Information Section */}
                             <div className="space-y-3">
-                                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">Personal Information</h3>
+                                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">{t("priestProfile.personalInformation")}</h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="flex flex-col gap-2">
-                                        <span className="text-xs font-medium text-black-700">Date of Birth</span>
+                                        <span className="text-xs font-medium text-black-700">{t("priestProfile.dateOfBirth")}</span>
                                         <Input
                                             id="date_of_birth"
                                             type="date"
@@ -486,11 +488,11 @@ export default function PriestProfile() {
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <span className="text-xs font-medium text-black-700">Profile Photo URL</span>
+                                        <span className="text-xs font-medium text-black-700">{t("priestProfile.profilePhotoUrl")}</span>
                                         <Input
                                             id="photo"
                                             type="url"
-                                            placeholder="https://example.com/photo.jpg"
+                                            placeholder={t("priestProfile.photoUrlPlaceholder")}
                                             value={formData.photo}
                                             onChange={(e) => setFormData({ ...formData, photo: e.target.value })}
                                         />
@@ -500,25 +502,25 @@ export default function PriestProfile() {
 
                             {/* Address Information Section */}
                             <div className="space-y-3">
-                                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">Address Information</h3>
+                                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">{t("priestProfile.addressInformation")}</h3>
 
                                 <div className="flex flex-col gap-2">
-                                    <span className="text-xs font-medium text-black-700">Current Address</span>
+                                    <span className="text-xs font-medium text-black-700">{t("priestProfile.currentAddress")}</span>
                                     <Input
                                         id="address"
                                         type="text"
-                                        placeholder="Enter your current address"
+                                        placeholder={t("priestProfile.enterCurrentAddress")}
                                         value={formData.address}
                                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                                     />
                                 </div>
 
                                 <div className="flex flex-col gap-2">
-                                    <span className="text-xs font-medium text-black-700">Pin Code</span>
+                                    <span className="text-xs font-medium text-black-700">{t("priestProfile.pinCode")}</span>
                                     <Input
                                         id="pin_code"
                                         type="text"
-                                        placeholder="Enter pin code"
+                                        placeholder={t("priestProfile.enterPinCode")}
                                         value={formData.pin_code}
                                         onChange={(e) => setFormData({ ...formData, pin_code: e.target.value })}
                                     />
@@ -527,26 +529,26 @@ export default function PriestProfile() {
 
                             {/* Religious Information Section */}
                             <div className="space-y-3">
-                                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">Religious Information</h3>
+                                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">{t("priestProfile.religiousInformation")}</h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="flex flex-col gap-2">
-                                        <span className="text-xs font-medium text-black-700">Province</span>
+                                        <span className="text-xs font-medium text-black-700">{t("priestProfile.province")}</span>
                                         <Input
                                             id="province"
                                             type="text"
-                                            placeholder="Enter province"
+                                            placeholder={t("priestProfile.enterProvince")}
                                             value={formData.province}
                                             onChange={(e) => setFormData({ ...formData, province: e.target.value })}
                                         />
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <span className="text-xs font-medium text-black-700">Diocese</span>
+                                        <span className="text-xs font-medium text-black-700">{t("priestProfile.diocese")}</span>
                                         <Input
                                             id="diocese"
                                             type="text"
-                                            placeholder="Enter diocese"
+                                            placeholder={t("priestProfile.enterDiocese")}
                                             value={formData.diocese}
                                             onChange={(e) => setFormData({ ...formData, diocese: e.target.value })}
                                         />
@@ -556,33 +558,33 @@ export default function PriestProfile() {
 
                             {/* Visa & Passport Information Section */}
                             <div className="space-y-3">
-                                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">Visa & Passport Information</h3>
+                                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">{t("priestProfile.visaPassportInformation")}</h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="flex flex-col gap-2">
-                                        <span className="text-xs font-medium text-black-700">Visa Number</span>
+                                        <span className="text-xs font-medium text-black-700">{t("priestProfile.visaNumber")}</span>
                                         <Input
                                             id="visa_number"
                                             type="text"
-                                            placeholder="Enter visa number"
+                                            placeholder={t("priestProfile.enterVisaNumber")}
                                             value={formData.visa_number}
                                             onChange={(e) => setFormData({ ...formData, visa_number: e.target.value })}
                                         />
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <span className="text-xs font-medium text-black-700">Visa Category</span>
+                                        <span className="text-xs font-medium text-black-700">{t("priestProfile.visaCategory")}</span>
                                         <Input
                                             id="visa_category"
                                             type="text"
-                                            placeholder="Enter visa category"
+                                            placeholder={t("priestProfile.enterVisaCategory")}
                                             value={formData.visa_category}
                                             onChange={(e) => setFormData({ ...formData, visa_category: e.target.value })}
                                         />
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <span className="text-xs font-medium text-black-700">Visa Expiry Date</span>
+                                        <span className="text-xs font-medium text-black-700">{t("priestProfile.visaExpiryDate")}</span>
                                         <Input
                                             id="visa_expiry_date"
                                             type="date"
@@ -592,11 +594,11 @@ export default function PriestProfile() {
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <span className="text-xs font-medium text-black-700">Passport Number</span>
+                                        <span className="text-xs font-medium text-black-700">{t("priestProfile.passportNumber")}</span>
                                         <Input
                                             id="passport_number"
                                             type="text"
-                                            placeholder="Enter passport number"
+                                            placeholder={t("priestProfile.enterPassportNumber")}
                                             value={formData.passport_number}
                                             onChange={(e) => setFormData({ ...formData, passport_number: e.target.value })}
                                         />
@@ -611,14 +613,14 @@ export default function PriestProfile() {
                                 onClick={handleCloseEdit}
                                 disabled={saving}
                             >
-                                Cancel
+                                {t("common.cancel")}
                             </Button>
                             <Button
                                 type="submit"
                                 className="bg-indigo-600 hover:bg-indigo-700"
                                 disabled={saving}
                             >
-                                {saving ? "Saving..." : "Save Changes"}
+                                {saving ? t("common.saving") : t("priestProfile.saveChanges")}
                             </Button>
                         </div>
                     </form>

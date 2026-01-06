@@ -6,7 +6,14 @@
       "en": "Englisch",
       "de": "Deutsch"
     },
-    "redirecting": "Weiterleitung…"
+    "redirecting": "Weiterleitung…",
+    "loading": "Lädt…",
+    "cancel": "Abbrechen",
+    "ok": "OK",
+    "save": "Änderungen speichern",
+    "saving": "Wird gespeichert...",
+    "edit": "Profil bearbeiten",
+    "notProvided": "Nicht angegeben"
   },
   "login": {
     "title": "Anmelden",
@@ -71,5 +78,76 @@
     "houserent": "Miete",
     "intertransfer": "Internationale Überweisung",
     "donation": "Spende"
+  },
+  "adminDashboard": {
+    "title": "Dashboard",
+    "totalSalary": "Gesamtgehalt",
+    "totalRentPaid": "Gesamte Miete gezahlt",
+    "totalInsurancePaid": "Gesamte Versicherung gezahlt",
+    "lastInternationalTransfers": "Letzte internationale Überweisungen",
+    "totalLoansIssued": "Gesamt ausgegebene Darlehen",
+    "numberOfActiveLoans": "Anzahl aktiver Darlehen",
+    "otherExpenses": "Sonstige Ausgaben"
+  },
+  "priestDashboard": {
+    "loading": "Lädt…",
+    "monthlySalary": "Monatliches Gehalt",
+    "insuranceDetails": "Versicherungsdetails",
+    "loanSummary": "Darlehensübersicht",
+    "announcements": "Ankündigungen",
+    "profileInformationRequired": "Profilinformationen erforderlich",
+    "profileIncompleteMessage": "Ihre Profilinformationen sind unvollständig. Bitte füllen Sie Ihre Profildaten aus, um fortzufahren."
+  },
+  "adminPriests": {
+    "title": "Priester",
+    "loading": "Lädt…",
+    "searchPlaceholder": "Suche nach Name oder E-Mail",
+    "searchLabel": "Suche nach Name oder E-Mail",
+    "priestsCount": "Priester",
+    "name": "Name",
+    "email": "E-Mail",
+    "active": "Aktiv",
+    "noPriestsFound": "Keine Priester gefunden."
+  },
+  "adminAnnouncements": {
+    "title": "Ankündigungen",
+    "common": "Allgemein",
+    "individual": "Individuell"
+  },
+  "priestProfile": {
+    "loading": "Lädt…",
+    "dashboard": "Dashboard",
+    "professionalPhoto": "Professionelles Foto",
+    "personalInformation": "Persönliche Informationen",
+    "fullName": "Vollständiger Name",
+    "dateOfBirth": "Geburtsdatum",
+    "email": "E-Mail",
+    "phoneNumber": "Telefonnummer",
+    "addressInformation": "Adressinformationen",
+    "currentAddress": "Aktuelle Adresse",
+    "pinCode": "Postleitzahl",
+    "religiousInformation": "Religiöse Informationen",
+    "province": "Provinz",
+    "diocese": "Diözese",
+    "visaPassportInformation": "Visum- und Passinformationen",
+    "visaNumber": "Visum-Nummer",
+    "visaCategory": "Visum-Kategorie",
+    "visaExpiryDate": "Visum-Ablaufdatum",
+    "passportNumber": "Passnummer",
+    "editProfile": "Profil bearbeiten",
+    "cancel": "Abbrechen",
+    "saveChanges": "Änderungen speichern",
+    "saving": "Wird gespeichert...",
+    "failedToLoadProfile": "Profil konnte nicht geladen werden",
+    "failedToUpdateProfile": "Profil konnte nicht aktualisiert werden",
+    "enterCurrentAddress": "Geben Sie Ihre aktuelle Adresse ein",
+    "enterPinCode": "Postleitzahl eingeben",
+    "enterProvince": "Provinz eingeben",
+    "enterDiocese": "Diözese eingeben",
+    "enterVisaNumber": "Visum-Nummer eingeben",
+    "enterVisaCategory": "Visum-Kategorie eingeben",
+    "enterPassportNumber": "Passnummer eingeben",
+    "profilePhotoUrl": "Profilfoto-URL",
+    "photoUrlPlaceholder": "https://example.com/photo.jpg"
   }
 }

@@ -10,11 +10,13 @@ import { useEffect, useState } from "react";
 import { useUser } from "../../hooks/useUser";
 import { supabase } from "../../lib/supabaseClient";
 import { useUserDetails } from "../../components/PriestLayout";
+import { useTranslation } from "../../i18n/languageContext";
 
 export default function PriestDashboard() {
   const { user, loading } = useUser();
   const { userDetails, loading: loadingDetails } = useUserDetails();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const [salary, setSalary] = useState<any[]>([]);
   const [insurance, setInsurance] = useState<any[]>([]);
@@ -97,7 +99,7 @@ export default function PriestDashboard() {
   if (loading || loadingDetails || !user || dataLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Loading…
+        {t("common.loading")}
       </div>
     );
   }
@@ -185,21 +187,21 @@ export default function PriestDashboard() {
         {/* 💳 Summary Cards */}
         <div className="w-full md:w-1/4 flex flex-col gap-3">
           <SummaryCard
-            title="Monthly Salary"
+            title={t("priestDashboard.monthlySalary")}
             value="€ 25,000"
             subtitle="December 2025"
             icon={<Wallet className="text-indigo-600" />}
           />
 
           <SummaryCard
-            title="Insurance Details"
+            title={t("priestDashboard.insuranceDetails")}
             value="€ 1,500"
             subtitle="December 2025"
             icon={<ShieldCheck className="text-green-600" />}
           />
 
           <SummaryCard
-            title="Loan Summary"
+            title={t("priestDashboard.loanSummary")}
             value="€ 4,000 EMI"
             subtitle="₹50,000 Outstanding Balance"
             icon={<Landmark className="text-yellow-600" />}
@@ -210,7 +212,7 @@ export default function PriestDashboard() {
         <div className="w-full md:w-2/4">
           <Card >
             <CardHeader>
-              <CardTitle>Announcements</CardTitle>
+              <CardTitle>{t("priestDashboard.announcements")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {announcements.map((a) => (
@@ -282,11 +284,11 @@ export default function PriestDashboard() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Profile Information Required</DialogTitle>
+            <DialogTitle>{t("priestDashboard.profileInformationRequired")}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-gray-600">
-              Your profile information is incomplete. Please fill in your profile details to continue.
+              {t("priestDashboard.profileIncompleteMessage")}
             </p>
           </div>
           <DialogFooter>
@@ -298,7 +300,7 @@ export default function PriestDashboard() {
                   setShowProfileAlert(false);
                 }}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 type="button"
@@ -308,7 +310,7 @@ export default function PriestDashboard() {
                   router.push("/priest/profile");
                 }}
               >
-                OK
+                {t("common.ok")}
               </Button>
             </div>
           </DialogFooter>

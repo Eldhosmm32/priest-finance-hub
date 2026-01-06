@@ -6,7 +6,14 @@
       "en": "English",
       "de": "German"
     },
-    "redirecting": "Redirecting…"
+    "redirecting": "Redirecting…",
+    "loading": "Loading…",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "edit": "Edit Profile",
+    "notProvided": "Not provided"
   },
   "login": {
     "title": "Sign in",
@@ -71,5 +78,76 @@
     "houserent": "House Rent",
     "intertransfer": "International Transfer",
     "donation": "Donation"
+  },
+  "adminDashboard": {
+    "title": "Dashboard",
+    "totalSalary": "Total Salary",
+    "totalRentPaid": "Total Rent Paid",
+    "totalInsurancePaid": "Total Insurance Paid",
+    "lastInternationalTransfers": "Last International Transfers",
+    "totalLoansIssued": "Total Loans Issued",
+    "numberOfActiveLoans": "Number of Active Loans",
+    "otherExpenses": "Other Expenses"
+  },
+  "priestDashboard": {
+    "loading": "Loading…",
+    "monthlySalary": "Monthly Salary",
+    "insuranceDetails": "Insurance Details",
+    "loanSummary": "Loan Summary",
+    "announcements": "Announcements",
+    "profileInformationRequired": "Profile Information Required",
+    "profileIncompleteMessage": "Your profile information is incomplete. Please fill in your profile details to continue."
+  },
+  "adminPriests": {
+    "title": "Priests",
+    "loading": "Loading…",
+    "searchPlaceholder": "Search by name or email",
+    "searchLabel": "Search by name or email",
+    "priestsCount": "priests",
+    "name": "Name",
+    "email": "Email",
+    "active": "Active",
+    "noPriestsFound": "No priests found."
+  },
+  "adminAnnouncements": {
+    "title": "Announcements",
+    "common": "Common",
+    "individual": "Individual"
+  },
+  "priestProfile": {
+    "loading": "Loading…",
+    "dashboard": "Dashboard",
+    "professionalPhoto": "Professional Photo",
+    "personalInformation": "Personal Information",
+    "fullName": "Full Name",
+    "dateOfBirth": "Date of Birth",
+    "email": "Email",
+    "phoneNumber": "Phone Number",
+    "addressInformation": "Address Information",
+    "currentAddress": "Current Address",
+    "pinCode": "Pin Code",
+    "religiousInformation": "Religious Information",
+    "province": "Province",
+    "diocese": "Diocese",
+    "visaPassportInformation": "Visa & Passport Information",
+    "visaNumber": "Visa Number",
+    "visaCategory": "Visa Category",
+    "visaExpiryDate": "Visa Expiry Date",
+    "passportNumber": "Passport Number",
+    "editProfile": "Edit Profile",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "failedToLoadProfile": "Failed to load profile data",
+    "failedToUpdateProfile": "Failed to update profile",
+    "enterCurrentAddress": "Enter your current address",
+    "enterPinCode": "Enter pin code",
+    "enterProvince": "Enter province",
+    "enterDiocese": "Enter diocese",
+    "enterVisaNumber": "Enter visa number",
+    "enterVisaCategory": "Enter visa category",
+    "enterPassportNumber": "Enter passport number",
+    "profilePhotoUrl": "Profile Photo URL",
+    "photoUrlPlaceholder": "https://example.com/photo.jpg"
   }
 }

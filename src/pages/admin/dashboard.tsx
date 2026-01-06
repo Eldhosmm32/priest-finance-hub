@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "../../hooks/useUser";
 import { supabase } from "../../lib/supabaseClient";
+import { useTranslation } from "../../i18n/languageContext";
 
 type StatusCards = {
   totalSalaryThisMonth: string;
@@ -14,6 +15,7 @@ type StatusCards = {
 export default function AdminDashboard() {
   const { user, loading } = useUser();
   const router = useRouter();
+  const { t } = useTranslation();
   const [statusCards, setStatusCards] = useState<StatusCards | null>(null);
   const [role, setRole] = useState<string | null>(null);
 
@@ -71,38 +73,38 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex-1 space-y-4">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-2">Dashboard</h1>
+      <h1 className="text-2xl font-semibold text-gray-800 mb-2">{t("adminDashboard.title")}</h1>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">Total Salary</p>
+          <p className="text-xs text-gray-500">{t("adminDashboard.totalSalary")}</p>
           <p className="text-xl font-semibold mt-1">
             € {statusCards?.totalSalaryThisMonth}
           </p>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">Total Rent Paid</p>
+          <p className="text-xs text-gray-500">{t("adminDashboard.totalRentPaid")}</p>
           <p className="text-xl font-semibold mt-1">€ {statusCards?.totalRent}</p>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">Total Insurance Paid</p>
+          <p className="text-xs text-gray-500">{t("adminDashboard.totalInsurancePaid")}</p>
           <p className="text-xl font-semibold mt-1">€ {statusCards?.totalInsurance}</p>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">Last International Transfers</p>
+          <p className="text-xs text-gray-500">{t("adminDashboard.lastInternationalTransfers")}</p>
           <p className="text-xl font-semibold mt-1">€ {statusCards?.activeLoans}</p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">Total Loans Issued</p>
+          <p className="text-xs text-gray-500">{t("adminDashboard.totalLoansIssued")}</p>
           <p className="text-xl font-semibold mt-1">{statusCards?.activeLoans}</p>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">Number of Active Loans</p>
+          <p className="text-xs text-gray-500">{t("adminDashboard.numberOfActiveLoans")}</p>
           <p className="text-xl font-semibold mt-1">{statusCards?.activeLoans}</p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">Other Expenses</p>
+          <p className="text-xs text-gray-500">{t("adminDashboard.otherExpenses")}</p>
           <p className="text-xl font-semibold mt-1">€ {statusCards?.activeLoans}</p>
         </div>
       </div>

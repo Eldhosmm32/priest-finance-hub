@@ -311,14 +311,14 @@ export default function AdminFundTransfer() {
               </div>
 
               <div className="flex flex-col gap-2 border border-gray-200 rounded-lg w-full max-h-[400px] p-2">
-                <label className="text-xs font-medium w-full">Transferred Account</label>
+                <label className="text-xs font-medium w-full">Account Details</label>
                 <input
                   type="text"
                   className="input"
                   onChange={(e) => updateField("transferred_account", e.target.value)}
                   value={fundTransferForm.transferred_account}
                   required
-                  placeholder="Enter transferred account"
+                  placeholder="Enter account details"
                 />
 
                 <label className="text-xs font-medium w-full">Amount</label>
@@ -370,7 +370,7 @@ export default function AdminFundTransfer() {
                 <tr>
                   <th className="px-3 py-2 text-left whitespace-nowrap">Province Name</th>
                   <th className="px-3 py-2 text-left whitespace-nowrap">Date</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Transferred Account</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Account Details</th>
                   <th className="px-3 py-2 text-right whitespace-nowrap">Amount</th>
                   <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
                 </tr>

@@ -96,7 +96,11 @@
     "loanSummary": "Darlehensübersicht",
     "announcements": "Ankündigungen",
     "profileInformationRequired": "Profilinformationen erforderlich",
-    "profileIncompleteMessage": "Ihre Profilinformationen sind unvollständig. Bitte füllen Sie Ihre Profildaten aus, um fortzufahren."
+    "profileIncompleteMessage": "Ihre Profilinformationen sind unvollständig. Bitte füllen Sie Ihre Profildaten aus, um fortzufahren.",
+    "noSalaryDetails": "Keine Gehaltsdetails verfügbar",
+    "noLoanDetails": "Keine Darlehensdetails verfügbar",
+    "salaryDetails": "Gehaltsdetails",
+    "loanDetails": "Darlehensdetails"
   },
   "adminPriests": {
     "title": "Priester",

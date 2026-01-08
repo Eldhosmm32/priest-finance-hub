@@ -96,7 +96,11 @@
     "loanSummary": "Loan Summary",
     "announcements": "Announcements",
     "profileInformationRequired": "Profile Information Required",
-    "profileIncompleteMessage": "Your profile information is incomplete. Please fill in your profile details to continue."
+    "profileIncompleteMessage": "Your profile information is incomplete. Please fill in your profile details to continue.",
+    "noSalaryDetails": "No salary details available",
+    "noLoanDetails": "No loan details available",
+    "salaryDetails": "Salary Details",
+    "loanDetails": "Loan Details"
   },
   "adminPriests": {
     "title": "Priests",

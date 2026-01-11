@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useUser } from "../../hooks/useUser";
 import { supabase } from "../../lib/supabaseClient";
 import { useTranslation } from "../../i18n/languageContext";
-import users from "../api/priests-data.json";
+// import users from "../api/priests-data.json";
 
 type StatusCards = {
   totalSalaryThisMonth: string;
@@ -25,48 +25,48 @@ export default function AdminDashboard() {
   const [statusCards, setStatusCards] = useState<StatusCards | null>(null);
   const [role, setRole] = useState<string | null>(null);
 
-  const createUser = async () => {
-    for (const user of users) {
-      try {
-        // Get the current session token
-        const { data: { session } } = await supabase.auth.getSession();
+  // const createUser = async () => {
+  //   for (const user of users) {
+  //     try {
+  //       // Get the current session token
+  //       const { data: { session } } = await supabase.auth.getSession();
 
-        if (!session) {
-          console.error("No session found");
-          return;
-        }
+  //       if (!session) {
+  //         console.error("No session found");
+  //         return;
+  //       }
 
 
-        // Call the API route
-        const response = await fetch("/api/admin/create-user", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            email: user.email,
-            password: user.password,
-            full_name: user.full_name,
-            role: user.role,
-            active: user.active,
-          }),
-        });
+  //       // Call the API route
+  //       const response = await fetch("/api/admin/create-user", {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           "Authorization": `Bearer ${session.access_token}`,
+  //         },
+  //         body: JSON.stringify({
+  //           email: user.email,
+  //           password: user.password,
+  //           full_name: user.full_name,
+  //           role: user.role,
+  //           active: user.active,
+  //         }),
+  //       });
 
-        const result = await response.json();
+  //       const result = await response.json();
 
-        if (!response.ok) {
-          console.error("Error creating user:", result.error);
-          console.error("Error details:", result.details);
-          return;
-        }
+  //       if (!response.ok) {
+  //         console.error("Error creating user:", result.error);
+  //         console.error("Error details:", result.details);
+  //         return;
+  //       }
 
-        console.log("User created successfully:", result.user);
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    }
-  };
+  //       console.log("User created successfully:", result.user);
+  //     } catch (error) {
+  //       console.error("Error:", error);
+  //     }
+  //   }
+  // };
 
   // Only call this if you want to test - remove or comment out after testing
   //createUser();

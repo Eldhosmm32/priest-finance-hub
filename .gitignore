@@ -23,6 +23,7 @@ logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
+src/pages/api/
 
 # OS files
 .DS_Store

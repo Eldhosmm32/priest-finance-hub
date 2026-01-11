@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 import { useTranslation } from "../i18n/languageContext";
 import { useLanguage } from "../i18n/languageContext";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function Signup() {
   const router = useRouter();
@@ -12,16 +13,24 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
+
+
+  const showToast = (message: string, type: "success" | "error") => {
+    toast[type](message, {
+      position: "top-center",
+      style: {
+        backgroundColor: type === "success" ? "text-indigo-600" : "#f87171",
+        color: "#fff",
+      },
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setMessage(null);
 
     if (password !== confirmPassword) {
       setError(t("errors.passwordsMismatch"));
@@ -37,7 +46,6 @@ export default function Signup() {
       options: {
         data: {
           full_name: fullName,
-          phone: phone,
         },
         emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/login`,
       },
@@ -54,7 +62,8 @@ export default function Signup() {
     // - auth.users row created
     // - handle_new_user trigger (if configured) creates profiles row with role 'priest'
     if (data.user) {
-      setMessage(t("signup.createdMessage"));
+      showToast(t("signup.createdMessage"), "success");
+
       // Optionally redirect to login after a delay:
       setTimeout(() => router.push("/login"), 2500);
     }
@@ -89,12 +98,7 @@ export default function Signup() {
             {t("signup.title")}
           </h1>
           <p className="text-sm text-gray-500 mb-4">{t("signup.subtitle")}</p>
-
           {error && <div className="text-sm text-red-600 mb-3">{error}</div>}
-          {message && (
-            <div className="text-sm text-green-600 mb-3">{message}</div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="form-control">
               <label className="label">
@@ -121,20 +125,6 @@ export default function Signup() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-              />
-            </div>
-
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-xs">
-                  {t("signup.phoneOptional")}
-                </span>
-              </label>
-              <input
-                type="tel"
-                className="input input-bordered w-full"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
               />
             </div>
 
@@ -184,7 +174,7 @@ export default function Signup() {
             type="button"
             onClick={() => router.push("/login")}
           >
-            {t("signup.already")}
+            {t("signup.already")} <span className="text-indigo-600"> {t("signup.login")}</span>
           </button>
         </div>
       </div>

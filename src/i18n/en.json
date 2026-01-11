@@ -22,7 +22,8 @@
     "password": "Password",
     "button": "Sign in",
     "forgot": "Forgot password?",
-    "signupLink": "Don't have an account? Sign up"
+    "signupLink": "Don't have an account?",
+    "signup": "Sign up"
   },
   "dashboard": {
     "adminTitle": "Admin Dashboard",
@@ -52,7 +53,8 @@
     "confirmPassword": "Confirm password",
     "button": "Sign up",
     "creating": "Creating account…",
-    "already": "Already have an account? Login",
+    "already": "Already have an account?",
+    "login": "Login",
     "createdMessage": "Account created. Please check your email to verify your address (if required), then log in."
   },
   "forgot": {
@@ -100,7 +102,8 @@
     "noSalaryDetails": "No salary details available",
     "noLoanDetails": "No loan details available",
     "salaryDetails": "Salary Details",
-    "loanDetails": "Loan Details"
+    "loanDetails": "Loan Details",
+    "financialSummary": "Financial Summary"
   },
   "adminPriests": {
     "title": "Priests",
@@ -153,5 +156,22 @@
     "enterPassportNumber": "Enter passport number",
     "profilePhotoUrl": "Profile Photo URL",
     "photoUrlPlaceholder": "https://example.com/photo.jpg"
+  },
+  "priestPassword": {
+    "changePassword": "Change Password",
+    "oldPassword": "Old Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Re-enter Password",
+    "enterOldPassword": "Enter your current password",
+    "enterNewPassword": "Enter your new password",
+    "reenterNewPassword": "Re-enter your new password",
+    "passwordRequirements": "Password must be at least 6 characters long",
+    "enterAllFields": "Please enter all fields",
+    "passwordMinLength": "Password must be at least 6 characters long",
+    "newPasswordDifferent": "New password must be different from old password",
+    "incorrectOldPassword": "Incorrect old password",
+    "unableToGetEmail": "Unable to get your email address",
+    "failedToUpdate": "Failed to update password. Please try again.",
+    "passwordUpdated": "Password updated successfully"
   }
 }

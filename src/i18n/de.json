@@ -22,7 +22,8 @@
     "password": "Passwort",
     "button": "Anmelden",
     "forgot": "Passwort vergessen?",
-    "signupLink": "Noch kein Konto? Registrieren"
+    "signupLink": "Noch kein Konto?",
+    "signup": "Registrieren"
   },
   "dashboard": {
     "adminTitle": "Admin-Dashboard",
@@ -52,7 +53,8 @@
     "confirmPassword": "Passwort bestätigen",
     "button": "Registrieren",
     "creating": "Konto wird erstellt…",
-    "already": "Bereits ein Konto? Anmelden",
+    "already": "Bereits ein Konto?",
+    "login": "Anmelden",
     "createdMessage": "Konto erstellt. Bitte prüfen Sie Ihre E-Mails, um Ihre Adresse zu verifizieren (falls erforderlich), und melden Sie sich anschließend an."
   },
   "forgot": {
@@ -100,7 +102,8 @@
     "noSalaryDetails": "Keine Gehaltsdetails verfügbar",
     "noLoanDetails": "Keine Darlehensdetails verfügbar",
     "salaryDetails": "Gehaltsdetails",
-    "loanDetails": "Darlehensdetails"
+    "loanDetails": "Darlehensdetails",
+    "financialSummary": "Finanzübersicht"
   },
   "adminPriests": {
     "title": "Priester",
@@ -153,5 +156,22 @@
     "enterPassportNumber": "Passnummer eingeben",
     "profilePhotoUrl": "Profilfoto-URL",
     "photoUrlPlaceholder": "https://example.com/photo.jpg"
+  },
+  "priestPassword": {
+    "changePassword": "Passwort ändern",
+    "oldPassword": "Altes Passwort",
+    "newPassword": "Neues Passwort",
+    "confirmPassword": "Passwort erneut eingeben",
+    "enterOldPassword": "Geben Sie Ihr aktuelles Passwort ein",
+    "enterNewPassword": "Geben Sie Ihr neues Passwort ein",
+    "reenterNewPassword": "Geben Sie Ihr neues Passwort erneut ein",
+    "passwordRequirements": "Das Passwort muss mindestens 6 Zeichen lang sein",
+    "enterAllFields": "Bitte füllen Sie alle Felder aus",
+    "passwordMinLength": "Das Passwort muss mindestens 6 Zeichen lang sein",
+    "newPasswordDifferent": "Das neue Passwort muss sich vom alten Passwort unterscheiden",
+    "incorrectOldPassword": "Falsches altes Passwort",
+    "unableToGetEmail": "E-Mail-Adresse konnte nicht abgerufen werden",
+    "failedToUpdate": "Passwort konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+    "passwordUpdated": "Passwort erfolgreich aktualisiert"
   }
 }

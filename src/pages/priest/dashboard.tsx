@@ -346,19 +346,19 @@ export default function PriestDashboard() {
           >
             <TabsList className="w-full flex justify-start !bg-indigo-100">
               <TabsTrigger value="dashboard">{t("adminDashboard.title")}</TabsTrigger>
-              <TabsTrigger value="salary">{t("priestDashboard.salaryDetails")}</TabsTrigger>
-              <TabsTrigger value="loan">{t("priestDashboard.loanDetails")}</TabsTrigger>
+              <TabsTrigger value="salary">{t("priestDashboard.financialSummary")}</TabsTrigger>
+              <TabsTrigger value="loan">{t("priestDashboard.loanSummary")}</TabsTrigger>
             </TabsList>
             <TabsContent value="dashboard" className="flex flex-col gap-2">
               <div className="flex flex-col md:flex-row gap-2">
                 <SummaryCard
-                  title={t("priestDashboard.monthlySalary")}
+                  title={t("priestDashboard.salaryDetails")}
                   value={salary.length > 0 ? (salary[0].salary_amount || salary[0].amount || "0") : "0"}
                   subtitle={salary.length > 0 ? new Date(salary[0].month).toLocaleDateString(undefined, { month: "long", year: "numeric" }) : t("priestDashboard.noSalaryDetails")}
                   icon={<Wallet className="text-indigo-600" />}
                 />
                 <SummaryCard
-                  title={t("priestDashboard.loanSummary")}
+                  title={t("priestDashboard.loanDetails")}
                   value={loans.length > 0 ? loans[0].principal : 0}
                   subtitle={loans.length > 0 ? 'Completed by ' + new Date(loans[0].closed_on).toLocaleDateString(undefined, { month: "long", year: "numeric" }) + '\n' + '€ ' + loans[0].emi.toString() + ' for ' + loans[0].total_months + ' Months' : t("priestDashboard.noLoanDetails")}
                   icon={<Landmark className="text-yellow-600" />}
@@ -385,7 +385,7 @@ export default function PriestDashboard() {
             <TabsContent value="salary" className="flex flex-col gap-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("priestDashboard.salaryDetails")}</CardTitle>
+                  <CardTitle>{t("priestDashboard.financialSummary")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="w-full border border-gray-200 rounded-lg p-2 mb-4">
@@ -519,7 +519,7 @@ export default function PriestDashboard() {
             <TabsContent value="loan" className="flex flex-col gap-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("priestDashboard.loanDetails")}</CardTitle>
+                  <CardTitle>{t("priestDashboard.loanSummary")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {loans.length > 0 ? (

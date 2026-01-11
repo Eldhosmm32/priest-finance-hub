@@ -118,8 +118,8 @@ export default function PriestLayout({ children }: Props) {
                     <DropdownMenuTrigger>
                       <div className="bg-indigo-700 w-8 h-8 rounded-full flex items-center justify-center">
                         <span className="text-sm font-semibold text-white">
-                          {userDetails?.full_name?.slice(0, 2).toUpperCase() ?? 
-                           user?.full_name?.slice(0, 2).toUpperCase() ?? "----"}
+                          {userDetails?.full_name?.slice(0, 2).toUpperCase() ??
+                            user?.full_name?.slice(0, 2).toUpperCase() ?? "----"}
                         </span>
                       </div>
                     </DropdownMenuTrigger>
@@ -128,6 +128,7 @@ export default function PriestLayout({ children }: Props) {
                         {t("layout.myAccount")}
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => router.push("/priest/password")}>{t("priestPassword.changePassword")}</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => router.push("/priest/profile")}>{t("layout.profile")}</DropdownMenuItem>
                       <DropdownMenuItem onClick={handleLogout}>
                         {t("common.logout")}

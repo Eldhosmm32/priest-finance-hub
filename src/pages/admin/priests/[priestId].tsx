@@ -24,6 +24,14 @@ type PriestProfile = {
     address: string | null;
     active: boolean;
     photo: string | null;
+    date_of_birth: string | null;
+    pin_code: string | null;
+    province: string | null;
+    diocese: string | null;
+    visa_number: string | null;
+    visa_category: string | null;
+    visa_expiry_date: string | null;
+    passport_number: string | null;
 };
 
 type Salary = {
@@ -278,13 +286,28 @@ export default function AdminPriestDetail() {
                 return;
             }
 
+            // Fetch profile data
             const { data: priestProfile } = await supabase
                 .from("profiles")
-                .select("id, full_name, email, phone, address, active, photo")
+                .select("id, full_name, email, phone, active, photo")
                 .eq("id", priestId)
                 .maybeSingle();
 
-            setPriest(priestProfile as PriestProfile ?? null);
+            // Fetch priest metadata
+            const { data: priestData } = await supabase
+                .from("priests")
+                .select("address, date_of_birth, pin_code, province, diocese, visa_number, visa_category, visa_expiry_date, passport_number, photo")
+                .eq("id", priestId)
+                .maybeSingle();
+
+            // Merge profile and priest data, prioritizing priests.photo if available
+            const mergedPriestData: PriestProfile = {
+                ...(priestProfile ?? {}),
+                ...(priestData ?? {}),
+                photo: priestData?.photo ?? priestProfile?.photo ?? null,
+            } as PriestProfile;
+
+            setPriest(mergedPriestData);
 
             changeYear(year);
             loadLoanData();
@@ -330,23 +353,85 @@ export default function AdminPriestDetail() {
                                 </CardHeader>
 
                                 <CardContent className="space-y-4 ">
-
                                     {/* Email */}
                                     <div className="flex items-center gap-2">
-                                        <Label className="text-sm text-muted-foreground w-12">Email</Label>
+                                        <Label className="text-sm text-muted-foreground w-32">Email</Label>
                                         <span className="text-base font-medium">{priest?.email ?? 'N/A'}</span>
                                     </div>
 
-                                    {/* Phone */}
+                                    {/* Date of Birth */}
                                     <div className="flex items-center gap-2">
-                                        <Label className="text-sm text-muted-foreground w-12">Phone</Label>
+                                        <Label className="text-sm text-muted-foreground w-32">Date of Birth</Label>
+                                        <span className="text-base font-medium">
+                                            {priest?.date_of_birth 
+                                                ? new Date(priest.date_of_birth).toLocaleDateString(undefined, {
+                                                    day: "2-digit",
+                                                    month: "short",
+                                                    year: "numeric",
+                                                })
+                                                : 'N/A'}
+                                        </span>
+                                    </div>
+
+                                    {/* Current Address with Pin Code */}
+                                    <div className="flex items-start gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">Current Address</Label>
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-base font-medium">{priest?.address ?? 'N/A'}</span>
+                                            {priest?.pin_code && (
+                                                <span className="text-sm text-muted-foreground">Pin Code: {priest.pin_code}</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Phone Number */}
+                                    <div className="flex items-center gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">Phone Number</Label>
                                         <span className="text-base font-medium">{priest?.phone ?? 'N/A'}</span>
                                     </div>
 
-                                    {/* Address */}
+                                    {/* Province */}
                                     <div className="flex items-center gap-2">
-                                        <Label className="text-sm text-muted-foreground w-12">Address</Label>
-                                        <span className="text-base font-medium">{priest?.address ?? 'N/A'}</span>
+                                        <Label className="text-sm text-muted-foreground w-32">Province</Label>
+                                        <span className="text-base font-medium">{priest?.province ?? 'N/A'}</span>
+                                    </div>
+
+                                    {/* Diocese */}
+                                    <div className="flex items-center gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">Diocese</Label>
+                                        <span className="text-base font-medium">{priest?.diocese ?? 'N/A'}</span>
+                                    </div>
+
+                                    {/* Visa Number */}
+                                    <div className="flex items-center gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">Visa Number</Label>
+                                        <span className="text-base font-medium">{priest?.visa_number ?? 'N/A'}</span>
+                                    </div>
+
+                                    {/* Visa Category */}
+                                    <div className="flex items-center gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">Visa Category</Label>
+                                        <span className="text-base font-medium">{priest?.visa_category ?? 'N/A'}</span>
+                                    </div>
+
+                                    {/* Visa Expiry Date */}
+                                    <div className="flex items-center gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">Visa Expiry Date</Label>
+                                        <span className="text-base font-medium">
+                                            {priest?.visa_expiry_date 
+                                                ? new Date(priest.visa_expiry_date).toLocaleDateString(undefined, {
+                                                    day: "2-digit",
+                                                    month: "short",
+                                                    year: "numeric",
+                                                })
+                                                : 'N/A'}
+                                        </span>
+                                    </div>
+
+                                    {/* Passport Number */}
+                                    <div className="flex items-center gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">Passport Number</Label>
+                                        <span className="text-base font-medium">{priest?.passport_number ?? 'N/A'}</span>
                                     </div>
                                 </CardContent>
                             </Card>

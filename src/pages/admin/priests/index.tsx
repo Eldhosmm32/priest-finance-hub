@@ -120,9 +120,9 @@ export default function AdminPriests() {
         </Badge>
       </div>
 
-      <div className="overflow-auto bg-white border border-gray-200 rounded-lg">
+      <div className="overflow-auto bg-white border border-gray-200 rounded-lg max-h-[calc(100vh-17rem)] thin-scroll">
         <table className="min-w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 sticky top-0 z-[1000]">
             <tr>
               <th className="px-3 py-2 text-left">{t("adminPriests.name")}</th>
               <th className="px-3 py-2 text-left">{t("adminPriests.email")}</th>

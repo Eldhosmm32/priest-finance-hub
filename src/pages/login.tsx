@@ -126,7 +126,7 @@ export default function Login() {
           </form>
 
           <button
-            className="link link-primary text-xs mt-4"
+            className="link link-primary text-xs mt-4 text-indigo-600"
             type="button"
             onClick={() => router.push("/forgot-password")}
           >
@@ -139,6 +139,7 @@ export default function Login() {
             onClick={() => router.push("/signup")}
           >
             {t("login.signupLink")}
+            <span className="text-indigo-600"> {t("login.signup")}</span>
           </button>
         </div>
       </div>

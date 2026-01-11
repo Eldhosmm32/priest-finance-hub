@@ -48,14 +48,13 @@
     "title": "Priester-Registrierung",
     "subtitle": "Erstellen Sie Ihr Konto. Das Sekretariat kann Ihre Zugriffsrechte prüfen.",
     "fullName": "Vollständiger Name",
-    "phoneOptional": "Telefon (optional)",
     "password": "Passwort",
     "confirmPassword": "Passwort bestätigen",
     "button": "Registrieren",
     "creating": "Konto wird erstellt…",
     "already": "Bereits ein Konto?",
     "login": "Anmelden",
-    "createdMessage": "Konto erstellt. Bitte prüfen Sie Ihre E-Mails, um Ihre Adresse zu verifizieren (falls erforderlich), und melden Sie sich anschließend an."
+    "createdMessage": "Konto erstellt. Bitte prüfen Sie Ihre E-Mails, um Ihre Adresse zu verifizieren."
   },
   "forgot": {
     "title": "Passwort zurücksetzen",
@@ -132,7 +131,6 @@
     "phoneNumber": "Telefonnummer",
     "addressInformation": "Adressinformationen",
     "currentAddress": "Aktuelle Adresse",
-    "pinCode": "Postleitzahl",
     "religiousInformation": "Religiöse Informationen",
     "province": "Provinz",
     "diocese": "Diözese",
@@ -148,7 +146,7 @@
     "failedToLoadProfile": "Profil konnte nicht geladen werden",
     "failedToUpdateProfile": "Profil konnte nicht aktualisiert werden",
     "enterCurrentAddress": "Geben Sie Ihre aktuelle Adresse ein",
-    "enterPinCode": "Postleitzahl eingeben",
+    "enterPhoneNumber": "Telefonnummer eingeben",
     "enterProvince": "Provinz eingeben",
     "enterDiocese": "Diözese eingeben",
     "enterVisaNumber": "Visum-Nummer eingeben",

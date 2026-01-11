@@ -20,7 +20,6 @@ type ExtendedProfile = {
     address: string | null;
     photo: string | null;
     date_of_birth?: string | null;
-    pin_code?: string | null;
     province?: string | null;
     diocese?: string | null;
     visa_number?: string | null;
@@ -45,7 +44,7 @@ export default function PriestProfile() {
         date_of_birth: "",
         photo: "",
         address: "",
-        pin_code: "",
+        phone: "",
         province: "",
         diocese: "",
         visa_number: "",
@@ -83,11 +82,10 @@ export default function PriestProfile() {
                     id: profileData?.id ?? user.id,
                     email: profileData?.email ?? user.email ?? null,
                     full_name: profileData?.full_name ?? user.full_name ?? null,
-                    phone: profileData?.phone ?? null,
+                    phone: priestData?.phone ?? null,
                     address: priestData?.address ?? null,
                     photo: priestData?.photo ?? profileData?.photo ?? null,
                     date_of_birth: priestData?.date_of_birth ?? null,
-                    pin_code: priestData?.pin_code ?? null,
                     province: priestData?.province ?? null,
                     diocese: priestData?.diocese ?? null,
                     visa_number: priestData?.visa_number ?? null,
@@ -126,7 +124,7 @@ export default function PriestProfile() {
                     date_of_birth: priestData?.date_of_birth ? new Date(priestData.date_of_birth).toISOString().split('T')[0] : "",
                     photo: priestData?.photo ?? "",
                     address: priestData?.address ?? "",
-                    pin_code: priestData?.pin_code ?? "",
+                    phone: priestData?.phone ?? "",
                     province: priestData?.province ?? "",
                     diocese: priestData?.diocese ?? "",
                     visa_number: priestData?.visa_number ?? "",
@@ -149,7 +147,7 @@ export default function PriestProfile() {
             date_of_birth: "",
             photo: "",
             address: "",
-            pin_code: "",
+            phone: "",
             province: "",
             diocese: "",
             visa_number: "",
@@ -172,7 +170,7 @@ export default function PriestProfile() {
                 date_of_birth: formData.date_of_birth || null,
                 photo: formData.photo || null,
                 address: formData.address || null,
-                pin_code: formData.pin_code || null,
+                phone: formData.phone || null,
                 province: formData.province || null,
                 diocese: formData.diocese || null,
                 visa_number: formData.visa_number || null,
@@ -230,7 +228,6 @@ export default function PriestProfile() {
                     address: priestData?.address ?? null,
                     photo: priestData?.photo ?? profileData?.photo ?? null,
                     date_of_birth: priestData?.date_of_birth ?? null,
-                    pin_code: priestData?.pin_code ?? null,
                     province: priestData?.province ?? null,
                     diocese: priestData?.diocese ?? null,
                     visa_number: priestData?.visa_number ?? null,
@@ -369,7 +366,7 @@ export default function PriestProfile() {
                                     <ProfileField
                                         icon={<Phone className="h-5 w-5" />}
                                         label={t("priestProfile.phoneNumber")}
-                                        value={profileData?.phone ?? userDetails?.phone ?? null}
+                                        value={profileData?.phone ?? null}
                                     />
                                 </div>
 
@@ -382,19 +379,9 @@ export default function PriestProfile() {
                                     <ProfileField
                                         icon={<MapPin className="h-5 w-5" />}
                                         label={t("priestProfile.currentAddress")}
-                                        value={profileData?.address ?? userDetails?.address ?? null}
+                                        value={profileData?.address ?? null}
                                     />
-
-                                    <div className="flex items-start gap-3 py-2 ml-8">
-                                        <div className="flex flex-col gap-1 flex-1">
-                                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                                {t("priestProfile.pinCode")}
-                                            </span>
-                                            <span className={`text-sm ${profileData?.pin_code ? "text-foreground" : "text-muted-foreground italic"}`}>
-                                                {profileData?.pin_code ?? t("common.notProvided")}
-                                            </span>
-                                        </div>
-                                    </div>
+                                    
                                 </div>
 
                                 {/* Religious Information */}
@@ -516,13 +503,13 @@ export default function PriestProfile() {
                                 </div>
 
                                 <div className="flex flex-col gap-2">
-                                    <span className="text-xs font-medium text-black-700">{t("priestProfile.pinCode")}</span>
+                                    <span className="text-xs font-medium text-black-700">{t("priestProfile.phoneNumber")}</span>
                                     <Input
-                                        id="pin_code"
+                                        id="phone"
                                         type="text"
-                                        placeholder={t("priestProfile.enterPinCode")}
-                                        value={formData.pin_code}
-                                        onChange={(e) => setFormData({ ...formData, pin_code: e.target.value })}
+                                        placeholder={t("priestProfile.enterPhoneNumber")}
+                                        value={formData.phone}
+                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     />
                                 </div>
                             </div>

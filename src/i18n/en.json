@@ -48,14 +48,13 @@
     "title": "Priest signup",
     "subtitle": "Create your account. The secretary may review your access.",
     "fullName": "Full name",
-    "phoneOptional": "Phone (optional)",
     "password": "Password",
     "confirmPassword": "Confirm password",
     "button": "Sign up",
     "creating": "Creating account…",
     "already": "Already have an account?",
     "login": "Login",
-    "createdMessage": "Account created. Please check your email to verify your address (if required), then log in."
+    "createdMessage": "Account created. Please check your email to verify."
   },
   "forgot": {
     "title": "Reset password",
@@ -132,7 +131,6 @@
     "phoneNumber": "Phone Number",
     "addressInformation": "Address Information",
     "currentAddress": "Current Address",
-    "pinCode": "Pin Code",
     "religiousInformation": "Religious Information",
     "province": "Province",
     "diocese": "Diocese",
@@ -148,7 +146,7 @@
     "failedToLoadProfile": "Failed to load profile data",
     "failedToUpdateProfile": "Failed to update profile",
     "enterCurrentAddress": "Enter your current address",
-    "enterPinCode": "Enter pin code",
+    "enterPhoneNumber": "Enter phone number",
     "enterProvince": "Enter province",
     "enterDiocese": "Enter diocese",
     "enterVisaNumber": "Enter visa number",

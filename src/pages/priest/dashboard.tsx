@@ -34,7 +34,7 @@ export default function PriestDashboard() {
   const startYear = 2023;
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<string>(currentYear.toString());
-
+  const [priestData, setPriestData] = useState<any>(null);
   const getLastDate = (month: string, year: string) => {
     switch (Number(month)) {
       case 1:
@@ -213,7 +213,7 @@ export default function PriestDashboard() {
           .limit(5),
         supabase
           .from("priests")
-          .select("id")
+          .select("*")
           .eq("id", user.id)
           .maybeSingle(),
       ]);
@@ -222,7 +222,7 @@ export default function PriestDashboard() {
       setAllSalary(salaryRows ?? []);
       setInsurance([]);
       setLoans(loanRows ?? []);
-      
+      setPriestData(priestData ?? null);
       // Load detailed salary for current year
       await changeYear(currentYear.toString());
       setAnnouncements(
@@ -608,7 +608,7 @@ export default function PriestDashboard() {
               <div className="flex flex-col items-start gap-2 w-full ">
                 <div className="flex justify-center w-full pt-4 pb-2 ">
                   <Avatar className="h-32 w-32">
-                    <AvatarImage src={userDetails?.photo ?? "/priest.svg"} />
+                    <AvatarImage src={priestData?.photo ?? "/priest.svg"} />
                     {/* <AvatarFallback className="text-2xl">EM</AvatarFallback> */}
                   </Avatar>
                 </div>
@@ -622,17 +622,17 @@ export default function PriestDashboard() {
                   <span className="text-sm w-[80%]"> {userDetails?.email ?? user.email}</span>
                 </div>
 
-                {userDetails?.phone && (
+                {priestData?.phone && (
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm  w-[80%]"> {userDetails.phone}</span>
+                    <span className="text-sm  w-[80%]"> {priestData.phone}</span>
                   </div>
                 )}
 
-                {userDetails?.address && (
+                {priestData?.address && (
                   <div className="flex items-start gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
-                    <span className="text-sm text-muted-foreground w-[80%]"> {userDetails.address}</span>
+                    <span className="text-sm text-muted-foreground w-[80%]"> {priestData.address}</span>
                   </div>
                 )}
               </div>

@@ -22,7 +22,7 @@ export default function Signup() {
     toast[type](message, {
       position: "top-center",
       style: {
-        backgroundColor: type === "success" ? "text-indigo-600" : "#f87171",
+        backgroundColor: type === "success" ? "#4ade80" : "#f87171",
         color: "#fff",
       },
     });

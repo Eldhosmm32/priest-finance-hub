@@ -10,6 +10,7 @@ import { supabase } from "../../../../lib/supabaseClient";
 import { TabsTrigger, TabsList, TabsContent } from "@/components/ui/tabs";
 import { Tabs } from "@/components/ui/tabs";
 import Loader from "@/components/ui/loader";
+import { useTranslation } from "../../../../i18n/languageContext";
 
 type AnnouncementRow = {
   id: string;
@@ -41,7 +42,7 @@ const showToast = (message: string, type: "success" | "error") => {
 };
 
 export default function AnnCommon() {
-
+  const { t } = useTranslation();
   const { user, loading } = useUser();
   const router = useRouter();
   const [items, setItems] = useState<AnnouncementRow[]>([]);
@@ -224,16 +225,16 @@ export default function AnnCommon() {
     <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg min-h-[calc(100vh-17.5rem)]">
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
         <div className="flex flex-col flex-1 md:flex-none">
-          <label className="text-xs font-medium text-gray-600">Search by title or body</label>
+          <label className="text-xs font-medium text-gray-600">{t("adminAnnouncements.common.searchLabel")}</label>
           <input
             className="input w-full md:max-w-xs"
-            placeholder="Search by title or body"
+            placeholder={t("adminAnnouncements.common.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <Badge className="text-xs font-medium text-white bg-green-500 w-fit">
-          {filteredItems.length} announcements
+          {filteredItems.length} {t("adminAnnouncements.common.announcementsCount")}
         </Badge>
         <Button
           type="button"
@@ -244,7 +245,7 @@ export default function AnnCommon() {
           }}
           className="w-full md:w-auto"
         >
-          <Plus /> Common Announcement
+          <Plus /> {t("adminAnnouncements.common.commonAnnouncement")}
         </Button>
       </div>
 
@@ -260,7 +261,7 @@ export default function AnnCommon() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingId ? "Edit Announcement" : "Create Announcement"}</DialogTitle>
+              <DialogTitle>{editingId ? t("adminAnnouncements.common.editAnnouncement") : t("adminAnnouncements.common.createAnnouncement")}</DialogTitle>
             </DialogHeader>
             {error && (
               <div className="bg-red-50 border text-sm border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center">
@@ -275,28 +276,28 @@ export default function AnnCommon() {
                 className="w-full"
               >
                 <TabsList>
-                  <TabsTrigger value="en">English</TabsTrigger>
-                  <TabsTrigger value="de">German</TabsTrigger>
+                  <TabsTrigger value="en">{t("common.language.en")}</TabsTrigger>
+                  <TabsTrigger value="de">{t("common.language.de")}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="en">
                   <div className="flex flex-col border border-gray-200 rounded-lg">
                     <div className="flex flex-col gap-2 rounded-lg p-2">
-                      <label className="text-xs font-medium text-gray-600">Title (English)</label>
+                      <label className="text-xs font-medium text-gray-600">{t("adminAnnouncements.common.titleEnglish")}</label>
                       <input
                         type="text"
                         className="input"
                         value={announcementForm.title}
                         onChange={(e) => updateField("title", e.target.value)}
-                        placeholder="Enter title"
+                        placeholder={t("adminAnnouncements.common.enterTitle")}
                       />
                     </div>
                     <div className="flex flex-col gap-2 rounded-lg p-2">
-                      <label className="text-xs font-medium text-gray-600">Body (English)</label>
+                      <label className="text-xs font-medium text-gray-600">{t("adminAnnouncements.common.bodyEnglish")}</label>
                       <textarea
                         className="input min-h-[80px]"
                         value={announcementForm.body}
                         onChange={(e) => updateField("body", e.target.value)}
-                        placeholder="Enter body"
+                        placeholder={t("adminAnnouncements.common.enterBody")}
                       />
                     </div>
                   </div>
@@ -305,17 +306,17 @@ export default function AnnCommon() {
                 <TabsContent value="de">
                   <div className="flex flex-col border border-gray-200 rounded-lg">
                     <div className="flex flex-col gap-2 rounded-lg p-2">
-                      <label className="text-xs font-medium text-gray-600">Title (German)</label>
+                      <label className="text-xs font-medium text-gray-600">{t("adminAnnouncements.common.titleGerman")}</label>
                       <input
                         type="text"
                         className="input"
                         value={announcementForm.title}
                         onChange={(e) => updateField("title", e.target.value)}
-                        placeholder="Enter title"
+                        placeholder={t("adminAnnouncements.common.enterTitle")}
                       />
                     </div>
                     <div className="flex flex-col gap-2 rounded-lg p-2">
-                      <label className="text-xs font-medium text-gray-600">Body (German)</label>
+                      <label className="text-xs font-medium text-gray-600">{t("adminAnnouncements.common.bodyGerman")}</label>
                       <textarea
                         className="input min-h-[80px]"
                         value={announcementForm.body}
@@ -329,7 +330,7 @@ export default function AnnCommon() {
 
               <div className="flex flex-col gap-2 border border-gray-200 rounded-lg p-2">
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-medium text-gray-600">Validity Days</label>
+                  <label className="text-xs font-medium text-gray-600">{t("adminAnnouncements.common.validityDays")}</label>
                   <input
                     type="number"
                     className="input"
@@ -340,12 +341,12 @@ export default function AnnCommon() {
                         updateField("validityDays", value);
                       }
                     }}
-                    placeholder="Enter number of days (optional)"
+                    placeholder={t("adminAnnouncements.common.validityDaysPlaceholder")}
                     min="1"
                     step="1"
                   />
                   <p className="text-xs text-gray-500">
-                    Number of days the announcement will be visible (minimum 1 day). Leave empty for no expiration.
+                    {t("adminAnnouncements.common.validityDaysDescription")}
                   </p>
                 </div>
               </div>
@@ -353,10 +354,10 @@ export default function AnnCommon() {
             <DialogFooter>
               <div className="flex justify-end gap-2 items-center w-full">
                 <Button size="sm" type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button size="sm" type="submit" className="btn" onClick={handleCreate}>
-                  {editingId ? "Update announcement" : "Create announcement"}
+                  {editingId ? t("adminAnnouncements.common.updateAnnouncement") : t("adminAnnouncements.common.createAnnouncementButton")}
                 </Button>
               </div>
             </DialogFooter>
@@ -368,12 +369,12 @@ export default function AnnCommon() {
             <table className="min-w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Title</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Language</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Created Date</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Validity Days</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Published</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminAnnouncements.common.titleColumn")}</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminAnnouncements.common.languageColumn")}</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminAnnouncements.common.createdDateColumn")}</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminAnnouncements.common.validityDaysColumn")}</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminAnnouncements.common.publishedColumn")}</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -404,20 +405,20 @@ export default function AnnCommon() {
                         })}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap">
-                        {validityDays ? `${validityDays} days` : "-"}
+                        {validityDays ? `${validityDays} ${t("adminAnnouncements.common.days")}` : "-"}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap">
                         <Badge
                           variant={isPublished(a) ? "default" : "outline"}
                           className={isPublished(a) ? "bg-green-500 text-white" : ""}
                         >
-                          {isPublished(a) ? "Published" : "Unpublished"}
+                          {isPublished(a) ? t("adminAnnouncements.common.published") : t("adminAnnouncements.common.unpublished")}
                         </Badge>
                       </td>
                       <td className="px-3 py-2">
                         <div className="flex gap-2 justify-end">
                           <Button size="sm" variant="ghost" onClick={() => handleEdit(a)}>
-                            Edit
+                            {t("common.edit")}
                           </Button>
                         </div>
                       </td>
@@ -427,7 +428,7 @@ export default function AnnCommon() {
                 {!filteredItems.length && (
                   <tr>
                     <td colSpan={6} className="px-3 py-6 text-center text-gray-500">
-                      {search ? "No announcements found matching your search." : "No announcements yet."}
+                      {search ? t("adminAnnouncements.common.noAnnouncementsFound") : t("adminAnnouncements.common.noAnnouncementsYet")}
                     </td>
                   </tr>
                 )}

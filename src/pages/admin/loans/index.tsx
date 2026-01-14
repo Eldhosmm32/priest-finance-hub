@@ -765,7 +765,7 @@ export default function AdminLoans() {
                             {t("common.edit")}
                           </Button>
                           <Button size="sm" variant="ghost" onClick={(e) => handleView(loan)}>
-                            {t("adminLoans.view")}
+                            {t("common.view")}
                           </Button>
                         </td>
                       </tr>

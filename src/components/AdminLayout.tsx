@@ -126,7 +126,7 @@ export default function AdminLayout({ children }: Props) {
             />
             <div className="fixed inset-y-0 right-0 z-50 w-72 bg-white border-r border-gray-200 p-4 overflow-auto">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-semibold text-gray-700">Admin</h2>
+                <h2 className="text-sm font-semibold text-gray-700">{t("layout.role.admin")}</h2>
 
                 <Button
                   aria-label="Close admin menu"

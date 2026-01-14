@@ -126,7 +126,7 @@ export default function PriestPasswordChange() {
       <div className="w-full max-w-2xl mx-auto">
         <div className="flex items-center gap-1 cursor-pointer bg-white p-2 rounded-t-lg" onClick={() => router.push("/priest/dashboard")} >
           <ArrowLeft className="text-black-600 h-4 w-4" />
-          <h1 className="text-sm font-semibold">{t("priestProfile.dashboard")}</h1>
+          <h1 className="text-sm font-semibold">{t("common.dashboard")}</h1>
         </div>
 
         <div className="rounded-b-lg bg-white p-2">

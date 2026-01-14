@@ -1,6 +1,7 @@
 {
   "common": {
     "appName": "Priester-Finanzen",
+    "poweredBy": "Betrieben von MSFS",
     "logout": "Abmelden",
     "language": {
       "en": "Englisch",

@@ -25,7 +25,6 @@ type PriestProfile = {
     active: boolean;
     photo: string | null;
     date_of_birth: string | null;
-    pin_code: string | null;
     province: string | null;
     diocese: string | null;
     visa_number: string | null;
@@ -289,14 +288,14 @@ export default function AdminPriestDetail() {
             // Fetch profile data
             const { data: priestProfile } = await supabase
                 .from("profiles")
-                .select("id, full_name, email, phone, active, photo")
+                .select("id, full_name, email, active")
                 .eq("id", priestId)
                 .maybeSingle();
 
             // Fetch priest metadata
             const { data: priestData } = await supabase
                 .from("priests")
-                .select("address, date_of_birth, pin_code, province, diocese, visa_number, visa_category, visa_expiry_date, passport_number, photo")
+                .select("address, date_of_birth, province, diocese, visa_number, visa_category, visa_expiry_date, passport_number, phone, photo")
                 .eq("id", priestId)
                 .maybeSingle();
 
@@ -304,7 +303,7 @@ export default function AdminPriestDetail() {
             const mergedPriestData: PriestProfile = {
                 ...(priestProfile ?? {}),
                 ...(priestData ?? {}),
-                photo: priestData?.photo ?? priestProfile?.photo ?? null,
+                photo: priestData?.photo ?? null,
             } as PriestProfile;
 
             setPriest(mergedPriestData);
@@ -319,7 +318,7 @@ export default function AdminPriestDetail() {
 
     return (
         <div className="flex gap-6">
-            <div className="flex-1 space-y-4 p-4">
+            <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
                 <div className="flex gap-1 items-center">
                     <Image src="/back-arrow.svg" alt="Priest" width={12} height={12} onClick={() => router.push("/admin/priests")} />
                     <h2 className="text-lg font-semibold text-gray-800">
@@ -363,7 +362,7 @@ export default function AdminPriestDetail() {
                                     <div className="flex items-center gap-2">
                                         <Label className="text-sm text-muted-foreground w-32">Date of Birth</Label>
                                         <span className="text-base font-medium">
-                                            {priest?.date_of_birth 
+                                            {priest?.date_of_birth
                                                 ? new Date(priest.date_of_birth).toLocaleDateString(undefined, {
                                                     day: "2-digit",
                                                     month: "short",
@@ -373,15 +372,10 @@ export default function AdminPriestDetail() {
                                         </span>
                                     </div>
 
-                                    {/* Current Address with Pin Code */}
+                                    {/* Current Address */}
                                     <div className="flex items-start gap-2">
                                         <Label className="text-sm text-muted-foreground w-32">Current Address</Label>
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-base font-medium">{priest?.address ?? 'N/A'}</span>
-                                            {priest?.pin_code && (
-                                                <span className="text-sm text-muted-foreground">Pin Code: {priest.pin_code}</span>
-                                            )}
-                                        </div>
+                                        <span className="text-base font-medium">{priest?.address ?? 'N/A'}</span>
                                     </div>
 
                                     {/* Phone Number */}
@@ -418,7 +412,7 @@ export default function AdminPriestDetail() {
                                     <div className="flex items-center gap-2">
                                         <Label className="text-sm text-muted-foreground w-32">Visa Expiry Date</Label>
                                         <span className="text-base font-medium">
-                                            {priest?.visa_expiry_date 
+                                            {priest?.visa_expiry_date
                                                 ? new Date(priest.visa_expiry_date).toLocaleDateString(undefined, {
                                                     day: "2-digit",
                                                     month: "short",

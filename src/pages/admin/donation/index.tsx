@@ -184,7 +184,7 @@ export default function AdminDonation() {
   }
 
   return (
-    <div className="flex-1 space-y-2">
+    <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
       <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">
         Donation Management
       </h1>

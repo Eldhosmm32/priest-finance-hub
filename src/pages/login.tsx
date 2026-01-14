@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabaseClient";
-import { useUser } from "../hooks/useUser";
 import { useLanguage, useTranslation } from "../i18n/languageContext";
+import Logo from "../components/ui/logo";
+import Footer from "../components/ui/footer";
 
 export default function Login() {
   const router = useRouter();
@@ -62,12 +63,10 @@ export default function Login() {
 
   return (
     <>
-      <header className="h-[3.6rem] px-4 border-b border-gray-200">
+      <header className="h-[3.6rem] px-4 bg-white/50 backdrop-blur-sm">
         <div className="flex items-center h-full justify-between m-auto max-w-6xl">
-          <span className="font-semibold text-indigo-700">
-            {t("common.appName")}
-          </span>
-          <div className="border border-1 border-gray-300 rounded-full flex gap-2 px-3">
+          <Logo />
+          <div className="bg-white rounded-full flex gap-2 px-3">
             <select
               value={language}
               onChange={(e) =>
@@ -83,7 +82,7 @@ export default function Login() {
       </header>
 
       <div className="h-[calc(100vh-6.15rem)] flex items-center justify-center px-4">
-        <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div className="w-full max-w-md bg-gray-50/50 backdrop-blur-lg rounded-xl shadow-sm p-6">
           <h1 className="text-xl font-semibold text-gray-800 mb-1">
             {t("login.title")}
           </h1>
@@ -144,12 +143,7 @@ export default function Login() {
         </div>
       </div>
 
-      <footer className="border-t border-gray-200 text-xs text-gray-500 py-3 text-center">
-        {t("layout.footer").replace(
-          "{{year}}",
-          String(new Date().getFullYear())
-        )}
-      </footer>
+      <Footer />
     </>
   );
 }

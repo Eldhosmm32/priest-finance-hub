@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Logo from "./ui/logo";
 
 type UserProfile = {
   id: string;
@@ -87,7 +88,7 @@ export default function PriestLayout({ children }: Props) {
           <div className="flex max-w-6xl mx-auto p-2 ">
             <div className="flex-1 flex items-center">
               <Link href="/" className="font-semibold text-indigo-700">
-                {t("common.appName")}
+                <Logo />
               </Link>
             </div>
             <div className="flex-none">

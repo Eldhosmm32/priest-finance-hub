@@ -222,7 +222,7 @@ export default function AnnCommon() {
   }
 
   return (
-    <div className="flex-1 space-y-2">
+    <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
         <div className="flex flex-col flex-1 md:flex-none">
           <label className="text-xs font-medium text-gray-600">Search by title or body</label>

@@ -1,6 +1,7 @@
 {
   "common": {
     "appName": "Priest Finance",
+    "poweredBy": "Powered by MSFS",
     "logout": "Logout",
     "language": {
       "en": "English",

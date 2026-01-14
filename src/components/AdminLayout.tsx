@@ -17,6 +17,8 @@ import {
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
+import Logo from "./ui/logo";
+import Footer from "./ui/footer";
 
 type Props = {
   children: React.ReactNode;
@@ -39,12 +41,12 @@ export default function AdminLayout({ children }: Props) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#E8CBC0] to-[#636FA4]">
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="flex max-w-6xl mx-auto p-2 ">
           <div className="flex-1 flex items-center">
             <Link href="/" className="font-semibold text-indigo-700">
-              {t("common.appName")}
+              <Logo />
             </Link>
           </div>
           <div className="flex-none">
@@ -140,12 +142,7 @@ export default function AdminLayout({ children }: Props) {
           </>
         )}
       </main>
-      <footer className="border-t border-gray-200 text-xs text-gray-500 py-3 text-center">
-        {t("layout.footer").replace(
-          "{{year}}",
-          String(new Date().getFullYear())
-        )}
-      </footer>
+      <Footer />
     </div>
   );
 }

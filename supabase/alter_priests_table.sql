@@ -9,10 +9,6 @@ add column if not exists date_of_birth date;
 alter table public.priests
 add column if not exists photo text;
 
--- Add pin_code column
-alter table public.priests
-add column if not exists pin_code text;
-
 -- Add province column
 alter table public.priests
 add column if not exists province text;

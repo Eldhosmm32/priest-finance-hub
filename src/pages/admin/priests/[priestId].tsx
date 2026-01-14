@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
@@ -15,6 +16,9 @@ import { Table, TableCaption, TableHeader, TableBody, TableFooter, TableRow, Tab
 import { useRouter } from "next/router";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import useMediaQuery from "@/hooks/useMediaQuery";
+import { PencilIcon } from "lucide-react";
+import { toast } from "sonner";
+import { useTranslation } from "@/i18n/languageContext";
 
 type PriestProfile = {
     id: string;
@@ -81,7 +85,23 @@ export default function AdminPriestDetail() {
     const [loans, setLoans] = useState<LoanRow[]>([]);
     const [openView, setOpenView] = useState(false);
     const [selectedLoan, setSelectedLoan] = useState<LoanRow | null>(null);
+    const [openEdit, setOpenEdit] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [formData, setFormData] = useState({
+        date_of_birth: "",
+        photo: "",
+        address: "",
+        phone: "",
+        province: "",
+        diocese: "",
+        visa_number: "",
+        visa_category: "",
+        visa_expiry_date: "",
+        passport_number: "",
+    });
     const isDesktop = useMediaQuery("(min-width: 768px)");
+    const { t } = useTranslation();
 
     const changeYear = async (value: any) => {
         setYear(value);
@@ -265,6 +285,129 @@ export default function AdminPriestDetail() {
         setOpenView(true);
     };
 
+    const handleOpenEdit = async () => {
+        setOpenEdit(true);
+        setError(null);
+
+        // Fetch current data from priests table
+        if (priestId && !Array.isArray(priestId)) {
+            try {
+                const { data: priestData } = await supabase
+                    .from("priests")
+                    .select("*")
+                    .eq("id", priestId)
+                    .maybeSingle();
+
+                // Populate form with existing data
+                setFormData({
+                    date_of_birth: priestData?.date_of_birth ? new Date(priestData.date_of_birth).toISOString().split('T')[0] : "",
+                    photo: priestData?.photo ?? "",
+                    address: priestData?.address ?? "",
+                    phone: priestData?.phone ?? "",
+                    province: priestData?.province ?? "",
+                    diocese: priestData?.diocese ?? "",
+                    visa_number: priestData?.visa_number ?? "",
+                    visa_category: priestData?.visa_category ?? "",
+                    visa_expiry_date: priestData?.visa_expiry_date ? new Date(priestData.visa_expiry_date).toISOString().split('T')[0] : "",
+                    passport_number: priestData?.passport_number ?? "",
+                });
+            } catch (err) {
+                console.error("Error fetching priest data:", err);
+                setError("Failed to load profile data");
+            }
+        }
+    };
+
+    const handleCloseEdit = () => {
+        setOpenEdit(false);
+        setError(null);
+        // Reset form
+        setFormData({
+            date_of_birth: "",
+            photo: "",
+            address: "",
+            phone: "",
+            province: "",
+            diocese: "",
+            visa_number: "",
+            visa_category: "",
+            visa_expiry_date: "",
+            passport_number: "",
+        });
+
+    };
+
+    // Toast utilities
+    const showToast = (message: string, type: "success" | "error") => {
+        toast[type](message, {
+            position: "top-center",
+            style: {
+                backgroundColor: type === "success" ? "#4ade80" : "#f87171",
+                color: "#fff",
+            },
+        });
+    };
+
+    const handleUpdateProfile = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!priestId || Array.isArray(priestId)) return;
+
+        setSaving(true);
+        setError(null);
+
+        try {
+            // Prepare update data - include all fields, empty strings will be set to null
+            const updateData: any = {
+                date_of_birth: formData.date_of_birth || null,
+                photo: formData.photo || null,
+                address: formData.address || null,
+                phone: formData.phone || null,
+                province: formData.province || null,
+                diocese: formData.diocese || null,
+                visa_number: formData.visa_number || null,
+                visa_category: formData.visa_category || null,
+                visa_expiry_date: formData.visa_expiry_date || null,
+                passport_number: formData.passport_number || null,
+            };
+
+            // Update existing record
+            const { error: updateError } = await supabase
+                .from("priests")
+                .update(updateData)
+                .eq("id", priestId);
+
+            if (updateError) throw updateError;
+
+            // Refresh priest data
+            const { data: priestProfile } = await supabase
+                .from("profiles")
+                .select("id, full_name, email, active")
+                .eq("id", priestId)
+                .maybeSingle();
+
+            const { data: priestData } = await supabase
+                .from("priests")
+                .select("address, date_of_birth, province, diocese, visa_number, visa_category, visa_expiry_date, passport_number, phone, photo")
+                .eq("id", priestId)
+                .maybeSingle();
+
+            const mergedPriestData: PriestProfile = {
+                ...(priestProfile ?? {}),
+                ...(priestData ?? {}),
+                photo: priestData?.photo ?? null,
+            } as PriestProfile;
+
+            setPriest(mergedPriestData);
+            showToast(t("common.updated"), "success");
+            handleCloseEdit();
+        } catch (err: any) {
+            console.error("Error updating profile:", err);
+            setError(err.message || "Failed to update profile");
+        } finally {
+            setSaving(false);
+        }
+    };
+
     useEffect(() => {
         if (!priestId || Array.isArray(priestId)) return;
         if (loading) return;
@@ -319,23 +462,23 @@ export default function AdminPriestDetail() {
     return (
         <div className="flex gap-6">
             <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
-                <div className="flex gap-1 items-center">
-                    <Image src="/back-arrow.svg" alt="Priest" width={12} height={12} onClick={() => router.push("/admin/priests")} />
-                    <h2 className="text-lg font-semibold text-gray-800">
-                        Priest Details
+                <div className="flex gap-1 items-center cursor-pointer" onClick={() => router.push("/admin/priests")}>
+                    <Image src="/back-arrow.svg" alt="Priest" width={10} height={10} />
+                    <h2 className="text-sm font-semibold text-gray-800">
+                        {t("adminPriestDetail.priestList")}
                     </h2>
                 </div>
 
                 <div className="bg-white border border-gray-200 rounded-lg overflow-auto p-2">
                     <Tabs defaultValue="details" className="w-full">
                         <TabsList>
-                            <TabsTrigger value="details">Details</TabsTrigger>
-                            <TabsTrigger value="salary">Financial Summary</TabsTrigger>
-                            <TabsTrigger value="loan">Loan Summary</TabsTrigger>
+                            <TabsTrigger value="details">{t("common.details")}</TabsTrigger>
+                            <TabsTrigger value="salary">{t("adminPriestDetail.financialSummary")}</TabsTrigger>
+                            <TabsTrigger value="loan">{t("adminPriestDetail.loanSummary")}</TabsTrigger>
                         </TabsList>
                         <TabsContent value="details" className="p-4">
                             <Card className="w-full">
-                                <CardHeader className="flex flex-row items-center gap-4">
+                                <CardHeader className="flex flex-row items-center gap-4 relative">
                                     <Avatar className="h-20 w-20">
                                         <AvatarImage src={priest?.photo ?? '/priest.svg'} alt={priest?.full_name ?? ''} />
                                         <AvatarFallback>{priest?.full_name?.charAt(0)}</AvatarFallback>
@@ -346,21 +489,34 @@ export default function AdminPriestDetail() {
 
                                         <Badge
                                             className={`w-fit mt-1 ${priest?.active ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
-                                            {priest?.active ? "Active" : "Inactive"}
+                                            {priest?.active ? t("common.active") : t("common.inactive")}
                                         </Badge>
+                                    </div>
+
+                                    <div
+                                        className="absolute top-6 right-6 px-2 py-1 bg-indigo-600 gap-1 rounded-md flex items-center justify-center cursor-pointer hover:bg-indigo-700 transition-colors"
+                                        onClick={handleOpenEdit}
+                                    >
+                                        <PencilIcon className="text-white h-3 w-3" /><span className="text-white text-sm">{t("common.edit")}</span>
                                     </div>
                                 </CardHeader>
 
-                                <CardContent className="space-y-4 ">
+                                <CardContent className="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-2">
                                     {/* Email */}
-                                    <div className="flex items-center gap-2">
-                                        <Label className="text-sm text-muted-foreground w-32">Email</Label>
-                                        <span className="text-base font-medium">{priest?.email ?? 'N/A'}</span>
+                                    <div className="flex flex-col md:flex-row gap-2 col-span-2">
+                                        <Label className="text-sm text-muted-foreground w-32">{t("common.email")}</Label>
+                                        <span className="text-base font-medium truncate">{priest?.email ?? 'N/A'}</span>
+                                    </div>
+
+                                    {/* Current Address */}
+                                    <div className="flex items-start gap-2 col-span-2">
+                                        <Label className="text-sm text-muted-foreground w-32">{t("common.currentAddress")}</Label>
+                                        <span className="text-base font-medium truncate">{priest?.address ?? 'N/A'}</span>
                                     </div>
 
                                     {/* Date of Birth */}
-                                    <div className="flex items-center gap-2">
-                                        <Label className="text-sm text-muted-foreground w-32">Date of Birth</Label>
+                                    <div className="flex flex-col md:flex-row gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">{t("common.dateOfBirth")}</Label>
                                         <span className="text-base font-medium">
                                             {priest?.date_of_birth
                                                 ? new Date(priest.date_of_birth).toLocaleDateString(undefined, {
@@ -372,45 +528,39 @@ export default function AdminPriestDetail() {
                                         </span>
                                     </div>
 
-                                    {/* Current Address */}
-                                    <div className="flex items-start gap-2">
-                                        <Label className="text-sm text-muted-foreground w-32">Current Address</Label>
-                                        <span className="text-base font-medium">{priest?.address ?? 'N/A'}</span>
-                                    </div>
-
                                     {/* Phone Number */}
-                                    <div className="flex items-center gap-2">
-                                        <Label className="text-sm text-muted-foreground w-32">Phone Number</Label>
-                                        <span className="text-base font-medium">{priest?.phone ?? 'N/A'}</span>
+                                    <div className="flex flex-col md:flex-row gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">{t("common.phoneNumber")}</Label>
+                                        <span className="text-base font-medium truncate">{priest?.phone ?? 'N/A'}</span>
                                     </div>
 
                                     {/* Province */}
-                                    <div className="flex items-center gap-2">
-                                        <Label className="text-sm text-muted-foreground w-32">Province</Label>
-                                        <span className="text-base font-medium">{priest?.province ?? 'N/A'}</span>
+                                    <div className="flex flex-col md:flex-row gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">{t("common.province")}</Label>
+                                        <span className="text-base font-medium truncate">{priest?.province ?? 'N/A'}</span>
                                     </div>
 
                                     {/* Diocese */}
-                                    <div className="flex items-center gap-2">
-                                        <Label className="text-sm text-muted-foreground w-32">Diocese</Label>
-                                        <span className="text-base font-medium">{priest?.diocese ?? 'N/A'}</span>
+                                    <div className="flex flex-col md:flex-row gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">{t("common.diocese")}</Label>
+                                        <span className="text-base font-medium truncate">{priest?.diocese ?? 'N/A'}</span>
                                     </div>
 
                                     {/* Visa Number */}
-                                    <div className="flex items-center gap-2">
-                                        <Label className="text-sm text-muted-foreground w-32">Visa Number</Label>
-                                        <span className="text-base font-medium">{priest?.visa_number ?? 'N/A'}</span>
+                                    <div className="flex flex-col md:flex-row gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">{t("common.visaNumber")}</Label>
+                                        <span className="text-base font-medium truncate">{priest?.visa_number ?? 'N/A'}</span>
                                     </div>
 
                                     {/* Visa Category */}
-                                    <div className="flex items-center gap-2">
-                                        <Label className="text-sm text-muted-foreground w-32">Visa Category</Label>
-                                        <span className="text-base font-medium">{priest?.visa_category ?? 'N/A'}</span>
+                                    <div className="flex flex-col md:flex-row gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">{t("common.visaCategory")}</Label>
+                                        <span className="text-base font-medium truncate">{priest?.visa_category ?? 'N/A'}</span>
                                     </div>
 
                                     {/* Visa Expiry Date */}
-                                    <div className="flex items-center gap-2">
-                                        <Label className="text-sm text-muted-foreground w-32">Visa Expiry Date</Label>
+                                    <div className="flex flex-col md:flex-row gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">{t("common.visaExpiryDate")}</Label>
                                         <span className="text-base font-medium">
                                             {priest?.visa_expiry_date
                                                 ? new Date(priest.visa_expiry_date).toLocaleDateString(undefined, {
@@ -423,9 +573,9 @@ export default function AdminPriestDetail() {
                                     </div>
 
                                     {/* Passport Number */}
-                                    <div className="flex items-center gap-2">
-                                        <Label className="text-sm text-muted-foreground w-32">Passport Number</Label>
-                                        <span className="text-base font-medium">{priest?.passport_number ?? 'N/A'}</span>
+                                    <div className="flex flex-col md:flex-row gap-2">
+                                        <Label className="text-sm text-muted-foreground w-32">{t("common.passportNumber")}</Label>
+                                        <span className="text-base font-medium truncate">{priest?.passport_number ?? 'N/A'}</span>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -437,7 +587,7 @@ export default function AdminPriestDetail() {
                                 >
                                     <div className="flex flex-col">
                                         <label className="text-xs font-medium text-gray-600 mb-1">
-                                            Year
+                                            {t("adminPriestDetail.year")}
                                         </label>
                                         <div className="flex gap-2">
                                             <Select value={year}
@@ -445,7 +595,7 @@ export default function AdminPriestDetail() {
                                                 required
                                             >
                                                 <SelectTrigger className="w-[180px]">
-                                                    <SelectValue placeholder="Select year" />
+                                                    <SelectValue placeholder={t("adminPriestDetail.selectYear")} />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {Array.from({ length: currentYear - startYear + 1 }, (_, i: any) => (
@@ -479,21 +629,21 @@ export default function AdminPriestDetail() {
                                                     <Table className="w-full">
                                                         <TableHeader>
                                                             <TableRow>
-                                                                <TableHead className="w-3/4">Item</TableHead>
-                                                                <TableHead className="text-right pr-4">Amount</TableHead>
+                                                                <TableHead className="w-3/4">{t("adminPriestDetail.item")}</TableHead>
+                                                                <TableHead className="text-right pr-4">{t("common.amount")}</TableHead>
                                                             </TableRow>
                                                         </TableHeader>
                                                         <TableBody>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]" >Salary Paid</TableCell>
+                                                                <TableCell className="text-[1rem]" >{t("adminPriestDetail.salaryPaid")}</TableCell>
                                                                 <TableCell className="text-right text-[1rem] pr-4">€ {s.salary_amount}</TableCell>
                                                             </TableRow>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]" >House Rent Paid</TableCell>
+                                                                <TableCell className="text-[1rem]" >{t("adminPriestDetail.houseRentPaid")}</TableCell>
                                                                 <TableCell className="text-right text-[1rem] pr-4">€ {s.house_rent_paid}</TableCell>
                                                             </TableRow>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]" >Insurance Paid</TableCell>
+                                                                <TableCell className="text-[1rem]" >{t("adminPriestDetail.insurancePaid")}</TableCell>
                                                                 <TableCell className="text-right text-[1rem] pr-4">€ {s.insurance_paid}</TableCell>
                                                             </TableRow>
 
@@ -502,27 +652,27 @@ export default function AdminPriestDetail() {
                                                                     <Table className="">
                                                                         <TableBody>
                                                                             <TableRow >
-                                                                                <TableCell className="" >Health</TableCell>
+                                                                                <TableCell className="" >{t("adminPriestDetail.health")}</TableCell>
                                                                                 <TableCell className="text-right">€ {s.health}</TableCell>
                                                                             </TableRow>
                                                                             <TableRow>
-                                                                                <TableCell >Vehcle Insurance</TableCell>
+                                                                                <TableCell >{t("adminPriestDetail.vehcleInsurance")}</TableCell>
                                                                                 <TableCell className="text-right">€ {s.vehicle_insurance}</TableCell>
                                                                             </TableRow>
                                                                             <TableRow>
-                                                                                <TableCell >KFZ Unfall & private</TableCell>
+                                                                                <TableCell >{t("adminPriestDetail.kfzUnfallPrivate")}</TableCell>
                                                                                 <TableCell className="text-right">€ {s.kfz_unfall_private}</TableCell>
                                                                             </TableRow>
                                                                             <TableRow>
-                                                                                <TableCell >Lebens- und </TableCell>
+                                                                                <TableCell >{t("adminPriestDetail.lebensUnd")}</TableCell>
                                                                                 <TableCell className="text-right">€ {s.lebens_und}</TableCell>
                                                                             </TableRow>
                                                                             <TableRow>
-                                                                                <TableCell >Insurance other 1</TableCell>
+                                                                                <TableCell >{t("adminPriestDetail.insuranceOther1")}</TableCell>
                                                                                 <TableCell className="text-right">€ {s.insurance_other_1}</TableCell>
                                                                             </TableRow>
                                                                             <TableRow>
-                                                                                <TableCell >Insurance other 2</TableCell>
+                                                                                <TableCell >{t("adminPriestDetail.insuranceOther2")}</TableCell>
                                                                                 <TableCell className="text-right">€ {s.insurance_other_2}</TableCell>
                                                                             </TableRow>
                                                                         </TableBody>
@@ -532,7 +682,7 @@ export default function AdminPriestDetail() {
                                                         </TableBody>
                                                         <TableFooter>
                                                             <TableRow>
-                                                                <TableCell className="text-xl">Total</TableCell>
+                                                                <TableCell className="text-xl">{t("adminPriestDetail.total")}</TableCell>
                                                                 <TableCell className="text-right text-xl pr-4">€ {s.total}</TableCell>
                                                             </TableRow>
                                                         </TableFooter>
@@ -550,12 +700,12 @@ export default function AdminPriestDetail() {
                                     <table className="min-w-full text-sm">
                                         <thead className="bg-gray-50">
                                             <tr>
-                                                <th className="px-3 py-2 text-left whitespace-nowrap">Principal</th>
-                                                <th className="px-3 py-2 text-left whitespace-nowrap">EMI</th>
-                                                <th className="px-3 py-2 text-left whitespace-nowrap">Issued On</th>
-                                                <th className="px-3 py-2 text-left whitespace-nowrap">Notes</th>
-                                                <th className="px-3 py-2 text-left whitespace-nowrap">Status</th>
-                                                <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
+                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPriestDetail.principal")}</th>
+                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPriestDetail.emi")}</th>
+                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPriestDetail.issuedOn")}</th>
+                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("common.notes")}</th>
+                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("common.status")}</th>
+                                                <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.actions")}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -587,7 +737,7 @@ export default function AdminPriestDetail() {
                                                         </td>
                                                         <td className="px-3 py-2 whitespace-nowrap">
                                                             <Badge className={`text-xs font-medium text-white w-fit ${isActive ? "bg-green-500" : "bg-red-500"}`}>
-                                                                {isActive ? "Active" : "Inactive"}
+                                                                {isActive ? t("common.active") : t("common.inactive")}
                                                             </Badge>
                                                         </td>
                                                         <td className="px-3 py-2 flex gap-2 justify-end">
@@ -595,7 +745,7 @@ export default function AdminPriestDetail() {
                                                                 e.stopPropagation();
                                                                 handleView(loan);
                                                             }}>
-                                                                View
+                                                                {t("common.view")}
                                                             </Button>
                                                         </td>
                                                     </tr>
@@ -604,7 +754,7 @@ export default function AdminPriestDetail() {
                                             {!loans.length && (
                                                 <tr>
                                                     <td colSpan={6} className="px-3 py-6 text-center text-gray-500">
-                                                        No loan entries yet.
+                                                        {t("adminPriestDetail.noLoanEntries")}
                                                     </td>
                                                 </tr>
                                             )}
@@ -626,8 +776,8 @@ export default function AdminPriestDetail() {
                                         {selectedLoan &&
                                             <>
                                                 <div className="pb-4 border-b border-gray-200">
-                                                    <h2 className="text-xl font-semibold text-gray-800">Loan Details</h2>
-                                                    <p className="text-sm text-gray-500 mt-1">Summary of your active loan</p>
+                                                    <h2 className="text-xl font-semibold text-gray-800">{t("adminPriestDetail.loanDetails")}</h2>
+                                                    <p className="text-sm text-gray-500 mt-1">{t("adminPriestDetail.summaryOfActiveLoan")}</p>
                                                 </div>
                                                 <div className="flex flex-col gap-3">
                                                     {(() => {
@@ -638,7 +788,7 @@ export default function AdminPriestDetail() {
                                                                     <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-1 w-full">
                                                                         <span className="text-xl">📅</span>
                                                                         <div className="flex flex-col gap-0 text-sm">
-                                                                            <span className="text-gray-700">Issued On</span>
+                                                                            <span className="text-gray-700">{t("adminPriestDetail.issuedOnLabel")}</span>
                                                                             <span className="font-semibold text-gray-800">
                                                                                 {new Date(selectedLoan.issued_on).toLocaleDateString(
                                                                                     undefined, {
@@ -653,7 +803,7 @@ export default function AdminPriestDetail() {
                                                                     <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-1 w-full">
                                                                         <span className="text-xl">📅</span>
                                                                         <div className="flex flex-col gap-0 text-sm">
-                                                                            <span className="text-gray-700">First EMI Date</span>
+                                                                            <span className="text-gray-700">{t("adminPriestDetail.firstEmiDate")}</span>
                                                                             <span className="font-semibold text-gray-800">
                                                                                 {details.firstEMIDate.toLocaleDateString(
                                                                                     undefined, {
@@ -668,7 +818,7 @@ export default function AdminPriestDetail() {
                                                                     <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-1 w-full">
                                                                         <span className="text-xl">📅</span>
                                                                         <div className="flex flex-col gap-0 text-sm">
-                                                                            <span className="text-gray-700">Last EMI Date</span>
+                                                                            <span className="text-gray-700">{t("adminPriestDetail.lastEmiDate")}</span>
                                                                             <span className="font-semibold text-gray-800">
                                                                                 {new Date(selectedLoan.closed_on).toLocaleDateString(
                                                                                     undefined, {
@@ -684,7 +834,7 @@ export default function AdminPriestDetail() {
                                                                 <div className="flex items-center justify-between border border-gray-200 rounded-lg py-1 px-2 w-full">
                                                                     <div className="flex items-center gap-3">
                                                                         <span className="text-2xl">💰</span>
-                                                                        <span className="text-gray-700">Principal Disbursed</span>
+                                                                        <span className="text-gray-700">{t("adminPriestDetail.principalDisbursed")}</span>
                                                                     </div>
                                                                     <span className="font-semibold text-gray-800">
                                                                         € {selectedLoan.principal.toFixed(2)}
@@ -694,20 +844,20 @@ export default function AdminPriestDetail() {
                                                                 <div className="flex items-center justify-between border border-gray-200 rounded-lg py-1 px-2 w-full">
                                                                     <div className="flex items-center gap-3">
                                                                         <span className="text-2xl">💵</span>
-                                                                        <span className="text-gray-700">EMI Paid Monthly</span>
+                                                                        <span className="text-gray-700">{t("adminPriestDetail.emiPaidMonthly")}</span>
                                                                     </div>
                                                                     <div className="flex flex-col gap-0">
                                                                         <span className="font-semibold text-gray-800">
                                                                             € {selectedLoan.emi}
                                                                         </span>
-                                                                        <span className="text-xs">{selectedLoan.total_months ?? 'N/A'} months</span>
+                                                                        <span className="text-xs">{selectedLoan.total_months ?? 'N/A'} {t("adminPriestDetail.months")}</span>
                                                                     </div>
                                                                 </div>
 
                                                                 <div className="flex items-center justify-between border border-gray-200 rounded-lg py-1 px-2 w-full">
                                                                     <div className="flex items-center gap-3">
                                                                         <span className="text-2xl">💶</span>
-                                                                        <span className="text-gray-700">Principal Paid</span>
+                                                                        <span className="text-gray-700">{t("adminPriestDetail.principalPaid")}</span>
                                                                     </div>
                                                                     <span className="font-semibold text-gray-800">
                                                                         € {details.principalPaid.toFixed(2)}
@@ -717,27 +867,27 @@ export default function AdminPriestDetail() {
                                                                 <div className="flex items-center justify-between border border-gray-200 rounded-lg py-1 px-2 w-full">
                                                                     <div className="flex items-center gap-3">
                                                                         <span className="text-2xl">💷</span>
-                                                                        <span className="text-gray-700">Outstanding Balance</span>
+                                                                        <span className="text-gray-700">{t("adminPriestDetail.outstandingBalance")}</span>
                                                                     </div>
                                                                     <span className="font-semibold text-yellow-600">
                                                                         € {details.outstandingBalance.toFixed(2)}
                                                                     </span>
                                                                 </div>
-                                                                <span className="text-xs font-medium text-gray-600 py-2">EMI Schedule</span>
+                                                                <span className="text-xs font-medium text-gray-600 py-2">{t("adminPriestDetail.emiSchedule")}</span>
                                                                 <div className="h-40 overflow-y-auto border border-gray-200 rounded-lg">
                                                                     <table className="min-w-full text-sm">
                                                                         <thead className="bg-gray-50 sticky top-0">
                                                                             <tr>
-                                                                                <th className="px-3 py-2 text-left whitespace-nowrap">EMI Number</th>
-                                                                                <th className="px-3 py-2 text-left whitespace-nowrap">Date</th>
-                                                                                <th className="px-3 py-2 text-right whitespace-nowrap">Amount</th>
+                                                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPriestDetail.emiNumber")}</th>
+                                                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("common.date")}</th>
+                                                                                <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.amount")}</th>
                                                                             </tr>
                                                                         </thead>
                                                                         <tbody>
                                                                             {details.emiList.map((emi) => (
                                                                                 <tr key={emi.emiNumber} className="border-t border-gray-100">
                                                                                     <td className="px-3 py-2 whitespace-nowrap text-gray-700">
-                                                                                        EMI {emi.emiNumber}
+                                                                                        {t("adminPriestDetail.emi")} {emi.emiNumber}
                                                                                     </td>
                                                                                     <td className="px-3 py-2 whitespace-nowrap font-semibold text-gray-800">
                                                                                         {emi.date.toLocaleDateString(undefined, {
@@ -764,7 +914,7 @@ export default function AdminPriestDetail() {
                                         <DialogFooter>
                                             <div className="flex justify-end gap-2 items-center w-full">
                                                 <Button size="sm" type="button" variant="outline" className="border-gray-300" onClick={() => setOpenView(false)}>
-                                                    Cancel
+                                                    {t("common.cancel")}
                                                 </Button>
                                             </div>
                                         </DialogFooter>
@@ -777,8 +927,8 @@ export default function AdminPriestDetail() {
                                     aria-describedby="loan-details">
                                     <DrawerContent>
                                         <DrawerHeader>
-                                            <DrawerTitle>Loan Details</DrawerTitle>
-                                            <DrawerDescription>Summary of the loan</DrawerDescription>
+                                            <DrawerTitle>{t("adminPriestDetail.loanDetails")}</DrawerTitle>
+                                            <DrawerDescription>{t("adminPriestDetail.summaryOfTheLoan")}</DrawerDescription>
                                         </DrawerHeader>
                                         {selectedLoan &&
                                             <>
@@ -791,7 +941,7 @@ export default function AdminPriestDetail() {
                                                                     <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-1 w-full">
                                                                         <span className="text-xl">📅</span>
                                                                         <div className="flex flex-col gap-0 text-sm">
-                                                                            <span className="text-gray-700">Issued On</span>
+                                                                            <span className="text-gray-700">{t("adminPriestDetail.issuedOnLabel")}</span>
                                                                             <span className="font-semibold text-gray-800">
                                                                                 {new Date(selectedLoan.issued_on).toLocaleDateString(
                                                                                     undefined, {
@@ -806,7 +956,7 @@ export default function AdminPriestDetail() {
                                                                     <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-1 w-full">
                                                                         <span className="text-xl">📅</span>
                                                                         <div className="flex flex-col gap-0 text-sm">
-                                                                            <span className="text-gray-700">First EMI Date</span>
+                                                                            <span className="text-gray-700">{t("adminPriestDetail.firstEmiDate")}</span>
                                                                             <span className="font-semibold text-gray-800">
                                                                                 {details.firstEMIDate.toLocaleDateString(
                                                                                     undefined, {
@@ -821,7 +971,7 @@ export default function AdminPriestDetail() {
                                                                     <div className="flex items-start gap-2 border border-gray-200 rounded-lg p-1 w-full">
                                                                         <span className="text-xl">📅</span>
                                                                         <div className="flex flex-col gap-0 text-sm">
-                                                                            <span className="text-gray-700">Last EMI Date</span>
+                                                                            <span className="text-gray-700">{t("adminPriestDetail.lastEmiDate")}</span>
                                                                             <span className="font-semibold text-gray-800">
                                                                                 {new Date(selectedLoan.closed_on).toLocaleDateString(
                                                                                     undefined, {
@@ -837,7 +987,7 @@ export default function AdminPriestDetail() {
                                                                 <div className="flex items-center justify-between">
                                                                     <div className="flex items-center gap-3">
                                                                         <span className="text-2xl">💰</span>
-                                                                        <span className="text-gray-700">Principal Disbursed</span>
+                                                                        <span className="text-gray-700">{t("adminPriestDetail.principalDisbursed")}</span>
                                                                     </div>
                                                                     <span className="font-semibold text-gray-800">
                                                                         € {selectedLoan.principal.toFixed(2)}
@@ -847,20 +997,20 @@ export default function AdminPriestDetail() {
                                                                 <div className="flex items-center justify-between">
                                                                     <div className="flex items-center gap-3">
                                                                         <span className="text-2xl">💵</span>
-                                                                        <span className="text-gray-700">EMI Paid Monthly</span>
+                                                                        <span className="text-gray-700">{t("adminPriestDetail.emiPaidMonthly")}</span>
                                                                     </div>
                                                                     <div className="flex flex-col gap-0">
                                                                         <span className="font-semibold text-gray-800">
                                                                             € {selectedLoan.emi}
                                                                         </span>
-                                                                        <span className="text-xs">{selectedLoan.total_months} months</span>
+                                                                        <span className="text-xs">{selectedLoan.total_months} {t("adminPriestDetail.months")}</span>
                                                                     </div>
                                                                 </div>
 
                                                                 <div className="flex items-center justify-between">
                                                                     <div className="flex items-center gap-3">
                                                                         <span className="text-2xl">💶</span>
-                                                                        <span className="text-gray-700">Principal Paid</span>
+                                                                        <span className="text-gray-700">{t("adminPriestDetail.principalPaid")}</span>
                                                                     </div>
                                                                     <span className="font-semibold text-gray-800">
                                                                         € {details.principalPaid.toFixed(2)}
@@ -870,28 +1020,28 @@ export default function AdminPriestDetail() {
                                                                 <div className="flex items-center justify-between pt-2 border-t border-gray-200">
                                                                     <div className="flex items-center gap-3">
                                                                         <span className="text-2xl">💷</span>
-                                                                        <span className="text-gray-700">Outstanding Balance</span>
+                                                                        <span className="text-gray-700">{t("adminPriestDetail.outstandingBalance")}</span>
                                                                     </div>
                                                                     <span className="font-semibold text-yellow-600">
                                                                         € {details.outstandingBalance.toFixed(2)}
                                                                     </span>
                                                                 </div>
 
-                                                                <span className="text-xs font-medium text-gray-600 py-2">EMI Schedule</span>
+                                                                <span className="text-xs font-medium text-gray-600 py-2">{t("adminPriestDetail.emiSchedule")}</span>
                                                                 <div className="h-40 overflow-y-auto border border-gray-200 rounded-lg">
                                                                     <table className="min-w-full text-sm">
                                                                         <thead className="bg-gray-50 sticky top-0">
                                                                             <tr>
-                                                                                <th className="px-3 py-2 text-left whitespace-nowrap">EMI Number</th>
-                                                                                <th className="px-3 py-2 text-left whitespace-nowrap">Date</th>
-                                                                                <th className="px-3 py-2 text-right whitespace-nowrap">Amount</th>
+                                                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPriestDetail.emiNumber")}</th>
+                                                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("common.date")}</th>
+                                                                                <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.amount")}</th>
                                                                             </tr>
                                                                         </thead>
                                                                         <tbody>
                                                                             {details.emiList.map((emi) => (
                                                                                 <tr key={emi.emiNumber} className="border-t border-gray-100">
                                                                                     <td className="px-3 py-2 whitespace-nowrap text-gray-700">
-                                                                                        EMI {emi.emiNumber}
+                                                                                        {t("adminPriestDetail.emi")} {emi.emiNumber}
                                                                                     </td>
                                                                                     <td className="px-3 py-2 whitespace-nowrap font-semibold text-gray-800">
                                                                                         {emi.date.toLocaleDateString(undefined, {
@@ -917,7 +1067,7 @@ export default function AdminPriestDetail() {
                                         }
                                         <DrawerFooter>
                                             <Button size="sm" type="button" variant="outline" onClick={() => setOpenView(false)}>
-                                                Cancel
+                                                {t("common.cancel")}
                                             </Button>
                                         </DrawerFooter>
                                     </DrawerContent>
@@ -927,6 +1077,183 @@ export default function AdminPriestDetail() {
                     </Tabs>
                 </div>
             </div>
+
+            {/* Edit Profile Dialog */}
+            <Dialog open={openEdit} onOpenChange={(isOpen) => {
+                if (!isOpen) {
+                    handleCloseEdit();
+                }
+            }}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>{t("adminPriestDetail.editPriestProfile")}</DialogTitle>
+                    </DialogHeader>
+
+                    {error && (
+                        <div className="bg-red-50 border text-sm border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center">
+                            {error}
+                            <button className="text-red-700" onClick={() => setError(null)}>×</button>
+                        </div>
+                    )}
+
+                    <form onSubmit={handleUpdateProfile}>
+                        <div className="p-2 mb-4 h-[calc(100vh-15rem)] overflow-y-auto space-y-4">
+                            {/* Personal Information Section */}
+                            <div className="space-y-3">
+                                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">{t("common.personalInformation")}</h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-2">
+                                        <span className="text-xs font-medium text-black-700">{t("adminPriestDetail.dateOfBirthLabel")}</span>
+                                        <Input
+                                            id="date_of_birth"
+                                            type="date"
+                                            value={formData.date_of_birth}
+                                            onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <span className="text-xs font-medium text-black-700">{t("adminPriestDetail.profilePhotoUrl")}</span>
+                                        <Input
+                                            id="photo"
+                                            type="url"
+                                            placeholder={t("adminPriestDetail.enterPhotoUrl")}
+                                            value={formData.photo}
+                                            onChange={(e) => setFormData({ ...formData, photo: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Address Information Section */}
+                            <div className="space-y-3">
+                                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">{t("common.addressInformation")}</h3>
+
+                                <div className="flex flex-col gap-2">
+                                    <span className="text-xs font-medium text-black-700">{t("adminPriestDetail.currentAddressLabel")}</span>
+                                    <Input
+                                        id="address"
+                                        type="text"
+                                        placeholder={t("adminPriestDetail.enterCurrentAddress")}
+                                        value={formData.address}
+                                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <span className="text-xs font-medium text-black-700">{t("adminPriestDetail.phoneNumberLabel")}</span>
+                                    <Input
+                                        id="phone"
+                                        type="text"
+                                        placeholder={t("adminPriestDetail.enterPhoneNumber")}
+                                        value={formData.phone}
+                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Religious Information Section */}
+                            <div className="space-y-3">
+                                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">{t("common.religiousInformation")}</h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-2">
+                                        <span className="text-xs font-medium text-black-700">{t("adminPriestDetail.provinceLabel")}</span>
+                                        <Input
+                                            id="province"
+                                            type="text"
+                                            placeholder={t("adminPriestDetail.enterProvince")}
+                                            value={formData.province}
+                                            onChange={(e) => setFormData({ ...formData, province: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <span className="text-xs font-medium text-black-700">{t("adminPriestDetail.dioceseLabel")}</span>
+                                        <Input
+                                            id="diocese"
+                                            type="text"
+                                            placeholder={t("adminPriestDetail.enterDiocese")}
+                                            value={formData.diocese}
+                                            onChange={(e) => setFormData({ ...formData, diocese: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Visa & Passport Information Section */}
+                            <div className="space-y-3">
+                                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">{t("common.visaPassportInformation")}</h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-2">
+                                        <span className="text-xs font-medium text-black-700">{t("adminPriestDetail.visaNumberLabel")}</span>
+                                        <Input
+                                            id="visa_number"
+                                            type="text"
+                                            placeholder={t("adminPriestDetail.enterVisaNumber")}
+                                            value={formData.visa_number}
+                                            onChange={(e) => setFormData({ ...formData, visa_number: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <span className="text-xs font-medium text-black-700">{t("adminPriestDetail.visaCategoryLabel")}</span>
+                                        <Input
+                                            id="visa_category"
+                                            type="text"
+                                            placeholder={t("adminPriestDetail.enterVisaCategory")}
+                                            value={formData.visa_category}
+                                            onChange={(e) => setFormData({ ...formData, visa_category: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <span className="text-xs font-medium text-black-700">{t("adminPriestDetail.visaExpiryDateLabel")}</span>
+                                        <Input
+                                            id="visa_expiry_date"
+                                            type="date"
+                                            value={formData.visa_expiry_date}
+                                            onChange={(e) => setFormData({ ...formData, visa_expiry_date: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <span className="text-xs font-medium text-black-700">{t("adminPriestDetail.passportNumberLabel")}</span>
+                                        <Input
+                                            id="passport_number"
+                                            type="text"
+                                            placeholder={t("adminPriestDetail.enterPassportNumber")}
+                                            value={formData.passport_number}
+                                            onChange={(e) => setFormData({ ...formData, passport_number: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <div className="flex justify-end gap-2 items-center w-full">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleCloseEdit}
+                                    disabled={saving}
+                                >
+                                    {t("common.cancel")}
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    className="bg-indigo-600 hover:bg-indigo-700"
+                                    disabled={saving}
+                                >
+                                    {saving ? t("common.saving") : t("common.save")}
+                                </Button>
+                            </div>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

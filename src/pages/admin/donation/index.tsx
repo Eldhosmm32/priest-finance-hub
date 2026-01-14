@@ -6,6 +6,8 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useUser } from "../../../hooks/useUser";
 import { supabase } from "../../../lib/supabaseClient";
+import Loader from "@/components/ui/loader";
+import { useTranslation } from "../../../i18n/languageContext";
 
 type DonationRow = {
   id: string;
@@ -42,6 +44,7 @@ const showToast = (message: string, type: "success" | "error") => {
 export default function AdminDonation() {
   const { user, loading } = useUser();
   const router = useRouter();
+  const { t } = useTranslation();
   const currentDate = new Date().toISOString().split('T')[0];
   const [donations, setDonations] = useState<DonationRow[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -123,7 +126,7 @@ export default function AdminDonation() {
     setError(null);
 
     if (!creditedDate || !donationForm.sender || !donationForm.amount) {
-      showToast("Please enter all required fields", "error");
+      showToast(t("toasts.enterAllRequiredFields"), "error");
       return;
     }
 
@@ -143,7 +146,7 @@ export default function AdminDonation() {
 
     if (error) {
       console.error(error);
-      setError("Failed to save donation entry. Please try again.");
+      setError(t("toasts.failedToSaveDonation"));
       return;
     }
 
@@ -153,7 +156,7 @@ export default function AdminDonation() {
           ? prev.map((s) => (s.id === editingId ? (data as unknown as DonationRow) : s))
           : [data as unknown as DonationRow, ...prev]
       );
-      showToast(editingId ? "Donation updated successfully" : "Donation added successfully", "success");
+      showToast(editingId ? t("toasts.donationUpdated") : t("toasts.donationAdded"), "success");
       await loadDonationData();
       resetForm();
       setOpen(false);
@@ -177,22 +180,20 @@ export default function AdminDonation() {
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading…
-      </div>
+      <Loader />
     );
   }
 
   return (
     <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
       <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">
-        Donation Management
+        {t("adminDonation.title")}
       </h1>
 
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
         <div className="flex w-full gap-2">
           <div className="flex flex-col flex-1 md:flex-none">
-            <label className="text-xs font-medium text-gray-600">Start Date</label>
+            <label className="text-xs font-medium text-gray-600">{t("common.startDate")}</label>
             <input
               type="date"
               className="input"
@@ -201,7 +202,7 @@ export default function AdminDonation() {
             />
           </div>
           <div className="flex flex-col flex-1 md:flex-none">
-            <label className="text-xs font-medium text-gray-600">End Date</label>
+            <label className="text-xs font-medium text-gray-600">{t("common.endDate")}</label>
             <input
               type="date"
               className="input"
@@ -212,7 +213,7 @@ export default function AdminDonation() {
           {(startDate || endDate) && <div className="flex flex-col justify-end flex-1 md:flex-none">
             <Button
               type="button"
-                variant="outline"
+              variant="outline"
               onClick={() => {
                 setStartDate("");
                 setEndDate("");
@@ -220,7 +221,7 @@ export default function AdminDonation() {
               }}
               className="w-full md:w-auto"
             >
-              Clear
+              {t("common.clear")}
             </Button>
           </div>
           }
@@ -234,7 +235,7 @@ export default function AdminDonation() {
           }}
           className="w-full md:w-auto"
         >
-          <Plus /> Add donation
+          <Plus /> {t("adminDonation.addDonation")}
         </Button>
       </div>
 
@@ -250,7 +251,7 @@ export default function AdminDonation() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingId ? "Edit Donation" : "Add Donation"}</DialogTitle>
+              <DialogTitle>{editingId ? t("adminDonation.editDonation") : t("adminDonation.addDonationTitle")}</DialogTitle>
             </DialogHeader>
             {error && (
               <div className="bg-red-50 border text-sm border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center " >
@@ -261,7 +262,7 @@ export default function AdminDonation() {
             <form onSubmit={handleAdd} className="bg-white flex flex-wrap gap-3 items-end">
               <div className="flex flex-col gap-2 border border-gray-200 rounded-lg px-2 py-3 w-full">
                 <div className="flex flex-col">
-                  <label className="text-xs font-medium text-gray-600 mb-1">Date (Amount Credited)</label>
+                  <label className="text-xs font-medium text-gray-600 mb-1">{t("adminDonation.dateCredited")}</label>
                   <input
                     type="date"
                     className="input"
@@ -273,17 +274,17 @@ export default function AdminDonation() {
               </div>
 
               <div className="flex flex-col gap-2 border border-gray-200 rounded-lg w-full max-h-[400px] p-2">
-                <label className="text-xs font-medium w-full">Donation Received From (Sender)</label>
+                <label className="text-xs font-medium w-full">{t("adminDonation.donationReceivedFrom")}</label>
                 <input
                   type="text"
                   className="input"
                   onChange={(e) => updateField("sender", e.target.value)}
                   value={donationForm.sender}
                   required
-                  placeholder="Enter sender name"
+                  placeholder={t("adminDonation.senderNamePlaceholder")}
                 />
 
-                <label className="text-xs font-medium w-full">Amount Received</label>
+                <label className="text-xs font-medium w-full">{t("adminDonation.amountReceived")}</label>
                 <input
                   type="number"
                   className="input"
@@ -291,28 +292,28 @@ export default function AdminDonation() {
                   value={donationForm.amount}
                   required
                   step="0.01"
-                  placeholder="Enter amount"
+                  placeholder={t("adminDonation.amountPlaceholder")}
                 />
 
                 <label className="text-xs font-medium w-full">
-                  Notes <span className="font-normal">(optional)</span>
+                  {t("common.notes")} <span className="font-normal">{t("common.optional")}</span>
                 </label>
                 <input
                   type="text"
                   className="input"
                   onChange={(e) => updateField("notes", e.target.value)}
                   value={donationForm.notes}
-                  placeholder="Enter notes"
+                  placeholder={t("common.notesPlaceholder")}
                 />
               </div>
             </form>
             <DialogFooter>
               <div className="flex justify-end gap-2 items-center w-full">
                 <Button size="sm" type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button size="sm" type="submit" className="btn" onClick={handleAdd}>
-                  {editingId ? "Update donation" : "Add donation"}
+                  {editingId ? t("adminDonation.updateDonation") : t("adminDonation.addDonation")}
                 </Button>
               </div>
             </DialogFooter>
@@ -322,63 +323,65 @@ export default function AdminDonation() {
         <div className="flex flex-col lg:flex-row gap-2">
           <div className="block md:hidden w-full h-fit bg-white border border-gray-200 rounded-lg">
             <div className="py-2 px-3 border rounded-lg border-indigo-100 bg-indigo-100 text-indigo-600 flex justify-between items-center">
-              <h2 className="font-normal ">Donation Summary </h2>
+              <h2 className="font-normal ">{t("adminDonation.donationSummary")} </h2>
               <span className="font-semibold">€ {donationSummary?.total_amount ?? "N/A"}</span>
             </div>
           </div>
-          <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Sender</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Date (Credited)</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Amount</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Notes</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {donations.map((donation) => (
-                  <tr key={donation.id} className="border-t border-gray-100">
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {donation.sender}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {new Date(donation.credited_date).toLocaleDateString(undefined, {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {donation.amount}</td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {donation.notes || "-"}
-                    </td>
-                    <td className="px-3 py-2 flex gap-2 justify-end">
-                      <Button size="sm" variant="ghost" onClick={() => handleEdit(donation.id)}>
-                        Edit
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-                {!donations.length && (
+          <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto p-1">
+            <div className="overflow-auto rounded-lg max-h-[calc(100vh-21rem)] thin-scroll">
+              <table className="min-w-full text-sm">
+                <thead className="bg-gray-50">
                   <tr>
-                    <td colSpan={5} className="px-3 py-6 text-center text-gray-500">
-                      No donation entries yet.
-                    </td>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminDonation.senderColumn")}</th>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminDonation.dateCreditedColumn")}</th>
+                    <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.amount")}</th>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("common.notes")}</th>
+                    <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.actions")}</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {donations.map((donation) => (
+                    <tr key={donation.id} className="border-t border-gray-100">
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {donation.sender}
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {new Date(donation.credited_date).toLocaleDateString(undefined, {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="px-3 py-2 text-right whitespace-nowrap">€ {donation.amount}</td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {donation.notes || "-"}
+                      </td>
+                      <td className="px-3 py-2 flex gap-2 justify-end">
+                        <Button size="sm" variant="ghost" onClick={() => handleEdit(donation.id)}>
+                          {t("common.edit")}
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {!donations.length && (
+                    <tr>
+                      <td colSpan={5} className="px-3 py-6 text-center text-gray-500">
+                        {t("adminDonation.noDonationEntries")}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
           <div className="hidden md:block w-1/3 h-fit bg-white border border-gray-200 rounded-lg">
             <div className="p-2 border-b border-gray-200">
-              <h2 className="font-semibold">Donation Summary</h2>
+              <h2 className="font-semibold">{t("adminDonation.donationSummary")}</h2>
             </div>
             <div className="flex flex-col gap-2 p-2">
               <p className="text-sm text-gray-500">
                 {startDate && endDate
-                  ? `From ${new Date(startDate).toLocaleDateString(undefined, {
+                  ? `${t("common.from")} ${new Date(startDate).toLocaleDateString(undefined, {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
@@ -388,18 +391,18 @@ export default function AdminDonation() {
                     year: "numeric",
                   })}`
                   : startDate
-                    ? `From ${new Date(startDate).toLocaleDateString(undefined, {
+                    ? `${t("common.from")} ${new Date(startDate).toLocaleDateString(undefined, {
                       day: "numeric",
                       month: "short",
                       year: "numeric",
                     })}`
                     : endDate
-                      ? `Until ${new Date(endDate).toLocaleDateString(undefined, {
+                      ? `${t("common.until")} ${new Date(endDate).toLocaleDateString(undefined, {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
                       })}`
-                      : "All time"}
+                      : t("common.allTime")}
               </p>
               <h1 className="font-bold text-2xl">€ {donationSummary?.total_amount ?? "N/A"}</h1>
               <p className="text-sm text-gray-500">{donationSummary?.donation_count ?? 0} donations</p>

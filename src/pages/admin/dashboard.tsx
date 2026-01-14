@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useUser } from "../../hooks/useUser";
 import { supabase } from "../../lib/supabaseClient";
 import { useTranslation } from "../../i18n/languageContext";
+import Loader from "@/components/ui/loader";
 // import users from "../api/priests-data.json";
 
 type StatusCards = {
@@ -225,66 +226,70 @@ export default function AdminDashboard() {
   }, [user, loading, router, fetchSummary]);
 
   return (
-    <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-2">{t("adminDashboard.title")}</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* 1. Total Salary (This Month) */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">{t("adminDashboard.totalSalary")} (This Month)</p>
-          <p className="text-xl font-semibold mt-1">
-            € {statusCards?.totalSalaryThisMonth || "0.00"}
-          </p>
-        </div>
+    <>
+      {loading ? <Loader /> : (
+        <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
+          <h1 className="text-2xl font-semibold text-gray-800 mb-2">{t("common.dashboard")}</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* 1. Total Salary (This Month) */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-xs text-gray-500">{t("adminDashboard.totalSalary")} (This Month)</p>
+              <p className="text-xl font-semibold mt-1">
+                € {statusCards?.totalSalaryThisMonth || "0.00"}
+              </p>
+            </div>
 
-        {/* 2. Total Insurance Paid (This Month amount and Description) */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">{t("adminDashboard.totalInsurancePaid")} (This Month)</p>
-          <p className="text-xl font-semibold mt-1">€ {statusCards?.totalInsuranceThisMonth || "0.00"}</p>
-          <p className="text-xs text-gray-400 mt-1">{statusCards?.insuranceDescription || "No insurance payments"}</p>
-        </div>
+            {/* 2. Total Insurance Paid (This Month amount and Description) */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-xs text-gray-500">{t("adminDashboard.totalInsurancePaid")} (This Month)</p>
+              <p className="text-xl font-semibold mt-1">€ {statusCards?.totalInsuranceThisMonth || "0.00"}</p>
+              <p className="text-xs text-gray-400 mt-1">{statusCards?.insuranceDescription || "No insurance payments"}</p>
+            </div>
 
-        {/* 3. Total Rent Paid (This Month) */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">{t("adminDashboard.totalRentPaid")} (This Month)</p>
-          <p className="text-xl font-semibold mt-1">€ {statusCards?.totalRentThisMonth || "0.00"}</p>
-        </div>
+            {/* 3. Total Rent Paid (This Month) */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-xs text-gray-500">{t("adminDashboard.totalRentPaid")} (This Month)</p>
+              <p className="text-xl font-semibold mt-1">€ {statusCards?.totalRentThisMonth || "0.00"}</p>
+            </div>
 
-        {/* 4. Total Loan Issued (This Month) */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">{t("adminDashboard.totalLoansIssued")} (This Month)</p>
-          <p className="text-xl font-semibold mt-1"> {statusCards?.totalLoansIssuedThisMonth || 0}</p>
-        </div>
+            {/* 4. Total Loan Issued (This Month) */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-xs text-gray-500">{t("adminDashboard.totalLoansIssued")} (This Month)</p>
+              <p className="text-xl font-semibold mt-1"> {statusCards?.totalLoansIssuedThisMonth || 0}</p>
+            </div>
 
-        {/* 5. Number of Active Loans */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">{t("adminDashboard.numberOfActiveLoans")}</p>
-          <p className="text-xl font-semibold mt-1">{statusCards?.numberOfActiveLoans || 0}</p>
-        </div>
+            {/* 5. Number of Active Loans */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-xs text-gray-500">{t("adminDashboard.numberOfActiveLoans")}</p>
+              <p className="text-xl font-semibold mt-1">{statusCards?.numberOfActiveLoans || 0}</p>
+            </div>
 
-        {/* 6. Last International Transfers (Total Amount and Description) */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">{t("adminDashboard.lastInternationalTransfers")}</p>
-          <p className="text-xl font-semibold mt-1">€ {statusCards?.lastInternationalTransfersTotal || "0.00"}</p>
-          <p className="text-xs text-gray-400 mt-1 truncate" title={statusCards?.lastInternationalTransfersDescription}>
-            {statusCards?.lastInternationalTransfersDescription || "No transfers"}
-          </p>
-        </div>
+            {/* 6. Last International Transfers (Total Amount and Description) */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-xs text-gray-500">{t("adminDashboard.lastInternationalTransfers")}</p>
+              <p className="text-xl font-semibold mt-1">€ {statusCards?.lastInternationalTransfersTotal || "0.00"}</p>
+              <p className="text-xs text-gray-400 mt-1 truncate" title={statusCards?.lastInternationalTransfersDescription}>
+                {statusCards?.lastInternationalTransfersDescription || "No transfers"}
+              </p>
+            </div>
 
-        {/* 7. Last Donation Received */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500">Last Donation Received</p>
-          <p className="text-xl font-semibold mt-1">€ {statusCards?.lastDonationReceived || "0.00"}</p>
-          {statusCards?.lastDonationDate && (
-            <p className="text-xs text-gray-400 mt-1">
-              {new Date(statusCards.lastDonationDate).toLocaleDateString(undefined, {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              })}
-            </p>
-          )}
+            {/* 7. Last Donation Received */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-xs text-gray-500">Last Donation Received</p>
+              <p className="text-xl font-semibold mt-1">€ {statusCards?.lastDonationReceived || "0.00"}</p>
+              {statusCards?.lastDonationDate && (
+                <p className="text-xs text-gray-400 mt-1">
+                  {new Date(statusCards.lastDonationDate).toLocaleDateString(undefined, {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }

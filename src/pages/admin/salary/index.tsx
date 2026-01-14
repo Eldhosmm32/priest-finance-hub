@@ -7,6 +7,8 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useUser } from "../../../hooks/useUser";
 import { supabase } from "../../../lib/supabaseClient";
+import Loader from "@/components/ui/loader";
+import { useTranslation } from "../../../i18n/languageContext";
 
 type SalaryRow = {
   id: string;
@@ -50,6 +52,7 @@ const showToast = (message: string, type: "success" | "error") => {
 export default function AdminSalary() {
   const { user, loading } = useUser();
   const router = useRouter();
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
   const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
   const currentMonthDate = `${currentYear}-${currentMonth}`;
@@ -147,7 +150,7 @@ export default function AdminSalary() {
     setError(null);
 
     if (!priestId || !dialogeMonth) {
-      showToast("Please enter all required fields", "error");
+      showToast(t("toasts.enterAllRequiredFields"), "error");
       return;
     }
 
@@ -163,7 +166,7 @@ export default function AdminSalary() {
         .maybeSingle();
 
       if (existingEntry) {
-        setError("A salary entry already exists for this priest in the selected month.");
+        setError(t("toasts.salaryEntryExists"));
         return;
       }
     }
@@ -188,7 +191,7 @@ export default function AdminSalary() {
 
     if (error) {
       console.error(error);
-      setError("Failed to save salary entry. Please try again.");
+      setError(t("toasts.failedToSaveSalary"));
       return;
     }
 
@@ -198,7 +201,7 @@ export default function AdminSalary() {
           ? prev.map((s) => (s.id === editingId ? (data as unknown as SalaryRow) : s))
           : [data as unknown as SalaryRow, ...prev]
       );
-      showToast(editingId ? "Salary updated successfully" : "Salary added successfully", "success");
+      showToast(editingId ? t("toasts.salaryUpdated") : t("toasts.salaryAdded"), "success");
       await loadSalaryData();
       resetForm();
       setOpen(false);
@@ -222,22 +225,20 @@ export default function AdminSalary() {
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading…
-      </div>
+      <Loader />
     );
   }
 
   return (
     <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
       <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">
-        Salary Management
+        {t("adminSalary.title")}
       </h1>
 
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
         <div className="flex w-full gap-2">
           <div className="flex flex-col flex-1 md:flex-none">
-            <label className="text-xs font-medium text-gray-600">Start Month</label>
+            <label className="text-xs font-medium text-gray-600">{t("common.startMonth")}</label>
             <input
               type="month"
               className="input"
@@ -246,7 +247,7 @@ export default function AdminSalary() {
             />
           </div>
           <div className="flex flex-col flex-1 md:flex-none">
-            <label className="text-xs font-medium text-gray-600">End Month</label>
+            <label className="text-xs font-medium text-gray-600">{t("common.endMonth")}</label>
             <input
               type="month"
               className="input"
@@ -264,7 +265,7 @@ export default function AdminSalary() {
           }}
           className="w-full md:w-auto"
         >
-          <Plus /> Add salary
+          <Plus /> {t("adminSalary.addSalary")}
         </Button>
       </div>
 
@@ -282,7 +283,7 @@ export default function AdminSalary() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingId ? "Edit Salary" : "Add Salary"}</DialogTitle>
+              <DialogTitle>{editingId ? t("adminSalary.editSalary") : t("adminSalary.addSalaryTitle")}</DialogTitle>
             </DialogHeader>
             {error && (
               <div className="bg-red-50 border text-sm border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center " >
@@ -293,10 +294,10 @@ export default function AdminSalary() {
             <form onSubmit={handleAdd} className="bg-white flex flex-wrap gap-3 items-end">
               <div className="flex flex-col sm:flex-row gap-2 border border-gray-200 rounded-lg px-2 w-full">
                 <div className="flex flex-col py-3 w-full sm:w-1/2">
-                  <label className="text-xs font-medium text-gray-600 mb-1">Priest</label>
+                  <label className="text-xs font-medium text-gray-600 mb-1">{t("common.priest")}</label>
                   <Select value={priestId} onValueChange={setPriestId} required>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select priest" />
+                      <SelectValue placeholder={t("common.selectPriest")} />
                     </SelectTrigger>
                     <SelectContent>
                       {priests.map((p) => (
@@ -309,7 +310,7 @@ export default function AdminSalary() {
                 </div>
 
                 <div className="flex flex-col py-3 w-full sm:w-1/2">
-                  <label className="text-xs font-medium text-gray-600 mb-1">Month</label>
+                  <label className="text-xs font-medium text-gray-600 mb-1">{t("common.month")}</label>
                   <input
                     type="month"
                     className="input"
@@ -323,7 +324,7 @@ export default function AdminSalary() {
               </div>
 
               <div className="flex flex-col gap-2 border border-gray-200 rounded-lg w-full max-h-[400px] p-2">
-                <label className="text-xs font-medium w-full">Salary Paid</label>
+                <label className="text-xs font-medium w-full">{t("adminSalary.salaryPaid")}</label>
                 <input
                   type="number"
                   className="input"
@@ -331,28 +332,28 @@ export default function AdminSalary() {
                   value={salaryForm.salary_amount}
                   required
                   step="0.01"
-                  placeholder="Salary paid"
+                  placeholder={t("adminSalary.salaryPaidPlaceholder")}
                 />
 
                 <label className="text-xs font-medium w-full">
-                  Notes <span className="font-normal">(optional)</span>
+                  {t("common.notes")} <span className="font-normal">{t("common.optional")}</span>
                 </label>
                 <input
                   type="text"
                   className="input"
                   onChange={(e) => updateField("salary_notes", e.target.value)}
                   value={salaryForm.salary_notes}
-                  placeholder="Notes"
+                  placeholder={t("common.notesPlaceholder")}
                 />
               </div>
             </form>
             <DialogFooter>
               <div className="flex justify-end gap-2 items-center w-full">
                 <Button size="sm" type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button size="sm" type="submit" className="btn" onClick={handleAdd}>
-                  {editingId ? "Update salary" : "Add salary"}
+                  {editingId ? t("adminSalary.updateSalary") : t("adminSalary.addSalary")}
                 </Button>
               </div>
             </DialogFooter>
@@ -362,57 +363,59 @@ export default function AdminSalary() {
         <div className="flex flex-col lg:flex-row gap-2">
           <div className="block md:hidden w-full h-fit bg-white border border-gray-200 rounded-lg">
             <div className="py-2 px-3 border rounded-lg border-indigo-100 bg-indigo-100 text-indigo-600 flex justify-between items-center">
-              <h2 className="font-normal ">Salary Summary </h2>
+              <h2 className="font-normal ">{t("adminSalary.salarySummary")} </h2>
               <span className="font-semibold">€ {salarySummary?.total_payout ?? "N/A"}</span>
             </div>
           </div>
-          <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Priest</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Month</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Amount</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {salary.map((s) => (
-                  <tr key={s.id} className="border-t border-gray-100">
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {s.profiles?.full_name || s.profiles?.email || s.priest_id}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {new Date(s.month).toLocaleDateString(undefined, {
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {s.salary_amount}</td>
-                    <td className="px-3 py-2 flex gap-2 justify-end">
-                      <Button size="sm" variant="ghost" onClick={() => handleEdit(s.id)}>
-                        Edit
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-                {!salary.length && (
+          <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto p-1">
+            <div className="overflow-auto rounded-lg max-h-[calc(100vh-21rem)] thin-scroll">
+              <table className="min-w-full text-sm">
+                <thead className="bg-gray-50">
                   <tr>
-                    <td colSpan={4} className="px-3 py-6 text-center text-gray-500">
-                      No salary entries yet.
-                    </td>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminSalary.priestColumn")}</th>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminSalary.monthColumn")}</th>
+                    <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminSalary.amountColumn")}</th>
+                    <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.actions")}</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {salary.map((s) => (
+                    <tr key={s.id} className="border-t border-gray-100">
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {s.profiles?.full_name || s.profiles?.email || s.priest_id}
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {new Date(s.month).toLocaleDateString(undefined, {
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="px-3 py-2 text-right whitespace-nowrap">€ {s.salary_amount}</td>
+                      <td className="px-3 py-2 flex gap-2 justify-end">
+                        <Button size="sm" variant="ghost" onClick={() => handleEdit(s.id)}>
+                          {t("common.edit")}
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {!salary.length && (
+                    <tr>
+                      <td colSpan={4} className="px-3 py-6 text-center text-gray-500">
+                        {t("adminSalary.noSalaryEntries")}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
           <div className="hidden md:block w-1/3 h-fit bg-white border border-gray-200 rounded-lg">
             <div className="p-2 border-b border-gray-200">
-              <h2 className="font-semibold">Salary Summary</h2>
+              <h2 className="font-semibold">{t("adminSalary.salarySummary")}</h2>
             </div>
             <div className="flex flex-col gap-2 p-2">
               <p className="text-sm text-gray-500">
-                From{" "}
+                {t("common.from")}{" "}
                 {startMonth && endMonth
                   ? `${new Date(startMonth).toLocaleDateString(undefined, {
                     month: "short",
@@ -421,7 +424,7 @@ export default function AdminSalary() {
                     month: "short",
                     year: "numeric",
                   })}`
-                  : "all time"}
+                  : t("common.allTime")}
               </p>
               <h1 className="font-bold text-2xl">€ {salarySummary?.total_payout ?? "N/A"}</h1>
             </div>

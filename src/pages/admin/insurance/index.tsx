@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { useUser } from "../../../hooks/useUser";
 import { supabase } from "../../../lib/supabaseClient";
 import { Badge } from "@/components/ui/badge";
+import Loader from "@/components/ui/loader";
+import { useTranslation } from "../../../i18n/languageContext";
 
 type InsuranceRow = {
   id: string;
@@ -55,6 +57,7 @@ const showToast = (message: string, type: "success" | "error") => {
 export default function AdminInsurance() {
   const { user, loading } = useUser();
   const router = useRouter();
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
   const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
   const currentMonthDate = `${currentYear}-${currentMonth}`;
@@ -78,19 +81,19 @@ export default function AdminInsurance() {
   const [insuranceForm, setInsuranceForm] = useState<Record<string, string>>(INITIAL_FORM_STATE);
   const insuranceTypeOptions = [{
     id: 1,
-    name: "Health",
+    name: t("adminInsurance.health"),
   }, {
     id: 2,
-    name: "Vehicle Insurance",
+    name: t("adminInsurance.vehicleInsurance"),
   }, {
     id: 3,
-    name: "KFZ Unfall",
+    name: t("adminInsurance.kfzUnfall"),
   }, {
     id: 4,
-    name: "Lebens",
+    name: t("adminInsurance.lebens"),
   }, {
     id: 5,
-    name: "Optional types",
+    name: t("adminInsurance.optionalTypes"),
   }]
 
   // Update individual field value
@@ -176,7 +179,7 @@ export default function AdminInsurance() {
     setError(null);
 
     if (!priestId || !dialogeMonth || !insuranceType) {
-      showToast("Please enter all required fields", "error");
+      showToast(t("toasts.enterAllRequiredFields"), "error");
       return;
     }
 
@@ -193,7 +196,7 @@ export default function AdminInsurance() {
         .maybeSingle();
 
       if (existingEntry) {
-        setError("An insurance entry already exists for this priest in the selected month.");
+        setError(t("toasts.insuranceEntryExists"));
         return;
       }
     }
@@ -219,7 +222,7 @@ export default function AdminInsurance() {
 
     if (error) {
       console.error(error);
-      setError("Failed to save insurance entry. Please try again.");
+      setError(t("toasts.failedToSaveInsurance"));
       return;
     }
 
@@ -229,7 +232,7 @@ export default function AdminInsurance() {
           ? prev.map((s) => (s.id === editingId ? (data as unknown as InsuranceRow) : s))
           : [data as unknown as InsuranceRow, ...prev]
       );
-      showToast(editingId ? "Insurance updated successfully" : "Insurance added successfully", "success");
+      showToast(editingId ? t("toasts.insuranceUpdated") : t("toasts.insuranceAdded"), "success");
       await loadInsuranceData();
       resetForm();
       setOpen(false);
@@ -260,40 +263,38 @@ export default function AdminInsurance() {
   const getInsuranceBadge = (type: number) => {
     switch (type) {
       case 1:
-        return <Badge className="text-xs bg-green-100 text-green-800"> Health</Badge>
+        return <Badge className="text-xs bg-green-100 text-green-800"> {t("adminInsurance.health")}</Badge>
       case 2:
-        return <Badge className="text-xs bg-blue-100 text-blue-800"> Vehicle Insurance</Badge>
+        return <Badge className="text-xs bg-blue-100 text-blue-800"> {t("adminInsurance.vehicleInsurance")}</Badge>
       case 3:
-        return <Badge className="text-xs bg-yellow-100 text-yellow-800"> KFZ Unfall</Badge>
+        return <Badge className="text-xs bg-yellow-100 text-yellow-800"> {t("adminInsurance.kfzUnfall")}</Badge>
       case 4:
-        return <Badge className="text-xs bg-red-100 text-red-800"> Lebens</Badge>
+        return <Badge className="text-xs bg-red-100 text-red-800"> {t("adminInsurance.lebens")}</Badge>
       case 5:
-        return <Badge className="text-xs bg-purple-100 text-purple-800"> Optional types</Badge>
+        return <Badge className="text-xs bg-purple-100 text-purple-800"> {t("adminInsurance.optionalTypes")}</Badge>
       default:
-        return <Badge className="text-xs bg-gray-100 text-gray-800"> Unknown</Badge>
+        return <Badge className="text-xs bg-gray-100 text-gray-800"> {t("adminInsurance.unknown")}</Badge>
     }
   }
 
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading…
-      </div>
+      <Loader />
     );
   }
 
   return (
     <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
       <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">
-        Insurance Management
+        {t("adminInsurance.title")}
       </h1>
 
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
         <div className="flex w-full gap-2 flex-col md:flex-col lg:flex-row">
           <div className="flex gap-2">
             <div className="flex flex-col flex-1 md:flex-none">
-              <label className="text-xs font-medium text-gray-600">Start Month</label>
+              <label className="text-xs font-medium text-gray-600">{t("common.startMonth")}</label>
               <input
                 type="month"
                 className="input"
@@ -302,7 +303,7 @@ export default function AdminInsurance() {
               />
             </div>
             <div className="flex flex-col flex-1 md:flex-none">
-              <label className="text-xs font-medium text-gray-600">End Month</label>
+              <label className="text-xs font-medium text-gray-600">{t("common.endMonth")}</label>
               <input
                 type="month"
                 className="input"
@@ -312,11 +313,11 @@ export default function AdminInsurance() {
             </div>
           </div>
           <div className="flex flex-col flex-1 md:flex-none">
-            <label className="text-xs font-medium text-gray-600">Insurance Type</label>
+            <label className="text-xs font-medium text-gray-600">{t("adminInsurance.insuranceType")}</label>
             <div className="flex items-center gap-2">
               <Select value={insuranceSearchType.toString()} onValueChange={(value) => searchByType(Number(value))} required>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select insurance type" />
+                  <SelectValue placeholder={t("adminInsurance.selectInsuranceType")} />
                 </SelectTrigger>
                 <SelectContent>
                   {insuranceTypeOptions.map((p) => (
@@ -339,7 +340,7 @@ export default function AdminInsurance() {
           }}
           className="w-full md:w-auto"
         >
-          <Plus /> Add insurance
+          <Plus /> {t("adminInsurance.addInsurance")}
         </Button>
       </div>
 
@@ -355,7 +356,7 @@ export default function AdminInsurance() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingId ? "Edit Insurance" : "Add Insurance"}</DialogTitle>
+              <DialogTitle>{editingId ? t("adminInsurance.editInsurance") : t("adminInsurance.addInsuranceTitle")}</DialogTitle>
             </DialogHeader>
             {error && (
               <div className="bg-red-50 border text-sm border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center " >
@@ -367,10 +368,10 @@ export default function AdminInsurance() {
               <div className="flex flex-col sm:flex-row gap-2 border border-gray-200 rounded-lg px-2 w-full">
 
                 <div className="flex flex-col py-3 w-full sm:w-1/2">
-                  <label className="text-xs font-medium text-gray-600 mb-1">Priest</label>
+                  <label className="text-xs font-medium text-gray-600 mb-1">{t("common.priest")}</label>
                   <Select value={priestId} onValueChange={setPriestId} required>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select priest" />
+                      <SelectValue placeholder={t("common.selectPriest")} />
                     </SelectTrigger>
                     <SelectContent>
                       {priests.map((p) => (
@@ -383,7 +384,7 @@ export default function AdminInsurance() {
                 </div>
 
                 <div className="flex flex-col py-3 w-full sm:w-1/2">
-                  <label className="text-xs font-medium text-gray-600 mb-1">Month</label>
+                  <label className="text-xs font-medium text-gray-600 mb-1">{t("common.month")}</label>
                   <input
                     type="month"
                     className="input"
@@ -398,10 +399,10 @@ export default function AdminInsurance() {
 
               <div className="flex flex-col gap-2 border border-gray-200 rounded-lg w-full max-h-[400px] p-2">
                 <div className="flex flex-col">
-                  <label className="text-xs font-medium text-gray-600 mb-1">Insurance Type</label>
+                  <label className="text-xs font-medium text-gray-600 mb-1">{t("adminInsurance.insuranceType")}</label>
                   <Select value={insuranceType.toString()} onValueChange={(value) => { setInsuranceType(Number(value)) }} required>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select insurance type" />
+                      <SelectValue placeholder={t("adminInsurance.selectInsuranceType")} />
                     </SelectTrigger>
                     <SelectContent>
                       {insuranceTypeOptions.filter(p => p.id !== 0).map((p) => (
@@ -414,18 +415,18 @@ export default function AdminInsurance() {
                 </div>
 
                 {insuranceType === 2 && <>
-                  <label className="text-xs font-medium w-full">Vehicle Plate Number</label>
+                  <label className="text-xs font-medium w-full">{t("adminInsurance.vehiclePlateNumber")}</label>
                   <input
                     type="text"
                     className="input"
                     onChange={(e) => updateField("plate_number", e.target.value)}
                     value={insuranceForm.plate_number}
                     required
-                    placeholder="Vehicle plate number"
+                    placeholder={t("adminInsurance.vehiclePlateNumberPlaceholder")}
                   />
                 </>}
 
-                <label className="text-xs font-medium w-full">Insurance Amount</label>
+                <label className="text-xs font-medium w-full">{t("adminInsurance.insuranceAmount")}</label>
                 <input
                   type="number"
                   className="input"
@@ -433,18 +434,18 @@ export default function AdminInsurance() {
                   value={insuranceForm.amount}
                   required
                   step="0.01"
-                  placeholder="Insurance amount"
+                  placeholder={t("adminInsurance.insuranceAmountPlaceholder")}
                 />
 
                 <label className="text-xs font-medium w-full">
-                  Notes <span className="font-normal">(optional)</span>
+                  {t("common.notes")} <span className="font-normal">{t("common.optional")}</span>
                 </label>
                 <input
                   type="text"
                   className="input"
                   onChange={(e) => updateField("insurance_notes", e.target.value)}
                   value={insuranceForm.insurance_notes}
-                  placeholder="Notes"
+                  placeholder={t("common.notesPlaceholder")}
                 />
               </div>
             </form>
@@ -454,7 +455,7 @@ export default function AdminInsurance() {
                   Cancel
                 </Button>
                 <Button size="sm" type="submit" className="btn" onClick={handleAdd}>
-                  {editingId ? "Update insurance" : "Add insurance"}
+                  {editingId ? t("adminInsurance.updateInsurance") : t("adminInsurance.addInsurance")}
                 </Button>
               </div>
             </DialogFooter>
@@ -464,61 +465,63 @@ export default function AdminInsurance() {
         <div className="flex flex-col lg:flex-row gap-2">
           <div className="block md:hidden w-full h-fit bg-white border border-gray-200 rounded-lg">
             <div className="py-2 px-3 border rounded-lg border-indigo-100 bg-indigo-100 text-indigo-600 flex justify-between items-center">
-              <h2 className="font-normal ">Insurance Summary </h2>
+              <h2 className="font-normal ">{t("adminInsurance.insuranceSummary")} </h2>
               <span className="font-semibold">€ {insuranceSummary?.total_payout ?? "N/A"}</span>
             </div>
           </div>
-          <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Priest</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Month</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Type</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Amount</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {insurance.map((s) => (
-                  <tr key={s.id} className="border-t border-gray-100">
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {s.profiles?.full_name || s.profiles?.email || s.priest_id}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {new Date(s.month).toLocaleDateString(undefined, {
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {getInsuranceBadge(s.type)}
-                    </td>
-                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {s.amount}</td>
-                    <td className="px-3 py-2 flex gap-2 justify-end">
-                      <Button size="sm" variant="ghost" onClick={() => handleEdit(s.id)}>
-                        Edit
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-                {!insurance.length && (
+          <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto p-1">
+            <div className="overflow-auto rounded-lg max-h-[calc(100vh-21rem)] thin-scroll">
+              <table className="min-w-full text-sm">
+                <thead className="bg-gray-50">
                   <tr>
-                    <td colSpan={5} className="px-3 py-6 text-center text-gray-500">
-                      No insurance entries yet.
-                    </td>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminInsurance.priestColumn")}</th>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminInsurance.monthColumn")}</th>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminInsurance.typeColumn")}</th>
+                    <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminInsurance.amountColumn")}</th>
+                    <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.actions")}</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {insurance.map((s) => (
+                    <tr key={s.id} className="border-t border-gray-100">
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {s.profiles?.full_name || s.profiles?.email || s.priest_id}
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {new Date(s.month).toLocaleDateString(undefined, {
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {getInsuranceBadge(s.type)}
+                      </td>
+                      <td className="px-3 py-2 text-right whitespace-nowrap">€ {s.amount}</td>
+                      <td className="px-3 py-2 flex gap-2 justify-end">
+                        <Button size="sm" variant="ghost" onClick={() => handleEdit(s.id)}>
+                          {t("common.edit")}
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {!insurance.length && (
+                    <tr>
+                      <td colSpan={5} className="px-3 py-6 text-center text-gray-500">
+                        {t("adminInsurance.noInsuranceEntries")}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
           <div className="hidden md:block w-1/3 h-fit bg-white border border-gray-200 rounded-lg">
             <div className="p-2 border-b border-gray-200">
-              <h2 className="font-semibold">Insurance Summary</h2>
+              <h2 className="font-semibold">{t("adminInsurance.insuranceSummary")}</h2>
             </div>
             <div className="flex flex-col gap-2 p-2">
               <p className="text-sm text-gray-500">
-                From{" "}
+                {t("common.from")}{" "}
                 {startMonth && endMonth
                   ? `${new Date(startMonth).toLocaleDateString(undefined, {
                     month: "short",
@@ -527,7 +530,7 @@ export default function AdminInsurance() {
                     month: "short",
                     year: "numeric",
                   })}`
-                  : "all time"}
+                  : t("common.allTime")}
               </p>
               <h1 className="font-bold text-2xl">€ {insuranceSummary?.total_payout ?? "N/A"}</h1>
             </div>

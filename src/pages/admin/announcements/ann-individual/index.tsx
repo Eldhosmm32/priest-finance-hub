@@ -10,6 +10,7 @@ import { useUser } from "../../../../hooks/useUser";
 import { supabase } from "../../../../lib/supabaseClient";
 import { TabsTrigger, TabsList, TabsContent } from "@/components/ui/tabs";
 import { Tabs } from "@/components/ui/tabs";
+import Loader from "@/components/ui/loader";
 
 type AnnouncementRow = {
   id: string;
@@ -241,14 +242,12 @@ export default function AnnIndividual() {
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading…
-      </div>
+      <Loader />
     );
   }
 
   return (
-    <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
+    <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg min-h-[calc(100vh-17.5rem)]">
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
         <div className="flex flex-col flex-1 md:flex-none">
           <label className="text-xs font-medium text-gray-600">Search by title or body</label>
@@ -411,78 +410,80 @@ export default function AnnIndividual() {
         </Dialog>
 
         <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-3 py-2 text-left whitespace-nowrap">Title</th>
-                <th className="px-3 py-2 text-left whitespace-nowrap">Priest</th>
-                <th className="px-3 py-2 text-left whitespace-nowrap">Language</th>
-                <th className="px-3 py-2 text-left whitespace-nowrap">Created Date</th>
-                <th className="px-3 py-2 text-left whitespace-nowrap">Validity Days</th>
-                <th className="px-3 py-2 text-left whitespace-nowrap">Published</th>
-                <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredItems.map((a) => {
-                const validityDays = getValidityDays(a);
-                return (
-                  <tr key={a.id} className="border-t border-gray-100">
-                    <td className="px-3 py-2">
-                      <div className="flex flex-col">
-                        <p className="font-semibold text-gray-800">
-                          {a.title || "-"}
-                        </p>
-                        <p className="text-xs text-gray-500 line-clamp-2 mt-1">
-                          {a.body || "-"}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {a.profiles?.full_name || a.profiles?.email || "-"}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      <Badge variant="outline" className="text-xs">
-                        {a.lang?.toUpperCase() || "EN"}
-                      </Badge>
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {new Date(a.created_at).toLocaleDateString(undefined, {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {validityDays ? `${validityDays} days` : "-"}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      <Badge
-                        variant={isPublished(a) ? "default" : "outline"}
-                        className={isPublished(a) ? "bg-green-500 text-white" : ""}
-                      >
-                        {isPublished(a) ? "Published" : "Unpublished"}
-                      </Badge>
-                    </td>
-                    <td className="px-3 py-2">
-                      <div className="flex gap-2 justify-end">
-                        <Button size="sm" variant="ghost" onClick={() => handleEdit(a)}>
-                          Edit
-                        </Button>
-                      </div>
+          <div className="overflow-auto rounded-lg max-h-[calc(100vh-21rem)] thin-scroll">
+            <table className="min-w-full text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Title</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Priest</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Language</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Created Date</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Validity Days</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">Published</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredItems.map((a) => {
+                  const validityDays = getValidityDays(a);
+                  return (
+                    <tr key={a.id} className="border-t border-gray-100">
+                      <td className="px-3 py-2">
+                        <div className="flex flex-col">
+                          <p className="font-semibold text-gray-800">
+                            {a.title || "-"}
+                          </p>
+                          <p className="text-xs text-gray-500 line-clamp-2 mt-1">
+                            {a.body || "-"}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {a.profiles?.full_name || a.profiles?.email || "-"}
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        <Badge variant="outline" className="text-xs">
+                          {a.lang?.toUpperCase() || "EN"}
+                        </Badge>
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {new Date(a.created_at).toLocaleDateString(undefined, {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {validityDays ? `${validityDays} days` : "-"}
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        <Badge
+                          variant={isPublished(a) ? "default" : "outline"}
+                          className={isPublished(a) ? "bg-green-500 text-white" : ""}
+                        >
+                          {isPublished(a) ? "Published" : "Unpublished"}
+                        </Badge>
+                      </td>
+                      <td className="px-3 py-2">
+                        <div className="flex gap-2 justify-end">
+                          <Button size="sm" variant="ghost" onClick={() => handleEdit(a)}>
+                            Edit
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {!filteredItems.length && (
+                  <tr>
+                    <td colSpan={7} className="px-3 py-6 text-center text-gray-500">
+                      {search ? "No announcements found matching your search." : "No announcements yet."}
                     </td>
                   </tr>
-                );
-              })}
-              {!filteredItems.length && (
-                <tr>
-                  <td colSpan={7} className="px-3 py-6 text-center text-gray-500">
-                    {search ? "No announcements found matching your search." : "No announcements yet."}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

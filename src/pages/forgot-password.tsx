@@ -56,7 +56,7 @@ export default function ForgotPassword() {
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="form-control">
               <label className="label">
-                <span className="label-text text-xs">{t("forgot.email")}</span>
+                <span className="label-text text-xs">{t("common.email")}</span>
               </label>
               <input
                 type="email"

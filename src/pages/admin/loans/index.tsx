@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { useUser } from "../../../hooks/useUser";
 import { supabase } from "../../../lib/supabaseClient";
 import useMediaQuery from "@/hooks/useMediaQuery";
+import Loader from "@/components/ui/loader";
+import { useTranslation } from "../../../i18n/languageContext";
 
 type LoanRow = {
   id: string;
@@ -53,6 +55,7 @@ const showToast = (message: string, type: "success" | "error") => {
 export default function AdminLoans() {
   const { user, loading } = useUser();
   const router = useRouter();
+  const { t } = useTranslation();
   const [loans, setLoans] = useState<LoanRow[]>([]);
   const [priests, setPriests] = useState<PriestOption[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -141,7 +144,7 @@ export default function AdminLoans() {
     setError(null);
 
     if (!priestId || !issuedOn) {
-      showToast("Please enter all required fields", "error");
+      showToast(t("toasts.enterAllRequiredFields"), "error");
       return;
     }
 
@@ -170,7 +173,7 @@ export default function AdminLoans() {
 
     if (error) {
       console.error(error);
-      setError("Failed to save loan entry. Please try again.");
+      setError(t("toasts.failedToSaveLoan"));
       return;
     }
 
@@ -180,7 +183,7 @@ export default function AdminLoans() {
           ? prev.map((s) => (s.id === editingId ? (data as unknown as LoanRow) : s))
           : [data as unknown as LoanRow, ...prev]
       );
-      showToast(editingId ? "Loan updated successfully" : "Loan added successfully", "success");
+      showToast(editingId ? t("toasts.loanUpdated") : t("toasts.loanAdded"), "success");
       await loadLoanData();
       resetForm();
       setOpen(false);
@@ -271,30 +274,28 @@ export default function AdminLoans() {
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading…
-      </div>
+      <Loader />
     );
   }
 
   return (
     <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
       <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">
-        Loan Management
+        {t("adminLoans.title")}
       </h1>
 
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
         <div className="flex flex-col flex-1 md:flex-none">
-          <label className="text-xs font-medium text-gray-600">Search by name or email</label>
+          <label className="text-xs font-medium text-gray-600">{t("adminLoans.searchLabel")}</label>
           <input
             className="input w-full md:max-w-xs"
-            placeholder="Search by name or email"
+            placeholder={t("adminLoans.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <Badge className="text-xs font-medium text-white bg-green-500 w-fit">
-          {filteredLoans.length} loans
+          {filteredLoans.length} {t("adminLoans.loansCount")}
         </Badge>
         <Button
           type="button"
@@ -305,7 +306,7 @@ export default function AdminLoans() {
           }}
           className="w-full md:w-auto"
         >
-          <Plus /> Add loan
+          <Plus /> {t("adminLoans.addLoan")}
         </Button>
       </div>
 
@@ -322,7 +323,7 @@ export default function AdminLoans() {
         >
           <DialogContent aria-describedby="add-loan">
             <DialogHeader>
-              <DialogTitle>{editingId ? "Edit Loan" : "Add Loan"}</DialogTitle>
+              <DialogTitle>{editingId ? t("adminLoans.editLoan") : t("adminLoans.addLoanTitle")}</DialogTitle>
             </DialogHeader>
             {error && (
               <div className="bg-red-50 border text-sm border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center">
@@ -333,10 +334,10 @@ export default function AdminLoans() {
             <form onSubmit={handleAdd} className="bg-white flex flex-wrap gap-3 items-end">
               <div className="flex flex-col sm:flex-row gap-2 border border-gray-200 rounded-lg px-2 w-full">
                 <div className="flex flex-col py-3 w-full sm:w-1/2">
-                  <label className="text-xs font-medium text-gray-600 mb-1">Priest</label>
+                  <label className="text-xs font-medium text-gray-600 mb-1">{t("common.priest")}</label>
                   <Select value={priestId} onValueChange={setPriestId} required>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select priest" />
+                      <SelectValue placeholder={t("common.selectPriest")} />
                     </SelectTrigger>
                     <SelectContent>
                       {priests.map((p) => (
@@ -349,7 +350,7 @@ export default function AdminLoans() {
                 </div>
 
                 <div className="flex flex-col py-3 w-full sm:w-1/2">
-                  <label className="text-xs font-medium text-gray-600 mb-1">Issued On</label>
+                  <label className="text-xs font-medium text-gray-600 mb-1">{t("adminLoans.issuedOn")}</label>
                   <input
                     type="date"
                     className="input"
@@ -361,7 +362,7 @@ export default function AdminLoans() {
               </div>
 
               <div className="flex flex-col gap-2 border border-gray-200 rounded-lg w-full max-h-[400px] p-2 overflow-y-auto">
-                <label className="text-xs font-medium w-full">Principal Amount</label>
+                <label className="text-xs font-medium w-full">{t("adminLoans.principalAmount")}</label>
                 <input
                   type="number"
                   className="input"
@@ -369,10 +370,10 @@ export default function AdminLoans() {
                   value={loanForm.principal}
                   required
                   step="0.01"
-                  placeholder="Principal amount"
+                  placeholder={t("adminLoans.principalAmountPlaceholder")}
                 />
 
-                <label className="text-xs font-medium w-full">EMI Amount</label>
+                <label className="text-xs font-medium w-full">{t("adminLoans.emiAmount")}</label>
                 <input
                   type="number"
                   className="input"
@@ -380,28 +381,28 @@ export default function AdminLoans() {
                   value={loanForm.emi}
                   required
                   step="0.01"
-                  placeholder="EMI amount"
+                  placeholder={t("adminLoans.emiAmountPlaceholder")}
                 />
 
                 <label className="text-xs font-medium w-full">
-                  Notes <span className="font-normal">(optional)</span>
+                  {t("common.notes")} <span className="font-normal">{t("common.optional")}</span>
                 </label>
                 <input
                   type="text"
                   className="input"
                   onChange={(e) => updateField("loan_notes", e.target.value)}
                   value={loanForm.loan_notes}
-                  placeholder="Notes"
+                  placeholder={t("common.notesPlaceholder")}
                 />
               </div>
             </form>
             <DialogFooter>
               <div className="flex justify-end gap-2 items-center w-full">
                 <Button size="sm" type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button size="sm" type="submit" className="btn" onClick={handleAdd}>
-                  {editingId ? "Update loan" : "Add loan"}
+                  {editingId ? t("adminLoans.updateLoan") : t("adminLoans.addLoan")}
                 </Button>
               </div>
             </DialogFooter>
@@ -422,8 +423,8 @@ export default function AdminLoans() {
               {selectedLoan &&
                 <>
                   <div className="pb-4 border-b border-gray-200">
-                    <h2 className="text-xl font-semibold text-gray-800">Loan Details</h2>
-                    <p className="text-sm text-gray-500 mt-1">Summary of your active loan</p>
+                    <h2 className="text-xl font-semibold text-gray-800">{t("adminLoans.loanDetails")}</h2>
+                    <p className="text-sm text-gray-500 mt-1">{t("adminLoans.summaryOfLoan")}</p>
                   </div>
                   <div className="flex flex-col gap-3">
                     {(() => {
@@ -496,7 +497,7 @@ export default function AdminLoans() {
                               <span className="font-semibold text-gray-800">
                                 € {selectedLoan.emi}
                               </span>
-                              <span className="text-xs">{selectedLoan.total_months ?? 'N/A'} months</span>
+                              <span className="text-xs">{selectedLoan.total_months ?? 'N/A'} {t("adminLoans.months")}</span>
                             </div>
                           </div>
 
@@ -560,7 +561,7 @@ export default function AdminLoans() {
               <DialogFooter>
                 <div className="flex justify-end gap-2 items-center w-full">
                   <Button size="sm" type="button" variant="outline" className="border-gray-300" onClick={() => setOpenView(false)}>
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
                 </div>
               </DialogFooter>
@@ -573,8 +574,8 @@ export default function AdminLoans() {
             aria-describedby="'loan-details'">
             <DrawerContent>
               <DrawerHeader>
-                <DrawerTitle>Loan Details</DrawerTitle>
-                <DrawerDescription>Summary of the loan</DrawerDescription>
+                <DrawerTitle>{t("adminLoans.loanDetails")}</DrawerTitle>
+                <DrawerDescription>{t("adminLoans.summaryOfTheLoan")}</DrawerDescription>
               </DrawerHeader>
               {selectedLoan &&
                 <>
@@ -708,12 +709,12 @@ export default function AdminLoans() {
                       );
                     })()}
                   </div>
-                  
+
                 </>
               }
               <DrawerFooter>
                 <Button size="sm" type="button" variant="outline" onClick={() => setOpenView(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
               </DrawerFooter>
             </DrawerContent>
@@ -723,59 +724,63 @@ export default function AdminLoans() {
 
         <div className="flex flex-col lg:flex-row gap-2">
           <div className="w-full bg-white border border-gray-200 rounded-lg overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Priest</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Principal</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">EMI</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Issued On</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Notes</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLoans.map((loan) => (
-                  <tr
-                    key={loan.id}
-                    className={`border-t border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${selectedLoan?.id === loan.id ? "bg-indigo-50" : ""
-                      }`}
-                    onClick={() => handleView(loan)}
-                  >
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {loan.profiles?.full_name || loan.profiles?.email || loan.priest_id}
-                    </td>
-                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {loan.principal.toFixed(2)}</td>
-                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {loan.emi.toFixed(2)}</td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {new Date(loan.issued_on).toLocaleDateString(undefined, {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {loan.loan_notes}
-                    </td>
-                    <td className="px-3 py-2 flex gap-2 justify-end">
-                      <Button size="sm" variant="ghost" onClick={(e) => handleEdit(loan, e)}>
-                        Edit
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={(e) => handleView(loan)}>
-                        View
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-                {!filteredLoans.length && (
-                  <tr>
-                    <td colSpan={6} className="px-3 py-6 text-center text-gray-500">
-                      No loan entries yet.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            <div className="p-1 rounded-lg bg-white border border-gray-200 overflow-hidden">
+              <div className="overflow-auto rounded-lg max-h-[calc(100vh-21rem)] thin-scroll">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminLoans.priestColumn")}</th>
+                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminLoans.principalColumn")}</th>
+                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminLoans.emiColumn")}</th>
+                      <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminLoans.issuedOnColumn")}</th>
+                      <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminLoans.notesColumn")}</th>
+                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.actions")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredLoans.map((loan) => (
+                      <tr
+                        key={loan.id}
+                        className={`border-t border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${selectedLoan?.id === loan.id ? "bg-indigo-50" : ""
+                          }`}
+                        onClick={() => handleView(loan)}
+                      >
+                        <td className="px-3 py-2 whitespace-nowrap">
+                          {loan.profiles?.full_name || loan.profiles?.email || loan.priest_id}
+                        </td>
+                        <td className="px-3 py-2 text-right whitespace-nowrap">€ {loan.principal.toFixed(2)}</td>
+                        <td className="px-3 py-2 text-right whitespace-nowrap">€ {loan.emi.toFixed(2)}</td>
+                        <td className="px-3 py-2 whitespace-nowrap">
+                          {new Date(loan.issued_on).toLocaleDateString(undefined, {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </td>
+                        <td className="px-3 py-2 whitespace-nowrap">
+                          {loan.loan_notes}
+                        </td>
+                        <td className="px-3 py-2 flex gap-2 justify-end">
+                          <Button size="sm" variant="ghost" onClick={(e) => handleEdit(loan, e)}>
+                            {t("common.edit")}
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={(e) => handleView(loan)}>
+                            {t("adminLoans.view")}
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                    {!filteredLoans.length && (
+                      <tr>
+                        <td colSpan={6} className="px-3 py-6 text-center text-gray-500">
+                          {t("adminLoans.noLoanEntries")}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
         </div>

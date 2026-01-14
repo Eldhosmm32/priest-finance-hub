@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Logo from "./ui/logo";
+import Footer from "./ui/footer";
 
 type UserProfile = {
   id: string;
@@ -83,7 +84,7 @@ export default function PriestLayout({ children }: Props) {
 
   return (
     <UserDetailsContext.Provider value={{ userDetails, loading: loadingDetails }}>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#f3e7e987] to-[#e3eeff8d] rounded-none md:rounded-lg">
         <header className="bg-white shadow-sm sticky top-0 z-50">
           <div className="flex max-w-6xl mx-auto p-2 ">
             <div className="flex-1 flex items-center">
@@ -138,15 +139,10 @@ export default function PriestLayout({ children }: Props) {
             </div>
           </div>
         </header>
-        <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
+        <main className="flex-1 max-w-6xl mx-auto w-full px-0 md:px-4 py-0 md:py-6">
           {children}
         </main>
-        <footer className="border-t border-gray-200 text-xs text-gray-500 py-3 text-center">
-          {t("layout.footer").replace(
-            "{{year}}",
-            String(new Date().getFullYear())
-          )}
-        </footer>
+        <Footer />
       </div>
     </UserDetailsContext.Provider>
   );

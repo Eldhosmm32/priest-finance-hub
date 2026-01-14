@@ -129,17 +129,17 @@ export default function PriestDashboard() {
             salaryWithInsuranceAndRent.insurance_other_2 = ins.amount;
           }
         });
-        salaryWithInsuranceAndRent.insurance_paid = 
-          salaryWithInsuranceAndRent.health + 
-          salaryWithInsuranceAndRent.vehicle_insurance + 
-          salaryWithInsuranceAndRent.kfz_unfall_private + 
-          salaryWithInsuranceAndRent.lebens_und + 
-          salaryWithInsuranceAndRent.insurance_other_1 + 
+        salaryWithInsuranceAndRent.insurance_paid =
+          salaryWithInsuranceAndRent.health +
+          salaryWithInsuranceAndRent.vehicle_insurance +
+          salaryWithInsuranceAndRent.kfz_unfall_private +
+          salaryWithInsuranceAndRent.lebens_und +
+          salaryWithInsuranceAndRent.insurance_other_1 +
           salaryWithInsuranceAndRent.insurance_other_2;
         const salaryAmount = salaryWithInsuranceAndRent.salary_amount || salaryWithInsuranceAndRent.amount || 0;
-        salaryWithInsuranceAndRent.total = 
-          salaryAmount + 
-          salaryWithInsuranceAndRent.house_rent_paid + 
+        salaryWithInsuranceAndRent.total =
+          salaryAmount +
+          salaryWithInsuranceAndRent.house_rent_paid +
           salaryWithInsuranceAndRent.insurance_paid;
         return salaryWithInsuranceAndRent;
       })
@@ -150,7 +150,7 @@ export default function PriestDashboard() {
 
   const changeYear = useCallback(async (year: string) => {
     if (!user) return;
-    
+
     setSelectedYear(year);
     const { data: salaryData } = await supabase
       .from("salary")
@@ -269,7 +269,7 @@ export default function PriestDashboard() {
     icon: React.ReactNode;
   }) {
     return (
-      <Card className="w-full">
+      <Card className="w-full bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5]">
         <CardContent className="px-6 py-4">
           <div className="flex gap-3">
             <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-muted">
@@ -281,7 +281,7 @@ export default function PriestDashboard() {
               <p className="text-sm text-muted-foreground">{subtitle?.split('\n').map((line, index) => (
                 <span key={index}>{line}<br /></span>
               ))}</p>
-            </div>  
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -311,7 +311,8 @@ export default function PriestDashboard() {
   }
 
   return (
-    <div className="space-y-6 transition-all duration-300 ease-in">
+    <div className="space-y-6 transition-all duration-300 ease bg-white rounded-none md:rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
+
       {/* 🔔 Announcement Banner */}
       {priestAnnouncements?.map((a: any) => (
         !a.isRead && (
@@ -344,8 +345,8 @@ export default function PriestDashboard() {
             defaultValue="dashboard"
             className="w-full"
           >
-            <TabsList className="w-full flex justify-start !bg-indigo-100">
-              <TabsTrigger value="dashboard">{t("adminDashboard.title")}</TabsTrigger>
+            <TabsList className="w-full flex justify-start">
+              <TabsTrigger value="dashboard">{t("common.dashboard")}</TabsTrigger>
               <TabsTrigger value="salary">{t("priestDashboard.financialSummary")}</TabsTrigger>
               <TabsTrigger value="loan">{t("priestDashboard.loanSummary")}</TabsTrigger>
             </TabsList>

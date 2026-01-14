@@ -11,6 +11,7 @@ import { useUser } from "../../../hooks/useUser";
 import { supabase } from "../../../lib/supabaseClient";
 import { useUserDetails } from "../../../components/PriestLayout";
 import { useTranslation } from "../../../i18n/languageContext";
+import Loader from "@/components/ui/loader";
 
 type ExtendedProfile = {
     id: string;
@@ -251,9 +252,7 @@ export default function PriestProfile() {
 
     if (loading || loadingProfile || !user) {
         return (
-            <div className="min-h-screen flex items-center justify-center text-gray-500">
-                {t("common.loading")}
-            </div>
+            <Loader />
         );
     }
 
@@ -300,143 +299,143 @@ export default function PriestProfile() {
 
     return (
         <div className="space-y-6">
-
-
-            <div className="w-full max-w-4xl mx-auto">
-                <div className="flex items-center gap-2 cursor-pointer mb-4" onClick={() => router.push("/priest/dashboard")} >
-                    <ArrowLeft className="text-black-600 h-6 w-6" />
-
-                    <h1 className="text-xl font-semibold">{t("priestProfile.dashboard")}</h1>
+            <div className="w-full max-w-2xl mx-auto">
+                <div className="flex items-center gap-1 cursor-pointer bg-white p-2 rounded-t-lg" onClick={() => router.push("/priest/dashboard")} >
+                    <ArrowLeft className="text-black-600 h-4 w-4" />
+                    <h1 className="text-sm font-semibold">{t("common.dashboard")}</h1>
                 </div>
-                <Card>
-                    <CardContent className="p-6 relative">
-                        <div
-                            className="absolute top-6 right-6 h-8 w-8 bg-indigo-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-700 transition-colors"
-                            onClick={handleOpenEdit}
-                        >
-                            <PencilIcon className="text-white h-4 w-4" />
-                        </div>
-
-                        <div className="flex flex-col md:flex-row gap-8">
-                            {/* Profile Photo Section */}
-                            <div className="flex flex-col items-center md:items-start gap-4 flex-shrink-0">
-                                <Avatar className="h-40 w-40 border-4 border-gray-200">
-                                    <AvatarImage
-                                        src={profileData?.photo ?? "/priest.svg"}
-                                        alt={profileData?.full_name ?? "Profile"}
-                                        className="object-cover"
-                                    />
-                                </Avatar>
-                                <div className="text-center md:text-left">
-                                    <h2 className="text-xl font-semibold">
-                                        {profileData?.full_name ?? userDetails?.full_name ?? user.full_name ?? "—"}
-                                    </h2>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                        {t("priestProfile.professionalPhoto")}
-                                    </p>
-                                </div>
+                
+                <div className="rounded-b-lg bg-white p-2">
+                    <Card >
+                        <CardContent className="p-6 relative">
+                            <div
+                                className="absolute top-6 right-6 h-6 w-6 bg-indigo-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-700 transition-colors"
+                                onClick={handleOpenEdit}
+                            >
+                                <PencilIcon className="text-white h-3 w-3" />
                             </div>
 
-                            {/* Profile Details Section */}
-                            <div className="flex-1 space-y-6">
-                                {/* Personal Information */}
-                                <div className="space-y-1">
-                                    <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
-                                        {t("priestProfile.personalInformation")}
-                                    </h3>
-
-                                    <ProfileField
-                                        icon={<FileText className="h-5 w-5" />}
-                                        label={t("priestProfile.fullName")}
-                                        value={profileData?.full_name ?? userDetails?.full_name ?? user.full_name ?? null}
-                                    />
-
-                                    <ProfileField
-                                        icon={<Calendar className="h-5 w-5" />}
-                                        label={t("priestProfile.dateOfBirth")}
-                                        value={formatDate(profileData?.date_of_birth)}
-                                    />
-
-                                    <ProfileField
-                                        icon={<Mail className="h-5 w-5" />}
-                                        label={t("priestProfile.email")}
-                                        value={profileData?.email ?? userDetails?.email ?? user.email ?? null}
-                                    />
-
-                                    <ProfileField
-                                        icon={<Phone className="h-5 w-5" />}
-                                        label={t("priestProfile.phoneNumber")}
-                                        value={profileData?.phone ?? null}
-                                    />
+                            <div className="flex flex-col md:flex-row gap-8">
+                                {/* Profile Photo Section */}
+                                <div className="flex flex-col items-center md:items-start gap-4 flex-shrink-0">
+                                    <Avatar className="h-40 w-40 border-4 border-gray-200">
+                                        <AvatarImage
+                                            src={profileData?.photo ?? "/priest.svg"}
+                                            alt={profileData?.full_name ?? "Profile"}
+                                            className="object-cover"
+                                        />
+                                    </Avatar>
+                                    <div className="text-center md:text-left">
+                                        <h2 className="text-xl font-semibold">
+                                            {profileData?.full_name ?? userDetails?.full_name ?? user.full_name ?? "—"}
+                                        </h2>
+                                        <p className="text-sm text-muted-foreground mt-1">
+                                            {t("priestProfile.professionalPhoto")}
+                                        </p>
+                                    </div>
                                 </div>
 
-                                {/* Address Information */}
-                                <div className="space-y-1">
-                                    <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
-                                        {t("priestProfile.addressInformation")}
-                                    </h3>
+                                {/* Profile Details Section */}
+                                <div className="flex-1 space-y-6">
+                                    {/* Personal Information */}
+                                    <div className="space-y-1">
+                                        <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
+                                            {t("common.personalInformation")}
+                                        </h3>
 
-                                    <ProfileField
-                                        icon={<MapPin className="h-5 w-5" />}
-                                        label={t("priestProfile.currentAddress")}
-                                        value={profileData?.address ?? null}
-                                    />
-                                    
-                                </div>
+                                        <ProfileField
+                                            icon={<FileText className="h-5 w-5" />}
+                                            label={t("common.fullName")}
+                                            value={profileData?.full_name ?? userDetails?.full_name ?? user.full_name ?? null}
+                                        />
 
-                                {/* Religious Information */}
-                                <div className="space-y-1">
-                                    <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
-                                        {t("priestProfile.religiousInformation")}
-                                    </h3>
+                                        <ProfileField
+                                            icon={<Calendar className="h-5 w-5" />}
+                                            label={t("common.dateOfBirth")}
+                                            value={formatDate(profileData?.date_of_birth)}
+                                        />
 
-                                    <ProfileField
-                                        icon={<Building2 className="h-5 w-5" />}
-                                        label={t("priestProfile.province")}
-                                        value={profileData?.province ?? null}
-                                    />
+                                        <ProfileField
+                                            icon={<Mail className="h-5 w-5" />}
+                                            label={t("common.email")}
+                                            value={profileData?.email ?? userDetails?.email ?? user.email ?? null}
+                                        />
 
-                                    <ProfileField
-                                        icon={<Globe className="h-5 w-5" />}
-                                        label={t("priestProfile.diocese")}
-                                        value={profileData?.diocese ?? null}
-                                    />
-                                </div>
+                                        <ProfileField
+                                            icon={<Phone className="h-5 w-5" />}
+                                            label={t("common.phoneNumber")}
+                                            value={profileData?.phone ?? null}
+                                        />
+                                    </div>
 
-                                {/* Visa & Passport Information */}
-                                <div className="space-y-1">
-                                    <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
-                                        {t("priestProfile.visaPassportInformation")}
-                                    </h3>
+                                    {/* Address Information */}
+                                    <div className="space-y-1">
+                                        <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
+                                            {t("common.addressInformation")}
+                                        </h3>
 
-                                    <ProfileField
-                                        icon={<CreditCard className="h-5 w-5" />}
-                                        label={t("priestProfile.visaNumber")}
-                                        value={profileData?.visa_number ?? null}
-                                    />
+                                        <ProfileField
+                                            icon={<MapPin className="h-5 w-5" />}
+                                            label={t("common.currentAddress")}
+                                            value={profileData?.address ?? null}
+                                        />
 
-                                    <ProfileField
-                                        icon={<FileText className="h-5 w-5" />}
-                                        label={t("priestProfile.visaCategory")}
-                                        value={profileData?.visa_category ?? null}
-                                    />
+                                    </div>
 
-                                    <ProfileField
-                                        icon={<CalendarDays className="h-5 w-5" />}
-                                        label={t("priestProfile.visaExpiryDate")}
-                                        value={formatDate(profileData?.visa_expiry_date)}
-                                    />
+                                    {/* Religious Information */}
+                                    <div className="space-y-1">
+                                        <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
+                                            {t("common.religiousInformation")}
+                                        </h3>
 
-                                    <ProfileField
-                                        icon={<FileText className="h-5 w-5" />}
-                                        label={t("priestProfile.passportNumber")}
-                                        value={profileData?.passport_number ?? null}
-                                    />
+                                        <ProfileField
+                                            icon={<Building2 className="h-5 w-5" />}
+                                            label={t("common.province")}
+                                            value={profileData?.province ?? null}
+                                        />
+
+                                        <ProfileField
+                                            icon={<Globe className="h-5 w-5" />}
+                                            label={t("common.diocese")}
+                                            value={profileData?.diocese ?? null}
+                                        />
+                                    </div>
+
+                                    {/* Visa & Passport Information */}
+                                    <div className="space-y-1">
+                                        <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
+                                            {t("common.visaPassportInformation")}
+                                        </h3>
+
+                                        <ProfileField
+                                            icon={<CreditCard className="h-5 w-5" />}
+                                            label={t("common.visaNumber")}
+                                            value={profileData?.visa_number ?? null}
+                                        />
+
+                                        <ProfileField
+                                            icon={<FileText className="h-5 w-5" />}
+                                            label={t("common.visaCategory")}
+                                            value={profileData?.visa_category ?? null}
+                                        />
+
+                                        <ProfileField
+                                            icon={<CalendarDays className="h-5 w-5" />}
+                                            label={t("common.visaExpiryDate")}
+                                            value={formatDate(profileData?.visa_expiry_date)}
+                                        />
+
+                                        <ProfileField
+                                            icon={<FileText className="h-5 w-5" />}
+                                            label={t("common.passportNumber")}
+                                            value={profileData?.passport_number ?? null}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
 
             {/* Edit Profile Modal */}

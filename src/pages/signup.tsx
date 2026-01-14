@@ -103,7 +103,7 @@ export default function Signup() {
             <div className="form-control">
               <label className="label">
                 <span className="label-text text-xs">
-                  {t("signup.fullName")}
+                  {t("common.fullName")}
                 </span>
               </label>
               <input
@@ -117,7 +117,7 @@ export default function Signup() {
 
             <div className="form-control">
               <label className="label">
-                <span className="label-text text-xs">{t("login.email")}</span>
+                <span className="label-text text-xs">{t("common.email")}</span>
               </label>
               <input
                 type="email"
@@ -131,7 +131,7 @@ export default function Signup() {
             <div className="form-control">
               <label className="label">
                 <span className="label-text text-xs">
-                  {t("signup.password")}
+                  {t("common.password")}
                 </span>
               </label>
               <input

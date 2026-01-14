@@ -91,7 +91,7 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="form-control">
-              <label className="label-text text-xs">{t("login.email")}</label>
+              <label className="label-text text-xs">{t("common.email")}</label>
               <input
                 id="email"
                 type="email"
@@ -104,7 +104,7 @@ export default function Login() {
             <div className="form-control">
               <label className="label">
                 <span className="label-text text-xs">
-                  {t("login.password")}
+                  {t("common.password")}
                 </span>
               </label>
               <input

@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/languageContext";
+import Loader from "@/components/ui/loader";
 
 
 type PriestRow = {
@@ -90,19 +91,14 @@ export default function AdminPriests() {
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        {t("common.loading")}
-      </div>
+     <Loader />
     );
   }
 
   return (
     <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
       <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">{t("adminPriests.title")}</h1>
-
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
-
-
         <div className="flex flex-col flex-1 md:flex-none">
           <label className="text-xs font-medium text-gray-600">{t("adminPriests.searchLabel")}</label>
           <input
@@ -120,41 +116,43 @@ export default function AdminPriests() {
         </Badge>
       </div>
 
-      <div className="overflow-auto bg-white border border-gray-200 rounded-lg max-h-[calc(100vh-17rem)] thin-scroll">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-50 sticky top-0 z-[1000]">
-            <tr>
-              <th className="px-3 py-2 text-left">{t("adminPriests.name")}</th>
-              <th className="px-3 py-2 text-left">{t("adminPriests.email")}</th>
-              <th className="px-3 py-2">{t("adminPriests.active")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPriests.map((p) => (
-              <tr key={p.id} className="border-t border-gray-100 cursor-pointer hover:bg-gray-100" onClick={() => openPriestDetail(p)}>
-                <td className="px-3 py-2 cursor-pointer">
-                  <p> {p.full_name}</p>
-                </td>
-                <td className="px-3 py-2">{p.email}</td>
-                <td className="px-3 py-2 text-center" onClick={(e) => e.stopPropagation()}>
-                  <Switch checked={p.active} onCheckedChange={(checked) => toggleActive(p.id, checked as boolean)} />
-                </td>
-              </tr>
-            ))}
-
-
-            {!filteredPriests.length && (
+      <div className="p-1 rounded-lg bg-white border border-gray-200 overflow-hidden">
+        <div className="overflow-auto rounded-lg max-h-[calc(100vh-17rem)] thin-scroll">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-50 sticky top-0 z-[1000]">
               <tr>
-                <td
-                  colSpan={6}
-                  className="px-3 py-6 text-center text-sm text-gray-500"
-                >
-                  {t("adminPriests.noPriestsFound")}
-                </td>
+                <th className="px-3 py-2 text-left">{t("common.name")}</th>
+                <th className="px-3 py-2 text-left">{t("common.email")}</th>
+                <th className="px-3 py-2">{t("common.active")}</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredPriests.map((p) => (
+                <tr key={p.id} className="border-t border-gray-100 cursor-pointer hover:bg-gray-100" onClick={() => openPriestDetail(p)}>
+                  <td className="px-3 py-2 cursor-pointer">
+                    <p> {p.full_name}</p>
+                  </td>
+                  <td className="px-3 py-2">{p.email}</td>
+                  <td className="px-3 py-2 text-center" onClick={(e) => e.stopPropagation()}>
+                    <Switch checked={p.active} onCheckedChange={(checked) => toggleActive(p.id, checked as boolean)} />
+                  </td>
+                </tr>
+              ))}
+
+
+              {!filteredPriests.length && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-3 py-6 text-center text-sm text-gray-500"
+                  >
+                    {t("adminPriests.noPriestsFound")}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

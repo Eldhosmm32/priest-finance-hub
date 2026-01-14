@@ -7,6 +7,8 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useUser } from "../../../hooks/useUser";
 import { supabase } from "../../../lib/supabaseClient";
+import Loader from "@/components/ui/loader";
+import { useTranslation } from "../../../i18n/languageContext";
 
 type FundTransferRow = {
   id: string;
@@ -50,6 +52,7 @@ const showToast = (message: string, type: "success" | "error") => {
 export default function AdminFundTransfer() {
   const { user, loading } = useUser();
   const router = useRouter();
+  const { t } = useTranslation();
   const currentDate = new Date().toISOString().split('T')[0];
   const [fundTransfers, setFundTransfers] = useState<FundTransferRow[]>([]);
   const [provinces, setProvinces] = useState<ProvinceOption[]>([]);
@@ -143,7 +146,7 @@ export default function AdminFundTransfer() {
     setError(null);
 
     if (!provinceId || !transferDate || !fundTransferForm.transferred_account || !fundTransferForm.amount) {
-      showToast("Please enter all required fields", "error");
+      showToast(t("toasts.enterAllRequiredFields"), "error");
       return;
     }
 
@@ -164,7 +167,7 @@ export default function AdminFundTransfer() {
 
     if (error) {
       console.error(error);
-      setError("Failed to save fund transfer entry. Please try again.");
+      setError(t("toasts.failedToSaveFundTransfer"));
       return;
     }
 
@@ -174,7 +177,7 @@ export default function AdminFundTransfer() {
           ? prev.map((s) => (s.id === editingId ? (data as unknown as FundTransferRow) : s))
           : [data as unknown as FundTransferRow, ...prev]
       );
-      showToast(editingId ? "Fund transfer updated successfully" : "Fund transfer added successfully", "success");
+      showToast(editingId ? t("toasts.fundTransferUpdated") : t("toasts.fundTransferAdded"), "success");
       await loadFundTransferData();
       resetForm();
       setOpen(false);
@@ -199,22 +202,20 @@ export default function AdminFundTransfer() {
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading…
-      </div>
+      <Loader />
     );
   }
 
   return (
     <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
       <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">
-        Fund Transfer Management
+        {t("adminFundTransfer.title")}
       </h1>
 
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
         <div className="flex w-full gap-2">
           <div className="flex flex-col flex-1 md:flex-none">
-            <label className="text-xs font-medium text-gray-600">Start Date</label>
+            <label className="text-xs font-medium text-gray-600">{t("common.startDate")}</label>
             <input
               type="date"
               className="input"
@@ -223,7 +224,7 @@ export default function AdminFundTransfer() {
             />
           </div>
           <div className="flex flex-col flex-1 md:flex-none">
-            <label className="text-xs font-medium text-gray-600">End Date</label>
+            <label className="text-xs font-medium text-gray-600">{t("common.endDate")}</label>
             <input
               type="date"
               className="input"
@@ -234,7 +235,7 @@ export default function AdminFundTransfer() {
           {(startDate || endDate) && <div className="flex flex-col justify-end flex-1 md:flex-none">
             <Button
               type="button"
-                variant="outline"
+              variant="outline"
               onClick={() => {
                 setStartDate("");
                 setEndDate("");
@@ -242,7 +243,7 @@ export default function AdminFundTransfer() {
               }}
               className="w-full md:w-auto"
             >
-              Clear
+              {t("common.clear")}
             </Button>
           </div>
           }
@@ -256,7 +257,7 @@ export default function AdminFundTransfer() {
           }}
           className="w-full md:w-auto"
         >
-          <Plus /> Add fund transfer
+          <Plus /> {t("adminFundTransfer.addFundTransfer")}
         </Button>
       </div>
 
@@ -272,7 +273,7 @@ export default function AdminFundTransfer() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingId ? "Edit Fund Transfer" : "Add Fund Transfer"}</DialogTitle>
+              <DialogTitle>{editingId ? t("adminFundTransfer.editFundTransfer") : t("adminFundTransfer.addFundTransferTitle")}</DialogTitle>
             </DialogHeader>
             {error && (
               <div className="bg-red-50 border text-sm border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center " >
@@ -283,10 +284,10 @@ export default function AdminFundTransfer() {
             <form onSubmit={handleAdd} className="bg-white flex flex-wrap gap-3 items-end">
               <div className="flex flex-col gap-2 border border-gray-200 rounded-lg px-2 py-3 w-full">
                 <div className="flex flex-col">
-                  <label className="text-xs font-medium text-gray-600 mb-1">Province</label>
+                  <label className="text-xs font-medium text-gray-600 mb-1">{t("common.province")}</label>
                   <Select value={provinceId} onValueChange={setProvinceId} required>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select province" />
+                      <SelectValue placeholder={t("adminFundTransfer.selectProvince")} />
                     </SelectTrigger>
                     <SelectContent>
                       {provinces.map((p) => (
@@ -299,7 +300,7 @@ export default function AdminFundTransfer() {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-xs font-medium text-gray-600 mb-1">Date</label>
+                  <label className="text-xs font-medium text-gray-600 mb-1">{t("common.date")}</label>
                   <input
                     type="date"
                     className="input"
@@ -311,17 +312,17 @@ export default function AdminFundTransfer() {
               </div>
 
               <div className="flex flex-col gap-2 border border-gray-200 rounded-lg w-full max-h-[400px] p-2">
-                <label className="text-xs font-medium w-full">Account Details</label>
+                <label className="text-xs font-medium w-full">{t("adminFundTransfer.accountDetails")}</label>
                 <input
                   type="text"
                   className="input"
                   onChange={(e) => updateField("transferred_account", e.target.value)}
                   value={fundTransferForm.transferred_account}
                   required
-                  placeholder="Enter account details"
+                  placeholder={t("adminFundTransfer.accountDetailsPlaceholder")}
                 />
 
-                <label className="text-xs font-medium w-full">Amount</label>
+                <label className="text-xs font-medium w-full">{t("common.amount")}</label>
                 <input
                   type="number"
                   className="input"
@@ -329,28 +330,28 @@ export default function AdminFundTransfer() {
                   value={fundTransferForm.amount}
                   required
                   step="0.01"
-                  placeholder="Enter amount"
+                  placeholder={t("adminFundTransfer.amountPlaceholder")}
                 />
 
                 <label className="text-xs font-medium w-full">
-                  Notes <span className="font-normal">(optional)</span>
+                  {t("common.notes")} <span className="font-normal">{t("common.optional")}</span>
                 </label>
                 <input
                   type="text"
                   className="input"
                   onChange={(e) => updateField("notes", e.target.value)}
                   value={fundTransferForm.notes}
-                  placeholder="Enter notes"
+                  placeholder={t("common.notesPlaceholder")}
                 />
               </div>
             </form>
             <DialogFooter>
               <div className="flex justify-end gap-2 items-center w-full">
                 <Button size="sm" type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button size="sm" type="submit" className="btn" onClick={handleAdd}>
-                  {editingId ? "Update fund transfer" : "Add fund transfer"}
+                  {editingId ? t("adminFundTransfer.updateFundTransfer") : t("adminFundTransfer.addFundTransfer")}
                 </Button>
               </div>
             </DialogFooter>
@@ -364,50 +365,52 @@ export default function AdminFundTransfer() {
               <span className="font-semibold">€ {fundTransferSummary?.total_amount ?? "N/A"}</span>
             </div>
           </div>
-          <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Province Name</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Date</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">Account Details</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Amount</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {fundTransfers.map((transfer) => (
-                  <tr key={transfer.id} className="border-t border-gray-100">
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {transfer.provinces?.province_name || transfer.province_id}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {new Date(transfer.transfer_date).toLocaleDateString(undefined, {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {transfer.transferred_account}
-                    </td>
-                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {transfer.amount}</td>
-                    <td className="px-3 py-2 flex gap-2 justify-end">
-                      <Button size="sm" variant="ghost" onClick={() => handleEdit(transfer.id)}>
-                        Edit
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-                {!fundTransfers.length && (
+          <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto p-1">
+            <div className="overflow-auto rounded-lg max-h-[calc(100vh-21rem)] thin-scroll">
+              <table className="min-w-full text-sm">
+                <thead className="bg-gray-50">
                   <tr>
-                    <td colSpan={5} className="px-3 py-6 text-center text-gray-500">
-                      No fund transfer entries yet.
-                    </td>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminFundTransfer.provinceNameColumn")}</th>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("common.date")}</th>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminFundTransfer.accountDetailsColumn")}</th>
+                    <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.amount")}</th>
+                    <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.actions")}</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {fundTransfers.map((transfer) => (
+                    <tr key={transfer.id} className="border-t border-gray-100">
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {transfer.provinces?.province_name || transfer.province_id}
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {new Date(transfer.transfer_date).toLocaleDateString(undefined, {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {transfer.transferred_account}
+                      </td>
+                      <td className="px-3 py-2 text-right whitespace-nowrap">€ {transfer.amount}</td>
+                      <td className="px-3 py-2 flex gap-2 justify-end">
+                        <Button size="sm" variant="ghost" onClick={() => handleEdit(transfer.id)}>
+                          {t("common.edit")}
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {!fundTransfers.length && (
+                    <tr>
+                      <td colSpan={5} className="px-3 py-6 text-center text-gray-500">
+                        {t("adminFundTransfer.noFundTransferEntries")}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
           <div className="hidden md:block w-1/3 h-fit bg-white border border-gray-200 rounded-lg">
             <div className="p-2 border-b border-gray-200">
@@ -416,7 +419,7 @@ export default function AdminFundTransfer() {
             <div className="flex flex-col gap-2 p-2">
               <p className="text-sm text-gray-500">
                 {startDate && endDate
-                  ? `From ${new Date(startDate).toLocaleDateString(undefined, {
+                  ? `${t("common.from")} ${new Date(startDate).toLocaleDateString(undefined, {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
@@ -426,18 +429,18 @@ export default function AdminFundTransfer() {
                     year: "numeric",
                   })}`
                   : startDate
-                    ? `From ${new Date(startDate).toLocaleDateString(undefined, {
+                    ? `${t("common.from")} ${new Date(startDate).toLocaleDateString(undefined, {
                       day: "numeric",
                       month: "short",
                       year: "numeric",
                     })}`
                     : endDate
-                      ? `Until ${new Date(endDate).toLocaleDateString(undefined, {
+                      ? `${t("common.until")} ${new Date(endDate).toLocaleDateString(undefined, {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
                       })}`
-                      : "All time"}
+                      : t("common.allTime")}
               </p>
               <h1 className="font-bold text-2xl">€ {fundTransferSummary?.total_amount ?? "N/A"}</h1>
               <p className="text-sm text-gray-500">{fundTransferSummary?.transfer_count ?? 0} transfers</p>

@@ -353,7 +353,7 @@
   "adminAnnouncements": {
     "title": "Ankündigungen",
     "common": {
-      "title": "Allgemeine Ankündigungen",
+      "title": "Allgemeine",
       "searchLabel": "Suche nach Titel oder Text",
       "searchPlaceholder": "Suche nach Titel oder Text",
       "announcementsCount": "Ankündigungen",
@@ -383,7 +383,7 @@
       "noAnnouncementsYet": "Noch keine Ankündigungen."
     },
     "individual": {
-      "title": "Individuelle Ankündigungen",
+      "title": "Individuelle",
       "searchLabel": "Suche nach Titel oder Text",
       "searchPlaceholder": "Suche nach Titel oder Text",
       "announcementsCount": "Ankündigungen",

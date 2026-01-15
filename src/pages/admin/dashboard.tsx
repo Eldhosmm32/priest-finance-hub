@@ -228,7 +228,7 @@ export default function AdminDashboard() {
   return (
     <>
       {loading ? <Loader /> : (
-        <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
+        <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-2 md:p-4 min-h-[calc(100vh-9.5rem)]">
           <h1 className="text-2xl font-semibold text-gray-800 mb-2">{t("common.dashboard")}</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* 1. Total Salary (This Month) */}

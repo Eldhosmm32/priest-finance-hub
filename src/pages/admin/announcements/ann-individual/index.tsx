@@ -250,7 +250,7 @@ export default function AnnIndividual() {
   return (
     <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg min-h-[calc(100vh-17.5rem)]">
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
-        <div className="flex flex-col flex-1 md:flex-none">
+        <div className="flex flex-col flex-1 md:flex-none gap-1">
           <label className="text-xs font-medium text-gray-600">{t("adminAnnouncements.individual.searchLabel")}</label>
           <input
             className="input w-full md:max-w-xs"

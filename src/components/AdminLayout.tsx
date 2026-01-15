@@ -41,7 +41,7 @@ export default function AdminLayout({ children }: Props) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#E8CBC0] to-[#636FA4]">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#E8CBC0] to-[#636FA4] relative">
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="flex max-w-6xl mx-auto p-2 ">
           <div className="flex-1 flex items-center">
@@ -95,19 +95,19 @@ export default function AdminLayout({ children }: Props) {
         </div>
       </header>
 
-      <main className="flex gap-4 flex-1 max-w-6xl mx-auto w-full px-4 py-6 overflow-y-auto">
-        {/* Mobile hamburger */}
-        <div className="md:hidden mb-4 absolute top-[5rem] right-2">
+      <Button
+        aria-label="Open admin menu"
+        onClick={() => setOpen(true)}
+        variant="outline"
+        size="sm"
+        className="md:hidden fixed top-[3.5rem] right-0 rounded-tl-none rounded-none rounded-bl-md"
+      >
+        <Menu />
+      </Button>
 
-          <Button
-            aria-label="Open admin menu"
-            onClick={() => setOpen(true)}
-            variant="outline"
-            size="sm"
-          >
-            <Menu />
-          </Button>
-        </div>
+      <main className="flex gap-4 flex-1 max-w-6xl mx-auto w-full px-2 md:px-4 py-2 md:py-6 overflow-y-auto">
+        {/* Mobile hamburger */}
+
         {/* Desktop sidebar (hidden on small screens) */}
         <div className="hidden md:block">
           <AdminSidebar />

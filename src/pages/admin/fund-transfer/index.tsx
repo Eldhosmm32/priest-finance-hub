@@ -207,14 +207,14 @@ export default function AdminFundTransfer() {
   }
 
   return (
-    <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
+    <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-2 md:p-4 min-h-[calc(100vh-9.5rem)]">
       <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">
         {t("adminFundTransfer.title")}
       </h1>
 
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
         <div className="flex w-full gap-2">
-          <div className="flex flex-col flex-1 md:flex-none">
+          <div className="flex flex-col flex-1 md:flex-none gap-1">
             <label className="text-xs font-medium text-gray-600">{t("common.startDate")}</label>
             <input
               type="date"
@@ -223,7 +223,7 @@ export default function AdminFundTransfer() {
               value={startDate}
             />
           </div>
-          <div className="flex flex-col flex-1 md:flex-none">
+          <div className="flex flex-col flex-1 md:flex-none gap-1">
             <label className="text-xs font-medium text-gray-600">{t("common.endDate")}</label>
             <input
               type="date"

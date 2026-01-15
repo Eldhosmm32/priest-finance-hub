@@ -461,7 +461,7 @@ export default function AdminPriestDetail() {
 
     return (
         <div className="flex gap-6">
-            <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
+            <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-2 md:p-4 min-h-[calc(100vh-9.5rem)]">
                 <div className="flex gap-1 items-center cursor-pointer" onClick={() => router.push("/admin/priests")}>
                     <Image src="/back-arrow.svg" alt="Priest" width={10} height={10} />
                     <h2 className="text-sm font-semibold text-gray-800">
@@ -469,7 +469,7 @@ export default function AdminPriestDetail() {
                     </h2>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-lg overflow-auto p-2">
+                <div className="bg-white border border-gray-200 rounded-lg w-[calc(100vw-2rem)] md:w-full overflow-auto p-2">
                     <Tabs defaultValue="details" className="w-full">
                         <TabsList>
                             <TabsTrigger value="details">{t("common.details")}</TabsTrigger>
@@ -479,26 +479,37 @@ export default function AdminPriestDetail() {
                         <TabsContent value="details" className="p-4">
                             <Card className="w-full">
                                 <CardHeader className="flex flex-row items-center gap-4 relative">
-                                    <Avatar className="h-20 w-20">
+                                    <Avatar className="h-20 w-20 relative">
                                         <AvatarImage src={priest?.photo ?? '/priest.svg'} alt={priest?.full_name ?? ''} />
                                         <AvatarFallback>{priest?.full_name?.charAt(0)}</AvatarFallback>
                                     </Avatar>
 
-                                    <div className="flex flex-col">
+                                    <Badge
+                                        className={`w-fit mt-1 absolute top-2 left-16 text-[10px] ${priest?.active ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
+                                        {priest?.active ? t("common.active") : t("common.inactive")}
+                                    </Badge>
+
+                                    <div className="flex flex-col gap-1">
                                         <h2 className="text-xl font-semibold">{priest?.full_name}</h2>
+                                        <div className="flex">
+                                            <div
+                                                className="px-2 py-1 w-auto  text-indigo-600 gap-1 rounded-sm flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+                                                onClick={handleOpenEdit}
+                                            >
+                                                <span className="text-indigo-600 text-sm">{t("common.edit")} {t("common.details")}</span>
+                                            </div>
+                                            <span className="px-1 text-gray-500">|</span>
+                                            <div
+                                                className="px-2 py-1 w-auto text-indigo-600 gap-1 rounded-sm flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+                                                onClick={handleOpenEdit}
+                                            >
+                                                <span className="text-indigo-600 text-sm">{t("common.edit")} {t("common.name")}</span>
+                                            </div>
+                                        </div>
 
-                                        <Badge
-                                            className={`w-fit mt-1 ${priest?.active ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
-                                            {priest?.active ? t("common.active") : t("common.inactive")}
-                                        </Badge>
                                     </div>
 
-                                    <div
-                                        className="absolute top-6 right-6 px-2 py-1 bg-indigo-600 gap-1 rounded-md flex items-center justify-center cursor-pointer hover:bg-indigo-700 transition-colors"
-                                        onClick={handleOpenEdit}
-                                    >
-                                        <PencilIcon className="text-white h-3 w-3" /><span className="text-white text-sm">{t("common.edit")}</span>
-                                    </div>
+
                                 </CardHeader>
 
                                 <CardContent className="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -695,71 +706,73 @@ export default function AdminPriestDetail() {
                             </div>
                         </TabsContent>
                         <TabsContent value="loan" className="p-4">
-                            <div className="w-full space-y-4">
-                                <div className="w-full bg-white border border-gray-200 rounded-lg overflow-x-auto">
-                                    <table className="min-w-full text-sm">
-                                        <thead className="bg-gray-50">
-                                            <tr>
-                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPriestDetail.principal")}</th>
-                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPriestDetail.emi")}</th>
-                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPriestDetail.issuedOn")}</th>
-                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("common.notes")}</th>
-                                                <th className="px-3 py-2 text-left whitespace-nowrap">{t("common.status")}</th>
-                                                <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.actions")}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {loans.map((loan) => {
-                                                const closedDate = new Date(loan.closed_on);
-                                                const today = new Date();
-                                                today.setHours(0, 0, 0, 0);
-                                                closedDate.setHours(0, 0, 0, 0);
-                                                const isActive = closedDate >= today;
+                            <div className="p-1 rounded-lg bg-white border border-gray-200 overflow-hidden">
+                                <div className="overflow-auto rounded-lg max-h-[calc(100vh-17rem)] thin-scroll">
+                                    <div className="w-full bg-white border border-gray-200 rounded-lg overflow-x-auto">
+                                        <table className="min-w-full text-sm">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPriestDetail.principal")}</th>
+                                                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPriestDetail.emi")}</th>
+                                                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPriestDetail.issuedOn")}</th>
+                                                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("common.notes")}</th>
+                                                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("common.status")}</th>
+                                                    <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.actions")}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {loans.map((loan) => {
+                                                    const closedDate = new Date(loan.closed_on);
+                                                    const today = new Date();
+                                                    today.setHours(0, 0, 0, 0);
+                                                    closedDate.setHours(0, 0, 0, 0);
+                                                    const isActive = closedDate >= today;
 
-                                                return (
-                                                    <tr
-                                                        key={loan.id}
-                                                        className={`border-t border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${selectedLoan?.id === loan.id ? "bg-indigo-50" : ""
-                                                            }`}
-                                                        onClick={() => handleView(loan)}
-                                                    >
-                                                        <td className="px-3 py-2 text-left whitespace-nowrap">€ {loan.principal.toFixed(2)}</td>
-                                                        <td className="px-3 py-2 text-left whitespace-nowrap">€ {loan.emi.toFixed(2)}</td>
-                                                        <td className="px-3 py-2 whitespace-nowrap">
-                                                            {new Date(loan.issued_on).toLocaleDateString(undefined, {
-                                                                day: "2-digit",
-                                                                month: "short",
-                                                                year: "numeric",
-                                                            })}
-                                                        </td>
-                                                        <td className="px-3 py-2 whitespace-nowrap">
-                                                            {loan.loan_notes}
-                                                        </td>
-                                                        <td className="px-3 py-2 whitespace-nowrap">
-                                                            <Badge className={`text-xs font-medium text-white w-fit ${isActive ? "bg-green-500" : "bg-red-500"}`}>
-                                                                {isActive ? t("common.active") : t("common.inactive")}
-                                                            </Badge>
-                                                        </td>
-                                                        <td className="px-3 py-2 flex gap-2 justify-end">
-                                                            <Button size="sm" variant="ghost" onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleView(loan);
-                                                            }}>
-                                                                {t("common.view")}
-                                                            </Button>
+                                                    return (
+                                                        <tr
+                                                            key={loan.id}
+                                                            className={`border-t border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${selectedLoan?.id === loan.id ? "bg-indigo-50" : ""
+                                                                }`}
+                                                            onClick={() => handleView(loan)}
+                                                        >
+                                                            <td className="px-3 py-2 text-left whitespace-nowrap">€ {loan.principal.toFixed(2)}</td>
+                                                            <td className="px-3 py-2 text-left whitespace-nowrap">€ {loan.emi.toFixed(2)}</td>
+                                                            <td className="px-3 py-2 whitespace-nowrap">
+                                                                {new Date(loan.issued_on).toLocaleDateString(undefined, {
+                                                                    day: "2-digit",
+                                                                    month: "short",
+                                                                    year: "numeric",
+                                                                })}
+                                                            </td>
+                                                            <td className="px-3 py-2 whitespace-nowrap">
+                                                                {loan.loan_notes}
+                                                            </td>
+                                                            <td className="px-3 py-2 whitespace-nowrap">
+                                                                <Badge className={`text-xs font-medium text-white w-fit ${isActive ? "bg-green-500" : "bg-red-500"}`}>
+                                                                    {isActive ? t("common.active") : t("common.inactive")}
+                                                                </Badge>
+                                                            </td>
+                                                            <td className="px-3 py-2 flex gap-2 justify-end">
+                                                                <Button size="sm" variant="ghost" onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleView(loan);
+                                                                }}>
+                                                                    {t("common.view")}
+                                                                </Button>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                                {!loans.length && (
+                                                    <tr>
+                                                        <td colSpan={6} className="px-3 py-6 text-center text-gray-500">
+                                                            {t("adminPriestDetail.noLoanEntries")}
                                                         </td>
                                                     </tr>
-                                                );
-                                            })}
-                                            {!loans.length && (
-                                                <tr>
-                                                    <td colSpan={6} className="px-3 py-6 text-center text-gray-500">
-                                                        {t("adminPriestDetail.noLoanEntries")}
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
 

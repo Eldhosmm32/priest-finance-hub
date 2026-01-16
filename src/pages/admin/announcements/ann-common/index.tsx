@@ -423,10 +423,10 @@ export default function AnnCommon() {
                     <tr key={a.id} className="border-t border-gray-100">
                       <td className="px-3 py-2">
                         <div className="flex flex-col">
-                          <p className="font-semibold text-gray-800">
+                          <p className="font-semibold text-gray-800 w-[10rem] truncate">
                             {a.title || "-"}
                           </p>
-                          <p className="text-xs text-gray-500 line-clamp-2 mt-1">
+                          <p className="text-xs text-gray-500 line-clamp-2 mt-1 w-[10rem] truncate">
                             {a.body || "-"}
                           </p>
                         </div>

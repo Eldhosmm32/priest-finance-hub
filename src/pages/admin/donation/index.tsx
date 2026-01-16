@@ -354,7 +354,7 @@ export default function AdminDonation() {
                       </td>
                       <td className="px-3 py-2 text-right whitespace-nowrap">€ {donation.amount}</td>
                       <td className="px-3 py-2 whitespace-nowrap">
-                        {donation.notes || "-"}
+                        {donation.notes || "N/A"}
                       </td>
                       <td className="px-3 py-2 flex gap-2 justify-end">
                         <Button size="sm" variant="ghost" onClick={() => handleEdit(donation.id)}>

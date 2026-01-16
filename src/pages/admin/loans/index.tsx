@@ -758,7 +758,7 @@ export default function AdminLoans() {
                           })}
                         </td>
                         <td className="px-3 py-2 whitespace-nowrap">
-                          {loan.loan_notes}
+                          {loan.loan_notes??'N/A'}
                         </td>
                         <td className="px-3 py-2 flex gap-2 justify-end">
                           <Button size="sm" variant="ghost" onClick={(e) => handleEdit(loan, e)}>

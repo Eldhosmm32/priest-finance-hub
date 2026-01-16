@@ -581,7 +581,7 @@ export default function PriestDashboard() {
                                 {loan.loan_notes && (
                                   <div className="pt-2 border-t border-gray-100">
                                     <span className="text-xs text-muted-foreground">Notes</span>
-                                    <p className="text-sm mt-1">{loan.loan_notes}</p>
+                                    <p className="text-sm mt-1">{loan.loan_notes??'N/A'}</p>
                                   </div>
                                 )}
                               </div>

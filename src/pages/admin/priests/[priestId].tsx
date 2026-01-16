@@ -543,7 +543,7 @@ export default function AdminPriestDetail() {
                             <TabsTrigger value="salary">{t("adminPriestDetail.financialSummary")}</TabsTrigger>
                             <TabsTrigger value="loan">{t("adminPriestDetail.loanSummary")}</TabsTrigger>
                         </TabsList>
-                        <TabsContent value="details" className="p-4">
+                        <TabsContent value="details" className="p-2 md:p-4">
                             <Card className="w-full">
                                 <CardHeader className="flex flex-row items-center gap-4 relative">
                                     <Avatar className="h-20 w-20 relative">
@@ -587,7 +587,7 @@ export default function AdminPriestDetail() {
                                     </div>
 
                                     {/* Current Address */}
-                                    <div className="flex items-start gap-2 col-span-2">
+                                    <div className="flex flex-col md:flex-row gap-2 col-span-2">
                                         <Label className="text-sm text-muted-foreground w-32">{t("common.currentAddress")}</Label>
                                         <span className="text-base font-medium truncate">{priest?.address ?? 'N/A'}</span>
                                     </div>
@@ -658,7 +658,7 @@ export default function AdminPriestDetail() {
                                 </CardContent>
                             </Card>
                         </TabsContent>
-                        <TabsContent value="salary" className="p-4">
+                        <TabsContent value="salary" className="p-2 md:p-4">
                             <div className="w-full border border-gray-200 rounded-lg p-2">
                                 <div
                                     className="flex gap-3 items-end"
@@ -772,8 +772,8 @@ export default function AdminPriestDetail() {
                                 ))}
                             </div>
                         </TabsContent>
-                        <TabsContent value="loan" className="p-4">
-                            <div className="p-1 rounded-lg bg-white border border-gray-200 overflow-hidden">
+                        <TabsContent value="loan" className="p-2 md:p-4">
+                            <div className="rounded-lg overflow-hidden">
                                 <div className="overflow-auto rounded-lg max-h-[calc(100vh-17rem)] thin-scroll">
                                     <div className="w-full bg-white border border-gray-200 rounded-lg overflow-x-auto">
                                         <table className="min-w-full text-sm">
@@ -812,7 +812,7 @@ export default function AdminPriestDetail() {
                                                                 })}
                                                             </td>
                                                             <td className="px-3 py-2 whitespace-nowrap">
-                                                                {loan.loan_notes}
+                                                                {loan.loan_notes??'N/A'}
                                                             </td>
                                                             <td className="px-3 py-2 whitespace-nowrap">
                                                                 <Badge className={`text-xs font-medium text-white w-fit ${isActive ? "bg-green-500" : "bg-yellow-500"}`}>

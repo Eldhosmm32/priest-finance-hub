@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -63,6 +63,9 @@ export default function AnnIndividual() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [announcementForm, setAnnouncementForm] = useState<Record<string, any>>(INITIAL_FORM_STATE);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Update individual field value
   const updateField = (fieldName: string, value: string | boolean) => {
@@ -210,6 +213,40 @@ export default function AnnIndividual() {
     setOpen(true);
   };
 
+  const handleDeleteClick = (id: string) => {
+    setDeletingId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingId) return;
+
+    setDeleting(true);
+    try {
+      const { error } = await supabase
+        .from("announcements_individual")
+        .delete()
+        .eq("id", deletingId);
+
+      if (error) {
+        console.error(error);
+        showToast(t("adminAnnouncements.individual.failedToDeleteAnnouncement") || "Failed to delete announcement", "error");
+        setDeleting(false);
+        return;
+      }
+
+      setItems((prev) => prev.filter((a) => a.id !== deletingId));
+      showToast(t("adminAnnouncements.individual.announcementDeleted") || "Announcement deleted successfully", "success");
+      setDeleteDialogOpen(false);
+      setDeletingId(null);
+    } catch (err) {
+      console.error(err);
+      showToast(t("adminAnnouncements.individual.failedToDeleteAnnouncement") || "Failed to delete announcement", "error");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   // Calculate if announcement is published based on visible_until
   const isPublished = (announcement: AnnouncementRow): boolean => {
     if (!announcement.visible_until) {
@@ -243,7 +280,9 @@ export default function AnnIndividual() {
 
   if (loading || loadingData) {
     return (
-      <Loader />
+      <div className="flex justify-center items-center h-[calc(100vh-17.5rem)] overflow-hidden">
+        <Loader />
+      </div>
     );
   }
 
@@ -470,6 +509,9 @@ export default function AnnIndividual() {
                           <Button size="sm" variant="ghost" onClick={() => handleEdit(a)}>
                             {t("common.edit")}
                           </Button>
+                          <Button size="sm" variant="ghost" onClick={() => handleDeleteClick(a.id)} className="text-red-600 hover:text-red-700">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -487,6 +529,28 @@ export default function AnnIndividual() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("adminAnnouncements.individual.deleteAnnouncement") || "Delete Announcement"}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-600">
+            {t("adminAnnouncements.individual.deleteConfirmation") || "Are you sure you want to delete this announcement? This action cannot be undone."}
+          </p>
+          <DialogFooter>
+            <div className="flex justify-end gap-2 items-center w-full">
+              <Button size="sm" type="button" variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+                {t("common.cancel")}
+              </Button>
+              <Button size="sm" type="button" className="bg-red-600 hover:bg-red-700" onClick={handleDeleteConfirm} disabled={deleting}>
+                {deleting ? t("common.deleting") || "Deleting..." : t("common.delete") || "Delete"}
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

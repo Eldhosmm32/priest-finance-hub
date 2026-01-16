@@ -15,6 +15,7 @@ import { useUserDetails } from "../../components/PriestLayout";
 import { useUser } from "../../hooks/useUser";
 import { useTranslation } from "../../i18n/languageContext";
 import { supabase } from "../../lib/supabaseClient";
+import Loader from "@/components/ui/loader";
 
 export default function PriestDashboard() {
   const { user, loading } = useUser();
@@ -251,8 +252,8 @@ export default function PriestDashboard() {
 
   if (loading || loadingDetails || !user || dataLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
-        {t("common.loading")}
+      <div className="max-w-6xl mx-auto w-full">
+        <Loader />
       </div>
     );
   }
@@ -312,7 +313,6 @@ export default function PriestDashboard() {
 
   return (
     <div className="space-y-6 transition-all duration-300 ease bg-white rounded-none md:rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
-
       {/* 🔔 Announcement Banner */}
       {priestAnnouncements?.map((a: any) => (
         !a.isRead && (
@@ -340,7 +340,7 @@ export default function PriestDashboard() {
       <div className="flex flex-col-reverse md:flex-row gap-3">
 
         {/* 💳 Summary Cards */}
-        <div className="w-full md:w-3/4 flex flex-col gap-3">
+        <div className="w-full md:w-3/4 flex flex-col gap-3 p-2 border border-gray-200 rounded-lg">
           <Tabs
             defaultValue="dashboard"
             className="w-full"
@@ -603,7 +603,7 @@ export default function PriestDashboard() {
 
         <div className="w-full md:w-1/4">
           {/* 👤 Personal Profile */}
-          <Card>
+          <Card className="hidden md:block">
             <CardContent className="flex flex-col md:flex-row gap-6 relative">
               <ArrowRight className="text-indigo-600 absolute top-3 right-3 h-5 w-5 cursor-pointer" onClick={() => router.push("/priest/profile")} />
               <div className="flex flex-col items-start gap-2 w-full ">
@@ -615,12 +615,12 @@ export default function PriestDashboard() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold">{userDetails?.full_name ?? user.full_name}</h3>
+                  <h3 className="text-lg font-semibold">{userDetails?.full_name ?? user?.full_name}</h3>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm w-[80%]"> {userDetails?.email ?? user.email}</span>
+                  <span className="text-sm w-[80%]"> {userDetails?.email ?? user?.email}</span>
                 </div>
 
                 {priestData?.phone && (
@@ -636,6 +636,37 @@ export default function PriestDashboard() {
                     <span className="text-sm text-muted-foreground w-[80%]"> {priestData.address}</span>
                   </div>
                 )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="block md:hidden">
+            <CardContent className="flex flex-col md:flex-row gap-6 relative p-2">
+              <ArrowRight className="text-indigo-600 absolute top-3 right-3 h-5 w-5 cursor-pointer" onClick={() => router.push("/priest/profile")} />
+              <div className="flex items-start gap-2 w-full ">
+                <div className="flex justify-center">
+                  <Avatar className="h-20 w-20">
+                    <AvatarImage src={priestData?.photo ?? "/priest.svg"} />
+                    {/* <AvatarFallback className="text-2xl">EM</AvatarFallback> */}
+                  </Avatar>
+                </div>
+                <div className="flex flex-col items-start gap-1 w-full">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold">{userDetails?.full_name ?? user?.full_name}</h3>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm w-[80%]"> {userDetails?.email ?? user?.email}</span>
+                  </div>
+
+                  {priestData?.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm  w-[80%]"> {priestData.phone}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

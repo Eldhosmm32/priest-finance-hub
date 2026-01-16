@@ -86,8 +86,12 @@ export default function AdminPriestDetail() {
     const [openView, setOpenView] = useState(false);
     const [selectedLoan, setSelectedLoan] = useState<LoanRow | null>(null);
     const [openEdit, setOpenEdit] = useState(false);
+    const [openEditName, setOpenEditName] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [savingName, setSavingName] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [nameError, setNameError] = useState<string | null>(null);
+    const [nameValue, setNameValue] = useState("");
     const [formData, setFormData] = useState({
         date_of_birth: "",
         photo: "",
@@ -283,6 +287,69 @@ export default function AdminPriestDetail() {
     const handleView = (loan: LoanRow) => {
         setSelectedLoan(loan);
         setOpenView(true);
+    };
+
+    const handleOpenEditName = async () => {
+        setOpenEditName(true);
+        setNameError(null);
+        setNameValue(priest?.full_name ?? "");
+    };
+
+    const handleCloseEditName = () => {
+        setOpenEditName(false);
+        setNameError(null);
+        setNameValue("");
+    };
+
+    const handleUpdateName = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!priestId || Array.isArray(priestId)) return;
+
+        if (!nameValue.trim()) {
+            setNameError(t("common.nameRequired") || "Name is required");
+            return;
+        }
+
+        setSavingName(true);
+        setNameError(null);
+
+        try {
+            // Update full_name in profiles table
+            const { error: updateError } = await supabase
+                .from("profiles")
+                .update({ full_name: nameValue.trim() })
+                .eq("id", priestId);
+
+            if (updateError) throw updateError;
+
+            // Refresh priest data
+            const { data: priestProfile } = await supabase
+                .from("profiles")
+                .select("id, full_name, email, active")
+                .eq("id", priestId)
+                .maybeSingle();
+
+            const { data: priestData } = await supabase
+                .from("priests")
+                .select("address, date_of_birth, province, diocese, visa_number, visa_category, visa_expiry_date, passport_number, phone, photo")
+                .eq("id", priestId)
+                .maybeSingle();
+
+            const mergedPriestData: PriestProfile = {
+                ...(priestProfile ?? {}),
+                ...(priestData ?? {}),
+                photo: priestData?.photo ?? null,
+            } as PriestProfile;
+
+            setPriest(mergedPriestData);
+            showToast(t("common.updated"), "success");
+            handleCloseEditName();
+        } catch (err: any) {
+            console.error("Error updating name:", err);
+            setNameError(err.message || "Failed to update name");
+        } finally {
+            setSavingName(false);
+        }
     };
 
     const handleOpenEdit = async () => {
@@ -485,7 +552,7 @@ export default function AdminPriestDetail() {
                                     </Avatar>
 
                                     <Badge
-                                        className={`w-fit mt-1 absolute top-2 left-16 text-[10px] ${priest?.active ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
+                                        className={`w-fit mt-1 absolute top-2 left-16 text-[10px] ${priest?.active ? "bg-green-600 text-white" : "bg-yellow-500 text-white"}`}>
                                         {priest?.active ? t("common.active") : t("common.inactive")}
                                     </Badge>
 
@@ -501,7 +568,7 @@ export default function AdminPriestDetail() {
                                             <span className="px-1 text-gray-500">|</span>
                                             <div
                                                 className="px-2 py-1 w-auto text-indigo-600 gap-1 rounded-sm flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
-                                                onClick={handleOpenEdit}
+                                                onClick={handleOpenEditName}
                                             >
                                                 <span className="text-indigo-600 text-sm">{t("common.edit")} {t("common.name")}</span>
                                             </div>
@@ -748,7 +815,7 @@ export default function AdminPriestDetail() {
                                                                 {loan.loan_notes}
                                                             </td>
                                                             <td className="px-3 py-2 whitespace-nowrap">
-                                                                <Badge className={`text-xs font-medium text-white w-fit ${isActive ? "bg-green-500" : "bg-red-500"}`}>
+                                                                <Badge className={`text-xs font-medium text-white w-fit ${isActive ? "bg-green-500" : "bg-yellow-500"}`}>
                                                                     {isActive ? t("common.active") : t("common.inactive")}
                                                                 </Badge>
                                                             </td>
@@ -1261,6 +1328,65 @@ export default function AdminPriestDetail() {
                                     disabled={saving}
                                 >
                                     {saving ? t("common.saving") : t("common.save")}
+                                </Button>
+                            </div>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Name Dialog */}
+            <Dialog open={openEditName} onOpenChange={(isOpen) => {
+                if (!isOpen) {
+                    handleCloseEditName();
+                }
+            }}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>{t("common.edit")} {t("common.name")}</DialogTitle>
+                    </DialogHeader>
+
+                    {nameError && (
+                        <div className="bg-red-50 border text-sm border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center">
+                            {nameError}
+                            <button className="text-red-700" onClick={() => setNameError(null)}>×</button>
+                        </div>
+                    )}
+
+                    <form onSubmit={handleUpdateName}>
+                        <div className="space-y-4 py-4">
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="full_name" className="text-sm font-medium">
+                                    {t("common.name")}
+                                </Label>
+                                <Input
+                                    id="full_name"
+                                    type="text"
+                                    placeholder={t("common.enterName") || "Enter name"}
+                                    value={nameValue}
+                                    onChange={(e) => setNameValue(e.target.value)}
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+                        </div>
+
+                        <DialogFooter>
+                            <div className="flex justify-end gap-2 items-center w-full">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleCloseEditName}
+                                    disabled={savingName}
+                                >
+                                    {t("common.cancel")}
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    className="bg-indigo-600 hover:bg-indigo-700"
+                                    disabled={savingName}
+                                >
+                                    {savingName ? t("common.saving") : t("common.save")}
                                 </Button>
                             </div>
                         </DialogFooter>

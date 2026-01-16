@@ -59,7 +59,11 @@
     "details": "Details",
     "title": "Titel",
     "type": "Typ",
-    "closed": "Geschlossen"
+    "closed": "Geschlossen",
+    "uploading": "Wird hochgeladen...",
+    "upload": "Hochladen",
+    "delete": "Löschen",
+    "deleting": "Wird gelöscht..."
   },
   "login": {
     "title": "Anmelden",
@@ -161,6 +165,19 @@
     "cancel": "Abbrechen",
     "saveChanges": "Änderungen speichern",
     "saving": "Wird gespeichert...",
+    "personalInformation": "Persönliche Informationen",
+    "addressInformation": "Adressinformationen",
+    "religiousInformation": "Religiöse Informationen",
+    "visaPassportInformation": "Visum- und Passinformationen",
+    "dateOfBirth": "Geburtsdatum",
+    "currentAddress": "Aktuelle Adresse",
+    "phoneNumber": "Telefonnummer",
+    "province": "Provinz",
+    "diocese": "Diözese",
+    "visaNumber": "Visum-Nummer",
+    "visaCategory": "Visum-Kategorie",
+    "visaExpiryDate": "Visum-Ablaufdatum",
+    "passportNumber": "Passnummer",
     "enterCurrentAddress": "Geben Sie Ihre aktuelle Adresse ein",
     "enterPhoneNumber": "Telefonnummer eingeben",
     "enterProvince": "Provinz eingeben",
@@ -169,7 +186,16 @@
     "enterVisaCategory": "Visum-Kategorie eingeben",
     "enterPassportNumber": "Passnummer eingeben",
     "profilePhotoUrl": "Profilfoto-URL",
-    "photoUrlPlaceholder": "https://example.com/photo.jpg"
+    "photoUrlPlaceholder": "https://example.com/photo.jpg",
+    "updateProfilePhoto": "Profilfoto aktualisieren",
+    "selectPhoto": "Foto auswählen",
+    "maxFileSize": "Maximale Dateigröße: 5MB",
+    "photoUpdated": "Profilfoto erfolgreich aktualisiert",
+    "failedToUploadPhoto": "Foto konnte nicht hochgeladen werden",
+    "invalidImageType": "Bitte wählen Sie eine gültige Bilddatei aus",
+    "imageTooLarge": "Bildgröße muss weniger als 5MB betragen",
+    "failedToUpdateProfile": "Profil konnte nicht aktualisiert werden",
+    "failedToLoadProfile": "Profildaten konnten nicht geladen werden"
   },
   "priestPassword": {
     "changePassword": "Passwort ändern",
@@ -380,7 +406,11 @@
       "unpublished": "Nicht veröffentlicht",
       "days": "Tage",
       "noAnnouncementsFound": "Keine Ankündigungen gefunden, die Ihrer Suche entsprechen.",
-      "noAnnouncementsYet": "Noch keine Ankündigungen."
+      "noAnnouncementsYet": "Noch keine Ankündigungen.",
+      "deleteAnnouncement": "Ankündigung löschen",
+      "deleteConfirmation": "Sind Sie sicher, dass Sie diese Ankündigung löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "announcementDeleted": "Ankündigung erfolgreich gelöscht",
+      "failedToDeleteAnnouncement": "Ankündigung konnte nicht gelöscht werden"
     },
     "individual": {
       "title": "Individuelle",
@@ -413,7 +443,11 @@
       "unpublished": "Nicht veröffentlicht",
       "days": "Tage",
       "noAnnouncementsFound": "Keine Ankündigungen gefunden, die Ihrer Suche entsprechen.",
-      "noAnnouncementsYet": "Noch keine Ankündigungen."
+      "noAnnouncementsYet": "Noch keine Ankündigungen.",
+      "deleteAnnouncement": "Ankündigung löschen",
+      "deleteConfirmation": "Sind Sie sicher, dass Sie diese Ankündigung löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "announcementDeleted": "Ankündigung erfolgreich gelöscht",
+      "failedToDeleteAnnouncement": "Ankündigung konnte nicht gelöscht werden"
     }
   },
   "adminPriestDetail": {

@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, MapPin, Mail, Phone, PencilIcon, FileText, Globe, Building2, CreditCard, CalendarDays, ArrowLeft } from "lucide-react";
+import { Calendar, MapPin, Mail, Phone, PencilIcon, FileText, Globe, Building2, CreditCard, CalendarDays, ArrowLeft, CameraIcon, X } from "lucide-react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useUser } from "../../../hooks/useUser";
@@ -12,6 +12,7 @@ import { supabase } from "../../../lib/supabaseClient";
 import { useUserDetails } from "../../../components/PriestLayout";
 import { useTranslation } from "../../../i18n/languageContext";
 import Loader from "@/components/ui/loader";
+import { toast } from "sonner";
 
 type ExtendedProfile = {
     id: string;
@@ -39,7 +40,11 @@ export default function PriestProfile() {
     const [open, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
+    const [openEditPhoto, setOpenEditPhoto] = useState(false);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
+    const [photoError, setPhotoError] = useState<string | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     // Form state for editing
     const [formData, setFormData] = useState({
         date_of_birth: "",
@@ -252,7 +257,9 @@ export default function PriestProfile() {
 
     if (loading || loadingProfile || !user) {
         return (
-            <Loader />
+            <div className="w-full max-w-2xl mx-auto">
+                <Loader />
+            </div>
         );
     }
 
@@ -297,28 +304,179 @@ export default function PriestProfile() {
         );
     };
 
+    const handleOpenEditPhoto = async () => {
+        setOpenEditPhoto(true);
+        setPhotoError(null);
+        setSelectedFile(null);
+        setPreviewUrl(null);
+    };
+
+    const handleCloseEditPhoto = () => {
+        setOpenEditPhoto(false);
+        setPhotoError(null);
+        setSelectedFile(null);
+        setPreviewUrl(null);
+    };
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            setPhotoError(t("priestProfile.invalidImageType") || "Please select a valid image file");
+            return;
+        }
+
+        // Validate file size (5MB = 5 * 1024 * 1024 bytes)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            setPhotoError(t("priestProfile.imageTooLarge") || "Image size must be less than 5MB");
+            return;
+        }
+
+        setSelectedFile(file);
+        setPhotoError(null);
+
+        // Create preview
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreviewUrl(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleUploadPhoto = async () => {
+        if (!selectedFile || !user?.id) return;
+
+        setUploadingPhoto(true);
+        setPhotoError(null);
+
+        try {
+            // Store current photo URL before it gets shadowed by local variable
+            const currentPhotoUrl = profileData?.photo;
+
+            // Delete old photo from storage if it exists in ProfilePics bucket
+            if (currentPhotoUrl) {
+                try {
+                    // Extract filename from URL if it's from ProfilePics bucket
+                    // Check if URL contains ProfilePics bucket reference
+                    if (currentPhotoUrl.includes('ProfilePics/')) {
+                        // Extract filename from various URL formats
+                        let oldFileName = '';
+                        if (currentPhotoUrl.includes('/storage/v1/object/public/ProfilePics/')) {
+                            oldFileName = currentPhotoUrl.split('/ProfilePics/')[1]?.split('?')[0] || '';
+                        } else if (currentPhotoUrl.includes('/ProfilePics/')) {
+                            oldFileName = currentPhotoUrl.split('/ProfilePics/')[1]?.split('?')[0] || '';
+                        }
+
+                        if (oldFileName) {
+                            await supabase.storage
+                                .from('ProfilePics')
+                                .remove([oldFileName]);
+                        }
+                    }
+                } catch (deleteError) {
+                    // Log but don't fail the upload if deletion fails
+                    console.warn("Failed to delete old photo:", deleteError);
+                }
+            }
+
+            // Generate unique filename
+            const fileExt = selectedFile.name.split('.').pop();
+            const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            // Upload to Supabase storage
+            const { error: uploadError } = await supabase.storage
+                .from('ProfilePics')
+                .upload(filePath, selectedFile, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+
+            if (uploadError) {
+                throw uploadError;
+            }
+
+            // Get public URL
+            const { data: urlData } = supabase.storage
+                .from('ProfilePics')
+                .getPublicUrl(filePath);
+
+            if (!urlData?.publicUrl) {
+                throw new Error("Failed to get public URL");
+            }
+
+            const photoUrl = urlData.publicUrl;
+
+            // Update only the photo field in priests table
+            const { data: existingRecord } = await supabase
+                .from("priests")
+                .select("id")
+                .eq("id", user.id)
+                .maybeSingle();
+
+            if (existingRecord) {
+                // Update only photo field
+                const { error: updateError } = await supabase
+                    .from("priests")
+                    .update({ photo: photoUrl })
+                    .eq("id", user.id);
+
+                if (updateError) throw updateError;
+            } else {
+                // Insert new record with only photo
+                const { error: insertError } = await supabase
+                    .from("priests")
+                    .insert({
+                        id: user.id,
+                        photo: photoUrl,
+                    });
+
+                if (insertError) throw insertError;
+            }
+
+            // Update only the photo in local state
+            if (profileData) {
+                setProfileData({
+                    ...profileData,
+                    photo: photoUrl,
+                });
+            }
+
+            toast.success(t("priestProfile.photoUpdated") || "Profile photo updated successfully", {
+                position: "top-center",
+                style: {
+                    backgroundColor: "#4ade80",
+                    color: "#fff",
+                },
+            });
+
+            handleCloseEditPhoto();
+        } catch (err: any) {
+            console.error("Error uploading photo:", err);
+            setPhotoError(err.message || t("priestProfile.failedToUploadPhoto") || "Failed to upload photo");
+        } finally {
+            setUploadingPhoto(false);
+        }
+    };
+
     return (
         <div className="space-y-6">
-            <div className="w-full max-w-2xl mx-auto">
-                <div className="flex items-center gap-1 cursor-pointer bg-white p-2 rounded-t-lg" onClick={() => router.push("/priest/dashboard")} >
+            <div className="w-full max-w-6xl mx-auto">
+                <div className="flex items-center gap-1 cursor-pointer bg-white p-2 rounded-t-none md:rounded-t-lg" onClick={() => router.push("/priest/dashboard")} >
                     <ArrowLeft className="text-black-600 h-4 w-4" />
                     <h1 className="text-sm font-semibold">{t("common.dashboard")}</h1>
                 </div>
-                
-                <div className="rounded-b-lg bg-white p-2">
-                    <Card >
-                        <CardContent className="p-6 relative">
-                            <div
-                                className="absolute top-6 right-6 h-6 w-6 bg-indigo-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-700 transition-colors"
-                                onClick={handleOpenEdit}
-                            >
-                                <PencilIcon className="text-white h-3 w-3" />
-                            </div>
 
+                <div className="rounded-b-none md:rounded-b-lg bg-white p-2 pt-0">
+                    <Card >
+                        <CardContent className="p-6">
                             <div className="flex flex-col md:flex-row gap-8">
                                 {/* Profile Photo Section */}
-                                <div className="flex flex-col items-center md:items-start gap-4 flex-shrink-0">
-                                    <Avatar className="h-40 w-40 border-4 border-gray-200">
+                                <div className="flex flex-col items-center md:items-start gap-4 flex-shrink-0 relative h-fit">
+                                    <Avatar className="h-60 w-60 md:h-40 md:w-40 border-4 border-gray-200">
                                         <AvatarImage
                                             src={profileData?.photo ?? "/priest.svg"}
                                             alt={profileData?.full_name ?? "Profile"}
@@ -329,107 +487,123 @@ export default function PriestProfile() {
                                         <h2 className="text-xl font-semibold">
                                             {profileData?.full_name ?? userDetails?.full_name ?? user.full_name ?? "—"}
                                         </h2>
-                                        <p className="text-sm text-muted-foreground mt-1">
-                                            {t("priestProfile.professionalPhoto")}
-                                        </p>
+                                    </div>
+                                    <div
+                                        className="absolute bottom-12 right-0 h-8 w-8 md:h-6 md:w-6 bg-indigo-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-700 transition-colors"
+                                        onClick={handleOpenEditPhoto}
+                                    >
+                                        <CameraIcon className="text-white h-4 w-4 md:h-3 md:w-3" />
                                     </div>
                                 </div>
 
                                 {/* Profile Details Section */}
                                 <div className="flex-1 space-y-6">
                                     {/* Personal Information */}
-                                    <div className="space-y-1">
-                                        <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
+                                    <div>
+                                        <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2 relative">
                                             {t("common.personalInformation")}
+                                            <div
+                                                className="absolute top-0 right-0 h-8 w-8 md:h-6 md:w-6 bg-indigo-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-700 transition-colors"
+                                                onClick={handleOpenEdit}
+                                            >
+                                                <PencilIcon className="text-white h-4 w-4 md:h-3 md:w-3" />
+                                            </div>
                                         </h3>
 
-                                        <ProfileField
-                                            icon={<FileText className="h-5 w-5" />}
-                                            label={t("common.fullName")}
-                                            value={profileData?.full_name ?? userDetails?.full_name ?? user.full_name ?? null}
-                                        />
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            <ProfileField
+                                                icon={<FileText className="h-5 w-5" />}
+                                                label={t("common.fullName")}
+                                                value={profileData?.full_name ?? userDetails?.full_name ?? user.full_name ?? null}
+                                            />
 
-                                        <ProfileField
-                                            icon={<Calendar className="h-5 w-5" />}
-                                            label={t("common.dateOfBirth")}
-                                            value={formatDate(profileData?.date_of_birth)}
-                                        />
+                                            <ProfileField
+                                                icon={<Calendar className="h-5 w-5" />}
+                                                label={t("common.dateOfBirth")}
+                                                value={formatDate(profileData?.date_of_birth)}
+                                            />
 
-                                        <ProfileField
-                                            icon={<Mail className="h-5 w-5" />}
-                                            label={t("common.email")}
-                                            value={profileData?.email ?? userDetails?.email ?? user.email ?? null}
-                                        />
+                                            <ProfileField
+                                                icon={<Mail className="h-5 w-5" />}
+                                                label={t("common.email")}
+                                                value={profileData?.email ?? userDetails?.email ?? user.email ?? null}
+                                            />
 
-                                        <ProfileField
-                                            icon={<Phone className="h-5 w-5" />}
-                                            label={t("common.phoneNumber")}
-                                            value={profileData?.phone ?? null}
-                                        />
+                                            <ProfileField
+                                                icon={<Phone className="h-5 w-5" />}
+                                                label={t("common.phoneNumber")}
+                                                value={profileData?.phone ?? null}
+                                            />
+                                        </div>
                                     </div>
 
                                     {/* Address Information */}
-                                    <div className="space-y-1">
+                                    <div>
                                         <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
                                             {t("common.addressInformation")}
                                         </h3>
 
-                                        <ProfileField
-                                            icon={<MapPin className="h-5 w-5" />}
-                                            label={t("common.currentAddress")}
-                                            value={profileData?.address ?? null}
-                                        />
-
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            <ProfileField
+                                                icon={<MapPin className="h-5 w-5" />}
+                                                label={t("common.currentAddress")}
+                                                value={profileData?.address ?? null}
+                                            />
+                                        </div>
                                     </div>
 
                                     {/* Religious Information */}
-                                    <div className="space-y-1">
+                                    <div>
                                         <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
                                             {t("common.religiousInformation")}
                                         </h3>
 
-                                        <ProfileField
-                                            icon={<Building2 className="h-5 w-5" />}
-                                            label={t("common.province")}
-                                            value={profileData?.province ?? null}
-                                        />
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            <ProfileField
+                                                icon={<Building2 className="h-5 w-5" />}
+                                                label={t("common.province")}
+                                                value={profileData?.province ?? null}
+                                            />
 
-                                        <ProfileField
-                                            icon={<Globe className="h-5 w-5" />}
-                                            label={t("common.diocese")}
-                                            value={profileData?.diocese ?? null}
-                                        />
+                                            <ProfileField
+                                                icon={<Globe className="h-5 w-5" />}
+                                                label={t("common.diocese")}
+                                                value={profileData?.diocese ?? null}
+                                            />
+                                        </div>
                                     </div>
 
                                     {/* Visa & Passport Information */}
-                                    <div className="space-y-1">
+                                    <div>
                                         <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">
                                             {t("common.visaPassportInformation")}
                                         </h3>
 
-                                        <ProfileField
-                                            icon={<CreditCard className="h-5 w-5" />}
-                                            label={t("common.visaNumber")}
-                                            value={profileData?.visa_number ?? null}
-                                        />
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            <ProfileField
+                                                icon={<CreditCard className="h-5 w-5" />}
+                                                label={t("common.visaNumber")}
+                                                value={profileData?.visa_number ?? null}
+                                            />
 
-                                        <ProfileField
-                                            icon={<FileText className="h-5 w-5" />}
-                                            label={t("common.visaCategory")}
-                                            value={profileData?.visa_category ?? null}
-                                        />
+                                            <ProfileField
+                                                icon={<FileText className="h-5 w-5" />}
+                                                label={t("common.visaCategory")}
+                                                value={profileData?.visa_category ?? null}
+                                            />
 
-                                        <ProfileField
-                                            icon={<CalendarDays className="h-5 w-5" />}
-                                            label={t("common.visaExpiryDate")}
-                                            value={formatDate(profileData?.visa_expiry_date)}
-                                        />
+                                            <ProfileField
+                                                icon={<CalendarDays className="h-5 w-5" />}
+                                                label={t("common.visaExpiryDate")}
+                                                value={formatDate(profileData?.visa_expiry_date)}
+                                            />
 
-                                        <ProfileField
-                                            icon={<FileText className="h-5 w-5" />}
-                                            label={t("common.passportNumber")}
-                                            value={profileData?.passport_number ?? null}
-                                        />
+                                            <ProfileField
+                                                icon={<FileText className="h-5 w-5" />}
+                                                label={t("common.passportNumber")}
+                                                value={profileData?.passport_number ?? null}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -457,7 +631,7 @@ export default function PriestProfile() {
                     )}
 
                     <form onSubmit={handleUpdateProfile} >
-                        <div className="p-2 mb-4 h-[calc(100vh-15rem)] overflow-y-auto space-y-4">
+                        <div className="p-2 mb-4 h-[calc(100vh-15rem)] overflow-y-auto space-y-4 thin-scroll">
                             {/* Personal Information Section */}
                             <div className="space-y-3">
                                 <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">{t("priestProfile.personalInformation")}</h3>
@@ -470,17 +644,6 @@ export default function PriestProfile() {
                                             type="date"
                                             value={formData.date_of_birth}
                                             onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
-                                        />
-                                    </div>
-
-                                    <div className="flex flex-col gap-2">
-                                        <span className="text-xs font-medium text-black-700">{t("priestProfile.profilePhotoUrl")}</span>
-                                        <Input
-                                            id="photo"
-                                            type="url"
-                                            placeholder={t("priestProfile.photoUrlPlaceholder")}
-                                            value={formData.photo}
-                                            onChange={(e) => setFormData({ ...formData, photo: e.target.value })}
                                         />
                                     </div>
                                 </div>
@@ -598,6 +761,7 @@ export default function PriestProfile() {
                                 variant="outline"
                                 onClick={handleCloseEdit}
                                 disabled={saving}
+                                size='sm'
                             >
                                 {t("common.cancel")}
                             </Button>
@@ -605,11 +769,111 @@ export default function PriestProfile() {
                                 type="submit"
                                 className="bg-indigo-600 hover:bg-indigo-700"
                                 disabled={saving}
+                                size='sm'
                             >
                                 {saving ? t("common.saving") : t("priestProfile.saveChanges")}
                             </Button>
                         </div>
                     </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Photo Modal */}
+            <Dialog open={openEditPhoto} onOpenChange={(isOpen) => {
+                if (!isOpen) {
+                    handleCloseEditPhoto();
+                }
+            }}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>{t("priestProfile.updateProfilePhoto") || "Update Profile Photo"}</DialogTitle>
+                    </DialogHeader>
+
+                    {photoError && (
+                        <div className="bg-red-50 border text-sm border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center">
+                            {photoError}
+                            <button className="text-red-700" onClick={() => setPhotoError(null)}>×</button>
+                        </div>
+                    )}
+
+                    <div className="space-y-4 py-4">
+                        {/* Preview Section */}
+                        {previewUrl && (
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="relative">
+                                    <Avatar className="h-40 w-40 border-4 border-gray-200">
+                                        <AvatarImage
+                                            src={previewUrl}
+                                            alt="Preview"
+                                            className="object-cover"
+                                        />
+                                    </Avatar>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* File Input */}
+                        <div className="flex flex-col gap-2">
+                            <Label htmlFor="photo-upload" className="text-sm font-medium">
+                                {t("priestProfile.selectPhoto") || "Select Photo"}
+                            </Label>
+                            <Input
+                                id="photo-upload"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileSelect}
+                                disabled={uploadingPhoto}
+                                className="cursor-pointer"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                {t("priestProfile.maxFileSize") || "Maximum file size: 5MB"}
+                            </p>
+                        </div>
+
+                        {selectedFile && (
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-gray-700">{selectedFile.name}</span>
+                                    <span className="text-xs text-gray-500">
+                                        ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                                    </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setSelectedFile(null);
+                                        setPreviewUrl(null);
+                                    }}
+                                    className="text-gray-500 hover:text-gray-700"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    <DialogFooter>
+                        <div className="flex justify-end gap-2 items-center w-full">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleCloseEditPhoto}
+                                disabled={uploadingPhoto}
+                                size='sm'
+                            >
+                                {t("common.cancel")}
+                            </Button>
+                            <Button
+                                type="button"
+                                className="bg-indigo-600 hover:bg-indigo-700"
+                                onClick={handleUploadPhoto}
+                                disabled={uploadingPhoto || !selectedFile}
+                                size='sm'
+                            >
+                                {uploadingPhoto ? (t("common.uploading") || "Uploading...") : (t("common.upload") || "Upload")}
+                            </Button>
+                        </div>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>

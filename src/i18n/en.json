@@ -59,7 +59,11 @@
     "details": "Details",
     "title": "Title",
     "type": "Type",
-    "closed": "Closed"
+    "closed": "Closed",
+    "uploading": "Uploading...",
+    "upload": "Upload",
+    "delete": "Delete",
+    "deleting": "Deleting..."
   },
   "login": {
     "title": "Sign in",
@@ -161,6 +165,19 @@
     "cancel": "Cancel",
     "saveChanges": "Save Changes",
     "saving": "Saving...",
+    "personalInformation": "Personal Information",
+    "addressInformation": "Address Information",
+    "religiousInformation": "Religious Information",
+    "visaPassportInformation": "Visa & Passport Information",
+    "dateOfBirth": "Date of Birth",
+    "currentAddress": "Current Address",
+    "phoneNumber": "Phone Number",
+    "province": "Province",
+    "diocese": "Diocese",
+    "visaNumber": "Visa Number",
+    "visaCategory": "Visa Category",
+    "visaExpiryDate": "Visa Expiry Date",
+    "passportNumber": "Passport Number",
     "enterCurrentAddress": "Enter your current address",
     "enterPhoneNumber": "Enter phone number",
     "enterProvince": "Enter province",
@@ -169,7 +186,16 @@
     "enterVisaCategory": "Enter visa category",
     "enterPassportNumber": "Enter passport number",
     "profilePhotoUrl": "Profile Photo URL",
-    "photoUrlPlaceholder": "https://example.com/photo.jpg"
+    "photoUrlPlaceholder": "https://example.com/photo.jpg",
+    "updateProfilePhoto": "Update Profile Photo",
+    "selectPhoto": "Select Photo",
+    "maxFileSize": "Maximum file size: 5MB",
+    "photoUpdated": "Profile photo updated successfully",
+    "failedToUploadPhoto": "Failed to upload photo",
+    "invalidImageType": "Please select a valid image file",
+    "imageTooLarge": "Image size must be less than 5MB",
+    "failedToUpdateProfile": "Failed to update profile",
+    "failedToLoadProfile": "Failed to load profile data"
   },
   "priestPassword": {
     "changePassword": "Change Password",
@@ -380,7 +406,11 @@
       "unpublished": "Unpublished",
       "days": "days",
       "noAnnouncementsFound": "No announcements found matching your search.",
-      "noAnnouncementsYet": "No announcements yet."
+      "noAnnouncementsYet": "No announcements yet.",
+      "deleteAnnouncement": "Delete Announcement",
+      "deleteConfirmation": "Are you sure you want to delete this announcement? This action cannot be undone.",
+      "announcementDeleted": "Announcement deleted successfully",
+      "failedToDeleteAnnouncement": "Failed to delete announcement"
     },
     "individual": {
       "title": "Individual",
@@ -413,7 +443,11 @@
       "unpublished": "Unpublished",
       "days": "days",
       "noAnnouncementsFound": "No announcements found matching your search.",
-      "noAnnouncementsYet": "No announcements yet."
+      "noAnnouncementsYet": "No announcements yet.",
+      "deleteAnnouncement": "Delete Announcement",
+      "deleteConfirmation": "Are you sure you want to delete this announcement? This action cannot be undone.",
+      "announcementDeleted": "Announcement deleted successfully",
+      "failedToDeleteAnnouncement": "Failed to delete announcement"
     }
   },
   "adminPriestDetail": {

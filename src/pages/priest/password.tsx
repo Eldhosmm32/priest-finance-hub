@@ -117,24 +117,26 @@ export default function PriestPasswordChange() {
 
   if (loading) {
     return (
-      <Loader />
+      <div className="w-full max-w-2xl mx-auto">
+        <Loader />
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="w-full max-w-2xl mx-auto">
-        <div className="flex items-center gap-1 cursor-pointer bg-white p-2 rounded-t-lg" onClick={() => router.push("/priest/dashboard")} >
+      <div className="w-full max-w-2xl mx-auto h-[calc(100vh-6rem)] md:h-full bg-white rounded-none md:rounded-lg">
+        <div className="flex items-center gap-1 cursor-pointer  p-2 " onClick={() => router.push("/priest/dashboard")} >
           <ArrowLeft className="text-black-600 h-4 w-4" />
           <h1 className="text-sm font-semibold">{t("common.dashboard")}</h1>
         </div>
 
-        <div className="rounded-b-lg bg-white p-2">
+        <div className="rounded-b-none md:rounded-b-lg bg-white p-2 pt-0">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Lock className="h-5 w-5" />
-               <span className="text-lg font-semibold">{t("priestPassword.changePassword")}</span>
+                <span className="text-lg font-semibold">{t("priestPassword.changePassword")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -204,6 +206,7 @@ export default function PriestPasswordChange() {
                     onClick={() => router.push("/priest/dashboard")}
                     disabled={loadingState}
                     className="flex-1"
+                    size='sm'
                   >
                     {t("common.cancel")}
                   </Button>
@@ -211,6 +214,7 @@ export default function PriestPasswordChange() {
                     type="submit"
                     disabled={loadingState}
                     className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+                    size='sm'
                   >
                     {loadingState ? t("common.saving") : t("priestPassword.changePassword")}
                   </Button>

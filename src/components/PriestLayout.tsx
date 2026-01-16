@@ -106,7 +106,7 @@ export default function PriestLayout({ children }: Props) {
                 </div>
                 <div className="border border-1 border-gray-300 rounded-full flex gap-2 p-1 pl-3">
                   <div className="flex flex-col item min-w-12">
-                    <span className="text-xs font-semibold">
+                    <span className="text-xs font-semibold max-w-16 truncate">
                       {userDetails?.full_name ?? user?.full_name ?? "----"}
                     </span>
                     <span className="text-xs text-gray-600">
@@ -123,7 +123,7 @@ export default function PriestLayout({ children }: Props) {
                       </div>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuLabel>
+                      <DropdownMenuLabel className="cursor-pointer" onClick={() => router.push("/priest/dashboard")}>
                         {t("layout.myAccount")}
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />

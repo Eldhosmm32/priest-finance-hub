@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Priester-Finanzen",
+    "appName": "MSFS Verein",
     "poweredBy": "Betrieben von MSFS",
     "logout": "Abmelden",
     "language": {
@@ -90,7 +90,7 @@
       "admin": "Admin-Benutzer",
       "priest": "Priester"
     },
-    "footer": "© {{year}} Gemeinde – Priester-Finanzen-Portal"
+    "footer": "© {{year}} Gemeinde – MSFS-Verein-Portal"
   },
   "signup": {
     "title": "Priester-Registrierung",
@@ -116,14 +116,20 @@
   "sidebar": {
     "title": "Admin",
     "dashboard": "Dashboard",
+    "diocese": "Diözese",
+    "provinces": "Provinzen",
     "priests": "Priester",
-    "salary": "Gehalt",
+    "salary": "Diocese Überweisung (Salary)",
+    "personalAllowance": "Unterhaltsgeld (Personal Allowance)",
+    "utilityCost": "Nebenkosten (Utility costs)",
+    "kmAllowance": "KM Geld",
     "insurance": "Versicherung",
     "loans": "Darlehen",
     "announcements": "Ankündigungen",
     "houserent": "Miete",
     "intertransfer": "Internationale Überweisung",
-    "donation": "Spende"
+    "donation": "Spende",
+    "OtherExpenses": "Sonstige Ausgaben"
   },
   "adminDashboard": {
     "lastDonationReceived": "Letzte erhaltene Spende",
@@ -158,7 +164,6 @@
     "priestsCount": "Priester",
     "noPriestsFound": "Keine Priester gefunden."
   },
-
   "priestProfile": {
     "professionalPhoto": "Professionelles Foto",
     "editProfile": "Profil bearbeiten",
@@ -236,8 +241,12 @@
     "insuranceAdded": "Versicherung erfolgreich hinzugefügt",
     "salaryEntryExists": "Ein Gehaltseintrag für diesen Priester im ausgewählten Monat existiert bereits.",
     "houseRentEntryExists": "Ein Mieteneintrag für diesen Priester im ausgewählten Monat existiert bereits.",
+    "kmAllowanceEntryExists": "Ein KM-Geldeintrag für diesen Priester im ausgewählten Monat existiert bereits.",
+    "utilityCostsEntryExists": "Ein Nebenkosteneintrag für diesen Priester im ausgewählten Monat existiert bereits.",
     "insuranceEntryExists": "Ein Versicherungseintrag für diesen Priester im ausgewählten Monat existiert bereits.",
     "failedToSaveSalary": "Gehaltseintrag konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+    "failedToSaveKmAllowance": "KM-Geldeintrag konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+    "failedToSaveUtilityCosts": "Nebenkosteneintrag konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
     "failedToSaveLoan": "Darlehenseintrag konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
     "failedToSaveFundTransfer": "Überweisungseintrag konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
     "failedToSaveDonation": "Spendeneintrag konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
@@ -251,8 +260,8 @@
     "addSalary": "Gehalt hinzufügen",
     "editSalary": "Gehalt bearbeiten",
     "addSalaryTitle": "Gehalt hinzufügen",
-    "salaryPaid": "Gezahltes Gehalt",
-    "salaryPaidPlaceholder": "Gezahltes Gehalt",
+    "salaryPaid": "Unterhaltsgeld (Personal Allowance)",
+    "salaryPaidPlaceholder": "Unterhaltsgeld (Personal Allowance)",
     "updateSalary": "Gehalt aktualisieren",
     "salarySummary": "Gehaltsübersicht",
     "noSalaryEntries": "Noch keine Gehaltseinträge.",
@@ -333,6 +342,34 @@
     "monthColumn": "Monat",
     "amountColumn": "Betrag"
   },
+  "adminKmAllowance": {
+    "title": "KM-Geldverwaltung",
+    "addKmAllowance": "KM-Geld hinzufügen",
+    "editKmAllowance": "KM-Geld bearbeiten",
+    "addKmAllowanceTitle": "KM-Geld hinzufügen",
+    "kmAllowancePaid": "KM-Geld gezahlt",
+    "kmAllowancePaidPlaceholder": "Gezahltes KM-Geld",
+    "updateKmAllowance": "KM-Geld aktualisieren",
+    "kmAllowanceSummary": "KM-Geld Übersicht",
+    "noKmAllowanceEntries": "Noch keine KM-Geldeinträge.",
+    "priestColumn": "Priester",
+    "monthColumn": "Datum",
+    "amountColumn": "Betrag"
+  },
+  "adminUtilityCosts": {
+    "title": "Nebenkostenverwaltung",
+    "addUtilityCosts": "Nebenkosten hinzufügen",
+    "editUtilityCosts": "Nebenkosten bearbeiten",
+    "addUtilityCostsTitle": "Nebenkosten hinzufügen",
+    "utilityCostPaid": "Nebenkosten gezahlt",
+    "utilityCostPaidPlaceholder": "Gezahlte Nebenkosten",
+    "updateUtilityCosts": "Nebenkosten aktualisieren",
+    "utilityCostsSummary": "Nebenkostenübersicht",
+    "noUtilityCostsEntries": "Noch keine Nebenkosteneinträge.",
+    "priestColumn": "Priester",
+    "monthColumn": "Monat",
+    "amountColumn": "Betrag"
+  },
   "adminFundTransfer": {
     "title": "Überweisungsverwaltung",
     "addFundTransfer": "Überweisung hinzufügen",
@@ -371,9 +408,10 @@
     "donations": "Spenden",
     "noDonationEntries": "Noch keine Spendeneinträge.",
     "senderColumn": "Absender",
+    "reciverColumn": "Empfänger",
     "dateCreditedColumn": "Datum (Gutgeschrieben)",
     "amountColumn": "Betrag",
-    "notesColumn": "Notizen",
+    "notesColumn": "Absicht",
     "lastDonationReceived": "Letzte erhaltene Spende"
   },
   "adminAnnouncements": {
@@ -457,7 +495,7 @@
     "editPriestProfile": "Priesterprofil bearbeiten",
     "year": "Jahr",
     "selectYear": "Jahr auswählen",
-    "salaryPaid": "Gezahltes Gehalt",
+    "salaryPaid": "Unterhaltsgeld (Personal Allowance)",
     "houseRentPaid": "Gezahlte Miete",
     "insurancePaid": "Gezahlte Versicherung",
     "health": "Gesundheit",

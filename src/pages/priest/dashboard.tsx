@@ -312,7 +312,7 @@ export default function PriestDashboard() {
   }
 
   return (
-    <div className="space-y-6 transition-all duration-300 ease bg-white rounded-none md:rounded-lg p-4 min-h-[calc(100vh-9.5rem)]">
+    <div className="space-y-6 transition-all duration-300 ease bg-white rounded-none md:rounded-lg p-4 min-h-[calc(100vh-6rem)] md:min-h-[calc(100vh-9.5rem)]">
       {/* 🔔 Announcement Banner */}
       {priestAnnouncements?.map((a: any) => (
         !a.isRead && (

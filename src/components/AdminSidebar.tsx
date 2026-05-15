@@ -8,9 +8,13 @@ type Props = {
 
 const links = [
   { href: "/admin/dashboard", key: "sidebar.dashboard" },
+  { href: "/admin/dashboard", key: "sidebar.diocese" },
+  { href: "/admin/dashboard", key: "sidebar.provinces" },
   { href: "/admin/priests", key: "sidebar.priests" },
   { href: "/admin/salary", key: "sidebar.salary" },
   { href: "/admin/houserent", key: "sidebar.houserent" },
+  { href: "/admin/utility-costs", key: "sidebar.utilityCost" },
+  { href: "/admin/km-allowance", key: "sidebar.kmAllowance" },
   { href: "/admin/insurance", key: "sidebar.insurance" },
   { href: "/admin/loans", key: "sidebar.loans" },
   { href: "/admin/fund-transfer", key: "sidebar.intertransfer" },

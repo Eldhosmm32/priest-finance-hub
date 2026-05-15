@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Priest Finance",
+    "appName": "MSFS Society",
     "poweredBy": "Powered by MSFS",
     "logout": "Logout",
     "language": {
@@ -90,7 +90,7 @@
       "admin": "Admin User",
       "priest": "Priest"
     },
-    "footer": "© {{year}} Congregation – Priest Finance Portal"
+    "footer": "© {{year}} Congregation – MSFS Society Portal"
   },
   "signup": {
     "title": "Priest signup",
@@ -116,14 +116,20 @@
   "sidebar": {
     "title": "Admin",
     "dashboard": "Dashboard",
+    "diocese": "Diocese",
+    "provinces": "Provinces",
     "priests": "Priests",
-    "salary": "Salary",
+    "salary": "Diocese Remittance (Gehalt)",
+    "personalAllowance": "Personal Allowance (Unterhaltsgeld)",
+    "utilityCost":"Utility costs (Nebenkosten)",
+    "kmAllowance": "KM Allowance (KM Geld)",
     "insurance": "Insurance",
     "loans": "Loans",
     "announcements": "Announcements",
     "houserent": "House Rent",
     "intertransfer": "International Transfer",
-    "donation": "Donation"
+    "donation": "Donation",
+    "OtherExpenses": "Other Expenses"
   },
   "adminDashboard": {
     "totalSalary": "Total Salary",
@@ -158,7 +164,6 @@
     "priestsCount": "priests",
     "noPriestsFound": "No priests found."
   },
-  
   "priestProfile": {
     "professionalPhoto": "Professional Photo",
     "editProfile": "Edit Profile",
@@ -236,8 +241,12 @@
     "insuranceAdded": "Insurance added successfully",
     "salaryEntryExists": "A salary entry already exists for this priest in the selected month.",
     "houseRentEntryExists": "A house rent entry already exists for this priest in the selected month.",
+    "kmAllowanceEntryExists": "A KM allowance entry already exists for this priest in the selected month.",
+    "utilityCostsEntryExists": "A utility costs entry already exists for this priest in the selected month.",
     "insuranceEntryExists": "An insurance entry already exists for this priest in the selected month.",
     "failedToSaveSalary": "Failed to save salary entry. Please try again.",
+    "failedToSaveKmAllowance": "Failed to save KM allowance entry. Please try again.",
+    "failedToSaveUtilityCosts": "Failed to save utility costs entry. Please try again.",
     "failedToSaveLoan": "Failed to save loan entry. Please try again.",
     "failedToSaveFundTransfer": "Failed to save fund transfer entry. Please try again.",
     "failedToSaveDonation": "Failed to save donation entry. Please try again.",
@@ -251,8 +260,8 @@
     "addSalary": "Add salary",
     "editSalary": "Edit Salary",
     "addSalaryTitle": "Add Salary",
-    "salaryPaid": "Salary Paid",
-    "salaryPaidPlaceholder": "Salary paid",
+    "salaryPaid": "Personal Allowance (Unterhaltsgeld)",
+    "salaryPaidPlaceholder": "Personal Allowance (Unterhaltsgeld)",
     "updateSalary": "Update salary",
     "salarySummary": "Salary Summary",
     "noSalaryEntries": "No salary entries yet.",
@@ -333,6 +342,34 @@
     "monthColumn": "Month",
     "amountColumn": "Amount"
   },
+  "adminKmAllowance": {
+    "title": "KM Allowance Management",
+    "addKmAllowance": "Add KM allowance",
+    "editKmAllowance": "Edit KM Allowance",
+    "addKmAllowanceTitle": "Add KM Allowance",
+    "kmAllowancePaid": "KM Allowance Paid",
+    "kmAllowancePaidPlaceholder": "KM allowance paid",
+    "updateKmAllowance": "Update KM allowance",
+    "kmAllowanceSummary": "KM Allowance Summary",
+    "noKmAllowanceEntries": "No KM allowance entries yet.",
+    "priestColumn": "Priest",
+    "monthColumn": "Date",
+    "amountColumn": "Amount"
+  },
+  "adminUtilityCosts": {
+    "title": "Utility Costs Management",
+    "addUtilityCosts": "Add utility costs",
+    "editUtilityCosts": "Edit Utility Costs",
+    "addUtilityCostsTitle": "Add Utility Costs",
+    "utilityCostPaid": "Utility Cost Paid",
+    "utilityCostPaidPlaceholder": "Utility cost paid",
+    "updateUtilityCosts": "Update utility costs",
+    "utilityCostsSummary": "Utility Costs Summary",
+    "noUtilityCostsEntries": "No utility costs entries yet.",
+    "priestColumn": "Priest",
+    "monthColumn": "Month",
+    "amountColumn": "Amount"
+  },
   "adminFundTransfer": {
     "title": "Fund Transfer Management",
     "addFundTransfer": "Add fund transfer",
@@ -371,9 +408,10 @@
     "donations": "donations",
     "noDonationEntries": "No donation entries yet.",
     "senderColumn": "Sender",
+    "reciverColumn": "Reciver",
     "dateCreditedColumn": "Date (Credited)",
     "amountColumn": "Amount",
-    "notesColumn": "Notes",
+    "notesColumn": "intention",
     "lastDonationReceived": "Last Donation Received"
   },
   "adminAnnouncements": {
@@ -457,7 +495,7 @@
     "editPriestProfile": "Edit Priest Profile",
     "year": "Year",
     "selectYear": "Select year",
-    "salaryPaid": "Salary Paid",
+    "salaryPaid": "Personal Allowance (Unterhaltsgeld)",
     "houseRentPaid": "House Rent Paid",
     "insurancePaid": "Insurance Paid",
     "health": "Health",

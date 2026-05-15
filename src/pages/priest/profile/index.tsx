@@ -618,7 +618,7 @@ export default function PriestProfile() {
                     handleCloseEdit();
                 }
             }}>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>{t("priestProfile.editProfile")}</DialogTitle>
                     </DialogHeader>
@@ -784,7 +784,7 @@ export default function PriestProfile() {
                     handleCloseEditPhoto();
                 }
             }}>
-                <DialogContent className="max-w-md">
+                <DialogContent>
                     <DialogHeader>
                         <DialogTitle>{t("priestProfile.updateProfilePhoto") || "Update Profile Photo"}</DialogTitle>
                     </DialogHeader>

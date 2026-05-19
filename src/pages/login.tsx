@@ -6,64 +6,64 @@ import Logo from "../components/ui/logo";
 import Footer from "../components/ui/footer";
 
 export default function Login() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const { language, setLanguage } = useLanguage();
-  const { t } = useTranslation();
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+	const router = useRouter();
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [error, setError] = useState<string | null>(null);
+	const [loading, setLoading] = useState(false);
+	const { language, setLanguage } = useLanguage();
+	const { t } = useTranslation();
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setError(null);
+		setLoading(true);
 
-    // 1) Sign in
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      setLoading(false);
-      setError(error.message);
-      return;
-    }
+		// 1) Sign in
+		const { error } = await supabase.auth.signInWithPassword({
+			email,
+			password,
+		});
+		if (error) {
+			setLoading(false);
+			setError(error.message);
+			return;
+		}
 
-    // 2) Get the logged-in user
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData.user) {
-      setLoading(false);
-      setError(t("errors.unableToLoadUser"));
-      return;
-    }
+		// 2) Get the logged-in user
+		const { data: userData, error: userError } = await supabase.auth.getUser();
+		if (userError || !userData.user) {
+			setLoading(false);
+			setError(t("errors.unableToLoadUser"));
+			return;
+		}
 
-    const userId = userData.user.id;
+		const userId = userData.user.id;
 
-    // 3) Fetch profile to get role
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userId)
-      .maybeSingle();
+		// 3) Fetch profile to get role
+		const { data: profile, error: profileError } = await supabase
+			.from("profiles")
+			.select("role")
+			.eq("id", userId)
+			.maybeSingle();
 
-    setLoading(false);
+		setLoading(false);
 
-    if (profileError || !profile) {
-      setError(t("errors.profileNotFound"));
-      return;
-    }
+		if (profileError || !profile) {
+			setError(t("errors.profileNotFound"));
+			return;
+		}
 
-    // 4) Redirect based on role
-    if (profile.role === "admin") {
-      router.push("/admin/dashboard");
-    } else {
-      router.push("/priest/dashboard");
-    }
-  };
+		// 4) Redirect based on role
+		if (profile.role === "admin") {
+			router.push("/admin/dashboard");
+		} else {
+			router.push("/priest/dashboard");
+		}
+	};
 
-  return (
-    <>
-      <header className="h-[3.6rem] px-4 bg-white/50 backdrop-blur-sm">
+	return (
+    <div className="bg-white/50">
+      <header className="h-[3.6rem] px-4 ">
         <div className="flex items-center h-full justify-between m-auto max-w-6xl">
           <Logo />
           <div className="bg-white rounded-full flex gap-2 px-3">
@@ -81,9 +81,9 @@ export default function Login() {
         </div>
       </header>
 
-      <div className="h-[calc(100vh-6.15rem)] flex items-center justify-center px-4">
-        <div className="w-full max-w-md bg-gray-50/50 backdrop-blur-lg rounded-xl shadow-sm p-6">
-          <h1 className="text-xl font-semibold text-gray-800 mb-1">
+      <div className="h-[calc(100vh-6.10rem)] flex items-center justify-center px-4">
+        <div className="w-full max-w-sm bg-white rounded-xl shadow-sm p-8">
+          <h1 className="text-2xl font-semibold text-gray-800 mb-1">
             {t("login.title")}
           </h1>
           <p className="text-sm text-gray-500 mb-4">{t("login.subtitle")}</p>
@@ -115,6 +115,15 @@ export default function Login() {
                 required
               />
             </div>
+            <div className="flex justify-end my-4 ">
+              <button
+                className="link link-primary text-xs font-semibold text-indigo-600"
+                type="button"
+                onClick={() => router.push("/forgot-password")}
+              >
+                {t("login.forgot")}
+              </button>
+            </div>
             <button
               className="btn w-full mt-2"
               type="submit"
@@ -124,26 +133,23 @@ export default function Login() {
             </button>
           </form>
 
-          <button
-            className="link link-primary text-xs mt-4 text-indigo-600"
-            type="button"
-            onClick={() => router.push("/forgot-password")}
-          >
-            {t("login.forgot")}
-          </button>
-
-          <button
-            className="link link-primary text-xs mt-1 block"
-            type="button"
-            onClick={() => router.push("/signup")}
-          >
-            {t("login.signupLink")}
-            <span className="text-indigo-600"> {t("login.signup")}</span>
-          </button>
+          <div className="flex justify-center mt-4">
+            <button
+              className="link link-primary text-xs block"
+              type="button"
+              onClick={() => router.push("/signup")}
+            >
+              {t("login.signupLink")}
+              <span className="text-indigo-600 font-semibold ">
+                {" "}
+                {t("login.signup")}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
       <Footer />
-    </>
+    </div>
   );
 }

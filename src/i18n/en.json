@@ -117,12 +117,13 @@
     "title": "Admin",
     "dashboard": "Dashboard",
     "diocese": "Diocese",
-    "provinces": "Provinces",
+    "reports": "Reports",
     "priests": "Priests",
     "salary": "Diocese Remittance (Gehalt)",
     "personalAllowance": "Personal Allowance (Unterhaltsgeld)",
-    "utilityCost":"Utility costs (Nebenkosten)",
+    "utilityCost": "Utility costs (Nebenkosten)",
     "kmAllowance": "KM Allowance (KM Geld)",
+    "otherExpenses": "Other Expenses",
     "insurance": "Insurance",
     "loans": "Loans",
     "announcements": "Announcements",
@@ -256,7 +257,7 @@
     "failedToUpdateProfile": "Failed to update profile"
   },
   "adminSalary": {
-    "title": "Salary Management",
+    "title": "Remittance Management",
     "addSalary": "Add salary",
     "editSalary": "Edit Salary",
     "addSalaryTitle": "Add Salary",
@@ -414,6 +415,37 @@
     "notesColumn": "intention",
     "lastDonationReceived": "Last Donation Received"
   },
+
+  "adminDiocese": {
+    "title": "Diocese Management",
+    "searchLabel": "Search by name",
+    "searchPlaceholder": "Search by name",
+    "diocesesCount": "dioceses",
+    "noDiocesesFound": "No dioceses found."
+  },
+  "adminReports": {
+    "title": "Reports",
+    "searchLabel": "Search by name",
+    "searchPlaceholder": "Search by name",
+    "provincesCount": "provinces",
+    "noProvincesFound": "No provinces found."
+  },
+   "adminPersonalAllowance": {
+    "title": "Personal Allowance Management",
+    "searchLabel": "Search by name",
+    "searchPlaceholder": "Search by name",
+    "provincesCount": "provinces",
+    "noProvincesFound": "No provinces found."
+  },
+
+  "adminOtherExpenses": {
+    "title": "Other Expenses Management",
+    "searchLabel": "Search by name",
+    "searchPlaceholder": "Search by name",
+    "provincesCount": "provinces",
+    "noProvincesFound": "No provinces found."
+  },
+
   "adminAnnouncements": {
     "title": "Announcements",
     "common": {
@@ -450,6 +482,7 @@
       "announcementDeleted": "Announcement deleted successfully",
       "failedToDeleteAnnouncement": "Failed to delete announcement"
     },
+
     "individual": {
       "title": "Individual",
       "searchLabel": "Search by title or body",

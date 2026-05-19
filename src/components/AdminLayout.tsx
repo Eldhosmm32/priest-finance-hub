@@ -6,41 +6,41 @@ import AdminSidebar from "./AdminSidebar";
 import { useLanguage, useTranslation } from "../i18n/languageContext";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
 import Logo from "./ui/logo";
-import Footer from "./ui/footer";
+import FooterBlur from "./ui/footer-blur";
 
 type Props = {
-  children: React.ReactNode;
+	children: React.ReactNode;
 };
 
 export default function AdminLayout({ children }: Props) {
-  const [open, setOpen] = useState(false);
-  const router = useRouter();
-  const { user } = useUser();
-  const { t } = useTranslation();
-  const { language, setLanguage } = useLanguage();
+	const [open, setOpen] = useState(false);
+	const router = useRouter();
+	const { user } = useUser();
+	const { t } = useTranslation();
+	const { language, setLanguage } = useLanguage();
 
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const lang = e.target.value === "de" ? "de" : "en";
-    setLanguage(lang);
-  };
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
+	const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const lang = e.target.value === "de" ? "de" : "en";
+		setLanguage(lang);
+	};
+	const handleLogout = async () => {
+		await supabase.auth.signOut();
+		router.push("/login");
+	};
 
-  return (
+	return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#E8CBC0] to-[#636FA4] relative">
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="flex max-w-6xl mx-auto p-2 ">
@@ -82,8 +82,10 @@ export default function AdminLayout({ children }: Props) {
                     <DropdownMenuLabel className="block md:hidden">
                       {t("layout.role.admin")}
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator className="block md:hidden"/>
-                    <DropdownMenuItem className="block md:hidden">{user?.full_name ?? "----"}</DropdownMenuItem>
+                    <DropdownMenuSeparator className="block md:hidden" />
+                    <DropdownMenuItem className="block md:hidden">
+                      {user?.full_name ?? "----"}
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout}>
                       {t("common.logout")}
                     </DropdownMenuItem>
@@ -105,7 +107,7 @@ export default function AdminLayout({ children }: Props) {
         <Menu />
       </Button>
 
-      <main className="flex gap-4 flex-1 max-w-6xl mx-auto w-full px-2 md:px-4 py-2 md:py-6 overflow-y-auto">
+      <main className="flex flex-1 max-w-6xl mx-auto w-full p-2 overflow-y-auto">
         {/* Mobile hamburger */}
 
         {/* Desktop sidebar (hidden on small screens) */}
@@ -114,7 +116,13 @@ export default function AdminLayout({ children }: Props) {
         </div>
 
         {/* Main content / router outlet */}
-        <div className="flex-1 overflow-x-auto">{children}</div>
+        <div className="flex-1 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-[0.5rem] md:rounded-[0_0.5rem_0.5rem_0] overflow-hidden">
+          <div className="flex flex-col p-2 md:p-4 h-[calc(100vh-7.1rem)] overflow-auto">
+            {children}
+          </div>
+            <FooterBlur />
+
+        </div>
 
         {/* Mobile sidebar overlay */}
         {open && (
@@ -126,7 +134,9 @@ export default function AdminLayout({ children }: Props) {
             />
             <div className="fixed inset-y-0 right-0 z-50 w-72 bg-white border-r border-gray-200 p-4 overflow-auto">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-semibold text-gray-700">{t("layout.role.admin")}</h2>
+                <h2 className="text-sm font-semibold text-gray-700">
+                  {t("layout.role.admin")}
+                </h2>
 
                 <Button
                   aria-label="Close admin menu"
@@ -142,7 +152,6 @@ export default function AdminLayout({ children }: Props) {
           </>
         )}
       </main>
-      <Footer />
     </div>
   );
 }

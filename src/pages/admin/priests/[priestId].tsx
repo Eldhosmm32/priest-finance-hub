@@ -528,7 +528,7 @@ export default function AdminPriestDetail() {
 
     return (
         <div className="flex gap-6">
-            <div className="flex-1 space-y-4 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-lg p-2 md:p-4 min-h-[calc(100vh-9.5rem)]">
+            <div className="space-y-4 flex-1">
                 <div className="flex gap-1 items-center cursor-pointer" onClick={() => router.push("/admin/priests")}>
                     <Image src="/back-arrow.svg" alt="Priest" width={10} height={10} />
                     <h2 className="text-sm font-semibold text-gray-800">

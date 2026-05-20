@@ -5,18 +5,18 @@ import { supabase } from "../../../lib/supabaseClient";
 import Loader from "@/components/ui/loader";
 import { useTranslation } from "../../../i18n/languageContext";
 
-type AllowanceRow = {
+type HealthInsuranceRow = {
   id: string;
   priest_id: string;
-  pers_alnce: number;
+  health_insu: number;
   month: string;
   profiles?: { full_name: string | null; email: string | null };
 };
 
 // Constants
-const ALLOWANCE_QUERY = "id, priest_id, pers_alnce, month, profiles!salary_priest_id_fkey(full_name, email)";
+const ALLOWANCE_QUERY = "id, priest_id, health_insu, month, profiles!salary_priest_id_fkey(full_name, email)";
 
-export default function AdminPersonalAllowance() {
+export default function AdminHealthInsurance() {
   const { user, loading } = useUser();
   const router = useRouter();
   const { t } = useTranslation();
@@ -24,14 +24,14 @@ export default function AdminPersonalAllowance() {
   const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
   const currentMonthDate = `${currentYear}-${currentMonth}`;
   
-  const [allowance, setAllowance] = useState<AllowanceRow[]>([]);
+  const [entries, setEntries] = useState<HealthInsuranceRow[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [startMonth, setStartMonth] = useState(currentMonthDate);
   const [endMonth, setEndMonth] = useState(currentMonthDate);
   const [totalAmount, setTotalAmount] = useState(0);
 
-  // Load allowance data
-  const loadAllowanceData = useCallback(async () => {
+  // Load health insurance data
+  const loadHealthInsuranceData = useCallback(async () => {
     const { data } = await supabase
       .from("salary")
       .select(ALLOWANCE_QUERY)
@@ -40,11 +40,11 @@ export default function AdminPersonalAllowance() {
       .order("month", { ascending: false })
       .limit(100);
 
-    const allowanceData = (data ?? []) as unknown as AllowanceRow[];
-    setAllowance(allowanceData);
+    const insuranceData = (data ?? []) as unknown as HealthInsuranceRow[];
+    setEntries(insuranceData);
     
     // Calculate total
-    const total = allowanceData.reduce((sum, item) => sum + (item.pers_alnce || 0), 0);
+    const total = insuranceData.reduce((sum, item) => sum + (item.health_insu || 0), 0);
     setTotalAmount(total);
   }, [startMonth, endMonth]);
 
@@ -61,8 +61,8 @@ export default function AdminPersonalAllowance() {
   // Reload data when month range changes
   useEffect(() => {
     if (!user || loading) return;
-    loadAllowanceData();
-  }, [startMonth, endMonth, loadAllowanceData, user, loading]);
+    loadHealthInsuranceData();
+  }, [startMonth, endMonth, loadHealthInsuranceData, user, loading]);
 
   if (loading || loadingData) {
     return <Loader />;
@@ -71,7 +71,7 @@ export default function AdminPersonalAllowance() {
   return (
     <div className="space-y-4">
       <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">
-        {t("adminPersonalAllowance.title")}
+        {t("adminHealthInsurance.title")}
       </h1>
 
       {/* Month Range Filter */}
@@ -104,13 +104,13 @@ export default function AdminPersonalAllowance() {
             <table className="min-w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPersonalAllowance.priestColumn")}</th>
-                  <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminPersonalAllowance.monthColumn")}</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminPersonalAllowance.amountColumn")}</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminHealthInsurance.priestColumn")}</th>
+                  <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminHealthInsurance.monthColumn")}</th>
+                  <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminHealthInsurance.amountColumn")}</th>
                 </tr>
               </thead>
               <tbody>
-                {allowance.map((item) => (
+                {entries.map((item) => (
                   <tr key={item.id} className="border-t border-gray-100">
                     <td className="px-3 py-2 whitespace-nowrap">
                       {item.profiles?.full_name || item.profiles?.email || item.priest_id}
@@ -121,13 +121,13 @@ export default function AdminPersonalAllowance() {
                         year: "numeric",
                       })}
                     </td>
-                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {item.pers_alnce}</td>
+                    <td className="px-3 py-2 text-right whitespace-nowrap">€ {item.health_insu}</td>
                   </tr>
                 ))}
-                {!allowance.length && (
+                {!entries.length && (
                   <tr>
                     <td colSpan={3} className="px-3 py-6 text-center text-gray-500">
-                      {t("adminSalary.noSalaryEntries")}
+                      {t("adminHealthInsurance.noHealthInsuranceEntries")}
                     </td>
                   </tr>
                 )}
@@ -139,7 +139,7 @@ export default function AdminPersonalAllowance() {
         {/* Summary Card */}
         <div className="w-full lg:w-1/3 h-fit bg-white border border-gray-200 rounded-lg">
           <div className="p-2 border-b border-gray-200">
-            <h2 className="font-semibold">{t("adminSalary.salarySummary")}</h2>
+            <h2 className="font-semibold">{t("adminHealthInsurance.healthInsuranceSummary")}</h2>
           </div>
           <div className="flex flex-col gap-2 p-2">
             <p className="text-sm text-gray-500">

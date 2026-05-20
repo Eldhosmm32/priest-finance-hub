@@ -25,14 +25,15 @@ const links: LinkItem[] = [
 		children: [
 			{ href: "/admin/salary", key: "sidebar.salary" },
 			{ href: "/admin/personal-allowance", key: "sidebar.personalAllowance" },
-			{ href: "/admin/houserent", key: "sidebar.houserent" },
-			{ href: "/admin/utility-costs", key: "sidebar.utilityCost" },
+			{ href: "/admin/rent", key: "sidebar.rent" },
+			{ href: "/admin/health-insurance", key: "sidebar.healthInsurance" },
+			{ href: "/admin/vehicle-insurance", key: "sidebar.vehicleInsurance" },
+			{ href: "/admin/nursing-insurance", key: "sidebar.nursingCareInsurance" },
 			{ href: "/admin/km-allowance", key: "sidebar.kmAllowance" },
 			{ href: "/admin/other-expenses", key: "sidebar.otherExpenses" },
 		],
 	},
 
-	{ href: "/admin/insurance", key: "sidebar.insurance", icon: "insurance.png" },
 	{ href: "/admin/loans", key: "sidebar.loans", icon: "loan.png" },
 	{ href: "/admin/fund-transfer", key: "sidebar.intertransfer", icon: "money.png" },
 	{ href: "/admin/donation", key: "sidebar.donation", icon: "donate.png" },

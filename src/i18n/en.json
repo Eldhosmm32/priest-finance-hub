@@ -121,16 +121,16 @@
     "priests": "Priests",
     "salary": "Diocese Remittance (Gehalt)",
     "personalAllowance": "Personal Allowance (Unterhaltsgeld)",
-    "utilityCost": "Utility costs (Nebenkosten)",
+    "rent": "Rent (Miete)",
+    "healthInsurance": "Health Insurance",
+    "vehicleInsurance": "Vehicle Insurance",
+    "nursingCareInsurance": "Nursing Care Insurance",
     "kmAllowance": "KM Allowance (KM Geld)",
     "otherExpenses": "Other Expenses",
-    "insurance": "Insurance",
     "loans": "Loans",
     "announcements": "Announcements",
-    "houserent": "House Rent",
     "intertransfer": "International Transfer",
-    "donation": "Donation",
-    "OtherExpenses": "Other Expenses"
+    "donation": "Donation"
   },
   "adminDashboard": {
     "totalSalary": "Total Salary",
@@ -262,13 +262,24 @@
     "editSalary": "Edit Salary",
     "addSalaryTitle": "Add Salary",
     "salaryPaid": "Personal Allowance (Unterhaltsgeld)",
-    "salaryPaidPlaceholder": "Personal Allowance (Unterhaltsgeld)",
+    "salaryAmount": "Salary Amount",
+    "salaryAmountPlaceholder": "Salary amount",
+    "personalAllowance": "Personal Allowance",
+    "kMAllowance":"KM Allowance",
+    "houseRent":"House Rent",
+    "healthInsurance":"Health Insurance",
+    "nurseCareInsurance":"Nurse Care Insurance",
+    "carInsurance":"Car Insurance",
+    "others":"Others",
     "updateSalary": "Update salary",
     "salarySummary": "Salary Summary",
     "noSalaryEntries": "No salary entries yet.",
     "priestColumn": "Priest",
     "monthColumn": "Month",
-    "amountColumn": "Amount"
+    "amountColumn": "Amount",
+    "total": "Total",
+    "sum":"Sum"
+
   },
   "adminLoans": {
     "title": "Loan Management",
@@ -304,43 +315,36 @@
     "issuedOnColumn": "Issued On",
     "notesColumn": "Notes"
   },
-  "adminInsurance": {
-    "title": "Insurance Management",
-    "insuranceType": "Insurance Type",
-    "selectInsuranceType": "Select insurance type",
-    "addInsurance": "Add insurance",
-    "editInsurance": "Edit Insurance",
-    "addInsuranceTitle": "Add Insurance",
-    "insuranceAmount": "Insurance Amount",
-    "insuranceAmountPlaceholder": "Insurance amount",
-    "vehiclePlateNumber": "Vehicle Plate Number",
-    "vehiclePlateNumberPlaceholder": "Vehicle plate number",
-    "updateInsurance": "Update insurance",
-    "insuranceSummary": "Insurance Summary",
-    "noInsuranceEntries": "No insurance entries yet.",
+  "adminHealthInsurance": {
+    "title": "Health Insurance Management",
+    "healthInsuranceSummary": "Health Insurance Summary",
+    "noHealthInsuranceEntries": "No health insurance entries yet.",
     "priestColumn": "Priest",
-    "monthColumn": "Month",
-    "typeColumn": "Type",
-    "amountColumn": "Amount",
-    "health": "Health",
-    "vehicleInsurance": "Vehicle Insurance",
-    "kfzUnfall": "KFZ Unfall",
-    "lebens": "Lebens",
-    "optionalTypes": "Optional types",
-    "unknown": "Unknown"
+    "monthColumn": "Date",
+    "amountColumn": "Amount"
   },
-  "adminHouseRent": {
-    "title": "House Rent Management",
-    "addHouseRent": "Add house rent",
-    "editHouseRent": "Edit House Rent",
-    "addHouseRentTitle": "Add House Rent",
-    "houseRentPaid": "House Rent Paid",
-    "houseRentPaidPlaceholder": "House Rent paid",
-    "updateHouseRent": "Update house rent",
-    "houseRentSummary": "House Rent Summary",
-    "noHouseRentEntries": "No house rent entries yet.",
+  "adminVehicleInsurance": {
+    "title": "Vehicle Insurance Management",
+    "vehicleInsuranceSummary": "Vehicle Insurance Summary",
+    "noVehicleInsuranceEntries": "No vehicle insurance entries yet.",
     "priestColumn": "Priest",
-    "monthColumn": "Month",
+    "monthColumn": "Date",
+    "amountColumn": "Amount"
+  },
+  "adminRent": {
+    "title": "House Rent Management",
+    "rentSummary": "House Rent Summary",
+    "noRentEntries": "No house rent entries yet.",
+    "priestColumn": "Priest",
+    "monthColumn": "Date",
+    "amountColumn": "Amount"
+  },
+  "adminNursingCareInsurance": {
+    "title": "Nursing Care Insurance Management",
+    "nursingCareInsuranceSummary": "Nursing Care Insurance Summary",
+    "noNursingCareInsuranceEntries": "No nursing care insurance entries yet.",
+    "priestColumn": "Priest",
+    "monthColumn": "Date",
     "amountColumn": "Amount"
   },
   "adminKmAllowance": {
@@ -355,20 +359,6 @@
     "noKmAllowanceEntries": "No KM allowance entries yet.",
     "priestColumn": "Priest",
     "monthColumn": "Date",
-    "amountColumn": "Amount"
-  },
-  "adminUtilityCosts": {
-    "title": "Utility Costs Management",
-    "addUtilityCosts": "Add utility costs",
-    "editUtilityCosts": "Edit Utility Costs",
-    "addUtilityCostsTitle": "Add Utility Costs",
-    "utilityCostPaid": "Utility Cost Paid",
-    "utilityCostPaidPlaceholder": "Utility cost paid",
-    "updateUtilityCosts": "Update utility costs",
-    "utilityCostsSummary": "Utility Costs Summary",
-    "noUtilityCostsEntries": "No utility costs entries yet.",
-    "priestColumn": "Priest",
-    "monthColumn": "Month",
     "amountColumn": "Amount"
   },
   "adminFundTransfer": {
@@ -415,7 +405,6 @@
     "notesColumn": "intention",
     "lastDonationReceived": "Last Donation Received"
   },
-
   "adminDiocese": {
     "title": "Diocese Management",
     "searchLabel": "Search by name",
@@ -430,22 +419,32 @@
     "provincesCount": "provinces",
     "noProvincesFound": "No provinces found."
   },
-   "adminPersonalAllowance": {
+  "adminPersonalAllowance": {
     "title": "Personal Allowance Management",
-    "searchLabel": "Search by name",
-    "searchPlaceholder": "Search by name",
-    "provincesCount": "provinces",
-    "noProvincesFound": "No provinces found."
+    "addPersonalAllowance": "Add personal allowance",
+    "editPersonalAllowance": "Edit Personal Allowance",
+    "addPersonalAllowanceTitle": "Add Personal Allowance",
+    "personalAllowancePaid": "Personal Allowance Paid",
+    "personalAllowancePaidPlaceholder": "Personal allowance paid",
+    "updatePersonalAllowance": "Update Personal Allowance",
+    "personalAllowanceSummary": "Personal Allowance Summary",
+    "noPersonalAllowanceEntries": "No personal allowance entries yet.",
+    "priestColumn": "Priest",
+    "monthColumn": "Date",
+    "amountColumn": "Amount"
   },
-
   "adminOtherExpenses": {
     "title": "Other Expenses Management",
+    "priestColumn": "Priest",
+    "monthColumn": "Month",
+    "amountColumn": "Amount",
+    "summary": "Other Expenses Summary",
+    "noOtherExpensesEntries": "No other expenses entries.",
     "searchLabel": "Search by name",
     "searchPlaceholder": "Search by name",
     "provincesCount": "provinces",
     "noProvincesFound": "No provinces found."
   },
-
   "adminAnnouncements": {
     "title": "Announcements",
     "common": {
@@ -482,7 +481,6 @@
       "announcementDeleted": "Announcement deleted successfully",
       "failedToDeleteAnnouncement": "Failed to delete announcement"
     },
-
     "individual": {
       "title": "Individual",
       "searchLabel": "Search by title or body",

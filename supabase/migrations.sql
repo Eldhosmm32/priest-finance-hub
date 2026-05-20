@@ -27,12 +27,32 @@ create table if not exists public.priests (
 create table if not exists public.salary (
   id uuid primary key default gen_random_uuid(),
   priest_id uuid references public.profiles(id) on delete cascade,
-  amount numeric(12,2) not null,
+  salary_amount numeric(12,2) not null,
+  salary_notes text,
+  pers_alnce numeric(12,2) default 0 not null,
+  km_alnce numeric(12,2) default 0 not null,
+  house_rent numeric(12,2) default 0 not null,
+  health_insu numeric(12,2) default 0 not null,
+  nurs_care_insu numeric(12,2) default 0 not null,
+  car_insu numeric(12,2) default 0 not null,
+  others numeric(12,2) default 0 not null,
   currency text default 'EUR',
   month date not null, -- store as first day of month
   created_by uuid references public.profiles(id),
   created_at timestamptz default now()
 );
+
+-- Update existing schema if this table already existed with legacy column names
+ALTER TABLE public.salary
+  ADD COLUMN IF NOT EXISTS salary_notes text,
+  ADD COLUMN IF NOT EXISTS pers_alnce numeric(12,2) default 0 not null,
+  ADD COLUMN IF NOT EXISTS km_alnce numeric(12,2) default 0 not null,
+  ADD COLUMN IF NOT EXISTS house_rent numeric(12,2) default 0 not null,
+  ADD COLUMN IF NOT EXISTS health_insu numeric(12,2) default 0 not null,
+  ADD COLUMN IF NOT EXISTS nurs_care_insu numeric(12,2) default 0 not null,
+  ADD COLUMN IF NOT EXISTS car_insu numeric(12,2) default 0 not null,
+  ADD COLUMN IF NOT EXISTS others numeric(12,2) default 0 not null;
+  ADD COLUMN IF NOT EXISTS full_salary numeric(12,2) default 0 not null;
 
 create index if not exists salary_priest_idx on public.salary (priest_id);
 create index if not exists salary_month_idx on public.salary (month);

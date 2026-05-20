@@ -3,6 +3,7 @@ import Loader from "@/components/ui/loader";
 import { useUser } from "@/hooks/useUser";
 import { useRouter } from "next/router";
 import { useTranslation } from "@/i18n/languageContext";
+import ComingSoon from "@/components/ui/coming-soon";
 
 
 
@@ -18,15 +19,13 @@ const { user, loading } = useUser();
         }
     }, [user, loading]);
 
-    return (
+   return (
       <>
-        {loading ? (
-          <Loader />
-        ) : (
+        {loading ? <Loader /> : (
           <div className="space-y-4">
-            <h1 className="text-2xl font-semibold text-gray-800 mb-2">
-              {t("adminReports.title")}
-            </h1>
+            <h1 className="text-2xl font-semibold text-gray-800 mb-2">{t("adminReports.title")}</h1>
+   
+            <ComingSoon />
           </div>
         )}
       </>

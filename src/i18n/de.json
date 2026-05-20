@@ -117,19 +117,20 @@
     "title": "Admin",
     "dashboard": "Dashboard",
     "diocese": "Diözese",
-    "provinces": "Provinzen",
+    "reports": "Berichte",
     "priests": "Priester",
     "salary": "Diocese Überweisung (Salary)",
     "personalAllowance": "Unterhaltsgeld (Personal Allowance)",
-    "utilityCost": "Nebenkosten (Utility costs)",
+    "rent": "Miete",
+    "healthInsurance": "Kranken Versicherung",
+    "vehicleInsurance": "Kfz Versicherung",
+    "nursingCareInsurance": "Pflege Versicherung",
     "kmAllowance": "KM Geld",
-    "insurance": "Versicherung",
+    "otherExpenses": "Sonstige Ausgaben",
     "loans": "Darlehen",
     "announcements": "Ankündigungen",
-    "houserent": "Miete",
     "intertransfer": "Internationale Überweisung",
-    "donation": "Spende",
-    "OtherExpenses": "Sonstige Ausgaben"
+    "donation": "Spende"
   },
   "adminDashboard": {
     "lastDonationReceived": "Letzte erhaltene Spende",
@@ -261,13 +262,23 @@
     "editSalary": "Gehalt bearbeiten",
     "addSalaryTitle": "Gehalt hinzufügen",
     "salaryPaid": "Unterhaltsgeld (Personal Allowance)",
-    "salaryPaidPlaceholder": "Unterhaltsgeld (Personal Allowance)",
+    "salaryAmount": "Gehaltssumme",
+    "salaryAmountPlaceholder": "Gehaltssumme",
+    "personalAllowance": "Unterhaltsgeld",
+    "kMAllowance": "KM Geld",
+    "houseRent": "Miete",
+    "healthInsurance": "Krankenversicherung",
+    "nurseCareInsurance": "Pflegeversicherung",
+    "carInsurance": "KFZ-Versicherung",
+    "others": "Andere",
     "updateSalary": "Gehalt aktualisieren",
     "salarySummary": "Gehaltsübersicht",
     "noSalaryEntries": "Noch keine Gehaltseinträge.",
     "priestColumn": "Priester",
     "monthColumn": "Monat",
-    "amountColumn": "Betrag"
+    "amountColumn": "Betrag",
+    "total": "Gesamt",
+    "sum": "Summe"
   },
   "adminLoans": {
     "title": "Darlehensverwaltung",
@@ -303,43 +314,36 @@
     "issuedOnColumn": "Ausgestellt am",
     "notesColumn": "Notizen"
   },
-  "adminInsurance": {
-    "title": "Versicherungsverwaltung",
-    "insuranceType": "Versicherungstyp",
-    "selectInsuranceType": "Versicherungstyp auswählen",
-    "addInsurance": "Versicherung hinzufügen",
-    "editInsurance": "Versicherung bearbeiten",
-    "addInsuranceTitle": "Versicherung hinzufügen",
-    "insuranceAmount": "Versicherungsbetrag",
-    "insuranceAmountPlaceholder": "Versicherungsbetrag",
-    "vehiclePlateNumber": "Fahrzeugkennzeichen",
-    "vehiclePlateNumberPlaceholder": "Fahrzeugkennzeichen",
-    "updateInsurance": "Versicherung aktualisieren",
-    "insuranceSummary": "Versicherungsübersicht",
-    "noInsuranceEntries": "Noch keine Versicherungseinträge.",
+  "adminHealthInsurance": {
+    "title": "Krankenversicherungsverwaltung",
+    "healthInsuranceSummary": "Krankenversicherungsübersicht",
+    "noHealthInsuranceEntries": "Noch keine Krankenversicherungseinträge.",
     "priestColumn": "Priester",
-    "monthColumn": "Monat",
-    "typeColumn": "Typ",
-    "amountColumn": "Betrag",
-    "health": "Gesundheit",
-    "vehicleInsurance": "Fahrzeugversicherung",
-    "kfzUnfall": "KFZ Unfall",
-    "lebens": "Lebens",
-    "optionalTypes": "Optionale Typen",
-    "unknown": "Unbekannt"
+    "monthColumn": "Datum",
+    "amountColumn": "Betrag"
   },
-  "adminHouseRent": {
-    "title": "Mietenverwaltung",
-    "addHouseRent": "Miete hinzufügen",
-    "editHouseRent": "Miete bearbeiten",
-    "addHouseRentTitle": "Miete hinzufügen",
-    "houseRentPaid": "Gezahlte Miete",
-    "houseRentPaidPlaceholder": "Gezahlte Miete",
-    "updateHouseRent": "Miete aktualisieren",
-    "houseRentSummary": "Mietenübersicht",
-    "noHouseRentEntries": "Noch keine Mieteneinträge.",
+  "adminVehicleInsurance": {
+    "title": "Fahrzeugversicherungsverwaltung",
+    "vehicleInsuranceSummary": "Fahrzeugversicherungsübersicht",
+    "noVehicleInsuranceEntries": "Noch keine Fahrzeugversicherungseinträge.",
     "priestColumn": "Priester",
-    "monthColumn": "Monat",
+    "monthColumn": "Datum",
+    "amountColumn": "Betrag"
+  },
+  "adminRent": {
+    "title": "Mietenverwaltung",
+    "rentSummary": "Mietenübersicht",
+    "noRentEntries": "Noch keine Mieteneinträge.",
+    "priestColumn": "Priester",
+    "monthColumn": "Datum",
+    "amountColumn": "Betrag"
+  },
+  "adminNursingCareInsurance": {
+    "title": "Pflegeversicherungsverwaltung",
+    "nursingCareInsuranceSummary": "Pflegeversicherungsübersicht",
+    "noNursingCareInsuranceEntries": "Noch keine Pflegeversicherungseinträge.",
+    "priestColumn": "Priester",
+    "monthColumn": "Datum",
     "amountColumn": "Betrag"
   },
   "adminKmAllowance": {
@@ -356,19 +360,17 @@
     "monthColumn": "Datum",
     "amountColumn": "Betrag"
   },
-  "adminUtilityCosts": {
-    "title": "Nebenkostenverwaltung",
-    "addUtilityCosts": "Nebenkosten hinzufügen",
-    "editUtilityCosts": "Nebenkosten bearbeiten",
-    "addUtilityCostsTitle": "Nebenkosten hinzufügen",
-    "utilityCostPaid": "Nebenkosten gezahlt",
-    "utilityCostPaidPlaceholder": "Gezahlte Nebenkosten",
-    "updateUtilityCosts": "Nebenkosten aktualisieren",
-    "utilityCostsSummary": "Nebenkostenübersicht",
-    "noUtilityCostsEntries": "Noch keine Nebenkosteneinträge.",
+  "adminOtherExpenses": {
+    "title": "Andere Ausgabenverwaltung",
     "priestColumn": "Priester",
     "monthColumn": "Monat",
-    "amountColumn": "Betrag"
+    "amountColumn": "Betrag",
+    "summary": "Sonstige Ausgaben Übersicht",
+    "noOtherExpensesEntries": "Noch keine sonstigen Ausgabeneinträge.",
+    "searchLabel": "Suche nach Name",
+    "searchPlaceholder": "Suche nach Name",
+    "provincesCount": "Provinzen",
+    "noProvincesFound": "Keine Provinzen gefunden."
   },
   "adminFundTransfer": {
     "title": "Überweisungsverwaltung",
@@ -413,6 +415,20 @@
     "amountColumn": "Betrag",
     "notesColumn": "Absicht",
     "lastDonationReceived": "Letzte erhaltene Spende"
+  },
+  "adminPersonalAllowance": {
+    "title": "Unterhaltsgeldverwaltung",
+    "addPersonalAllowance": "Unterhaltsgeld hinzufügen",
+    "editPersonalAllowance": "Unterhaltsgeld bearbeiten",
+    "addPersonalAllowanceTitle": "Unterhaltsgeld hinzufügen",
+    "personalAllowancePaid": "Unterhaltsgeld gezahlt",
+    "personalAllowancePaidPlaceholder": "Gezahltes Unterhaltsgeld",
+    "updatePersonalAllowance": "Unterhaltsgeld aktualisieren",
+    "personalAllowanceSummary": "Unterhaltsgeldübersicht",
+    "noPersonalAllowanceEntries": "Noch keine Unterhaltsgeldeinträge.",
+    "priestColumn": "Priester",
+    "monthColumn": "Datum",
+    "amountColumn": "Betrag"
   },
   "adminAnnouncements": {
     "title": "Ankündigungen",

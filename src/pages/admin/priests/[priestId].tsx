@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useUser } from "../../../hooks/useUser";
 import { supabase } from "../../../lib/supabaseClient";
 import { Table, TableCaption, TableHeader, TableBody, TableFooter, TableRow, TableCell, TableHead } from "@/components/ui/table";
@@ -42,6 +42,13 @@ type Salary = {
     priest_id: string;
     salary_amount: number;
     month: string;
+    pers_alnce: number;
+    km_alnce: number;
+    house_rent: number;
+    health_insu: number;
+    nurs_care_insu: number;
+    car_insu: number;
+    others: number;
     house_rent_paid: number;
     insurance_paid: number;
     health: number;
@@ -72,6 +79,19 @@ type LoanRow = {
 
 const LOAN_QUERY = "id, priest_id, principal, emi, issued_on, created_at, loan_notes, profiles!loans_priest_id_fkey(full_name, email), closed_on, last_emi_amount, total_months";
 
+const INITIAL_SALARY_FORM_STATE = {
+    salary_amount: "",
+    salary_notes: "",
+    pers_alnce: "",
+    km_alnce: "",
+    house_rent: "",
+    health_insu: "",
+    nurs_care_insu: "",
+    car_insu: "",
+    others: "",
+    currency: "EUR",
+};
+
 export default function AdminPriestDetail() {
     const router = useRouter();
     const startYear: any = 2023;
@@ -87,11 +107,19 @@ export default function AdminPriestDetail() {
     const [selectedLoan, setSelectedLoan] = useState<LoanRow | null>(null);
     const [openEdit, setOpenEdit] = useState(false);
     const [openEditName, setOpenEditName] = useState(false);
+    const [openSalaryDialog, setOpenSalaryDialog] = useState(false);
+    const [editingSalaryId, setEditingSalaryId] = useState<string | null>(null);
+    const [dialogeMonth, setDialogeMonth] = useState("");
+    const [salaryError, setSalaryError] = useState<string | null>(null);
+    const [salarySummary, setSalarySummary] = useState<{ total_payout: number; priests_recorded: number; month: string | null } | null>(null);
+    const [startMonth, setStartMonth] = useState(`${currentYear}-01`);
+    const [endMonth, setEndMonth] = useState(`${currentYear}-12`);
     const [saving, setSaving] = useState(false);
     const [savingName, setSavingName] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [nameError, setNameError] = useState<string | null>(null);
     const [nameValue, setNameValue] = useState("");
+    const [salaryForm, setSalaryForm] = useState<Record<string, string>>(INITIAL_SALARY_FORM_STATE);
     const [formData, setFormData] = useState({
         date_of_birth: "",
         photo: "",
@@ -109,6 +137,8 @@ export default function AdminPriestDetail() {
 
     const changeYear = async (value: any) => {
         setYear(value);
+        setStartMonth(`${value}-01`);
+        setEndMonth(`${value}-12`);
         const { data: salary } = await supabase
             .from("salary")
             .select("*")
@@ -118,102 +148,11 @@ export default function AdminPriestDetail() {
             .order("month", { ascending: false })
         const salaryData = salary ?? [];
 
-        // Wait for all insurance and rent data to be fetched and merged
-        const sal_ins_rent = await Promise.all(
-            salaryData.map(async (s) => {
-                // Initialize insurance and rent fields
-                const salaryWithInsuranceAndRent = {
-                    ...s,
-                    insurance_paid: 0,
-                    house_rent_paid: 0,
-                    health: 0,
-                    vehicle_insurance: 0,
-                    kfz_unfall_private: 0,
-                    lebens_und: 0,
-                    insurance_other_1: 0,
-                    insurance_other_2: 0,
-                    total: 0,
-                };
+        salaryData.forEach((s: any) => {
+            s.total = (s.salary_amount || 0) + (s.pers_alnce || 0) + (s.km_alnce || 0) + (s.house_rent || 0) + (s.health_insu || 0) + (s.nurs_care_insu || 0) + (s.car_insu || 0) + (s.others || 0);
+        });
 
-                const monthYear = s.month.split('-')[0];
-                const monthMonth = s.month.split('-')[1];
-                const monthStart = `${monthYear}-${monthMonth}-01`;
-                const monthEnd = `${monthYear}-${monthMonth}-${getLastDate(monthMonth, monthYear)}`;
-
-                // Fetch insurance data
-                const { data: insurance } = await supabase
-                    .from("insurance")
-                    .select("*")
-                    .eq("priest_id", priestId)
-                    .gte("month", monthStart)
-                    .lte("month", monthEnd);
-
-                // Fetch house rent data
-                const { data: houseRent } = await supabase
-                    .from("house_rent")
-                    .select("*")
-                    .eq("priest_id", priestId)
-                    .gte("month", monthStart)
-                    .lte("month", monthEnd)
-                    .maybeSingle();
-
-                // Merge house rent data
-                if (houseRent?.rent_amount) {
-                    salaryWithInsuranceAndRent.house_rent_paid = houseRent.rent_amount ?? 0;
-                }
-
-                // Merge insurance data
-                const insuranceData = insurance ?? [];
-                insuranceData?.forEach((ins: any) => {
-                    if (ins.type == 1) {
-                        salaryWithInsuranceAndRent.health = ins.amount;
-                    }
-                    if (ins.type == 2) {
-                        salaryWithInsuranceAndRent.vehicle_insurance = ins.amount;
-                    }
-                    if (ins.type == 3) {
-                        salaryWithInsuranceAndRent.kfz_unfall_private = ins.amount;
-                    }
-                    if (ins.type == 4) {
-                        salaryWithInsuranceAndRent.lebens_und = ins.amount;
-                    }
-                    if (ins.type == 5) {
-                        salaryWithInsuranceAndRent.insurance_other_1 = ins.amount;
-                    }
-                    if (ins.type == 6) {
-                        salaryWithInsuranceAndRent.insurance_other_2 = ins.amount;
-                    }
-                });
-                salaryWithInsuranceAndRent.insurance_paid = salaryWithInsuranceAndRent.health + salaryWithInsuranceAndRent.vehicle_insurance + salaryWithInsuranceAndRent.kfz_unfall_private + salaryWithInsuranceAndRent.lebens_und + salaryWithInsuranceAndRent.insurance_other_1 + salaryWithInsuranceAndRent.insurance_other_2;
-                salaryWithInsuranceAndRent.total = salaryWithInsuranceAndRent.salary_amount + salaryWithInsuranceAndRent.house_rent_paid + salaryWithInsuranceAndRent.insurance_paid;
-                return salaryWithInsuranceAndRent;
-            })
-
-        );
-
-        setSalary(sal_ins_rent as Salary[] ?? []);
-    }
-
-    const getLastDate = (month: number, year: number) => {
-        switch (Number(month)) {
-            case 1:
-            case 3:
-            case 5:
-            case 7:
-            case 8:
-            case 10:
-            case 12:
-                return 31;
-            case 4:
-            case 6:
-            case 9:
-            case 11:
-                return 30;
-            case 2:
-                return 28 + (Number(year) % 4 === 0 ? 1 : 0);
-            default:
-                return 31;
-        }
+        setSalary(salaryData as Salary[] ?? []);
     }
 
     // Load loans data for the priest
@@ -475,6 +414,110 @@ export default function AdminPriestDetail() {
         }
     };
 
+    const resetSalaryForm = () => {
+        setDialogeMonth(new Date().toISOString().slice(0, 7));
+        setSalaryForm(INITIAL_SALARY_FORM_STATE);
+        setEditingSalaryId(null);
+        setSalaryError(null);
+    };
+
+    const updateSalaryField = (fieldName: string, value: string) => {
+        setSalaryForm((prev) => ({ ...prev, [fieldName]: value }));
+    };
+
+    const salaryTotal = useMemo(() => {
+        return [
+            "pers_alnce",
+            "km_alnce",
+            "house_rent",
+            "health_insu",
+            "nurs_care_insu",
+            "car_insu",
+            "others",
+        ].reduce((sum, field) => sum + (parseFloat(salaryForm[field] || "0") || 0), 0);
+    }, [salaryForm]);
+
+    const handleSalaryAdd = async (e?: React.FormEvent) => {
+        e?.preventDefault();
+        setSalaryError(null);
+
+        if (!priestId || Array.isArray(priestId)) return;
+        if (!dialogeMonth) {
+            showToast(t("toasts.enterAllRequiredFields"), "error");
+            return;
+        }
+
+        const monthDate = `${dialogeMonth}-01`;
+
+        if (!editingSalaryId) {
+            const { data: existingEntry } = await supabase
+                .from("salary")
+                .select("id")
+                .eq("priest_id", priestId)
+                .eq("month", monthDate)
+                .maybeSingle();
+
+            if (existingEntry) {
+                setSalaryError(t("toasts.salaryEntryExists"));
+                return;
+            }
+        }
+
+        const salaryData: Record<string, any> = {
+            priest_id: priestId,
+            month: monthDate,
+            salary_amount: parseFloat(salaryForm.salary_amount) || 0,
+            currency: salaryForm.currency || "EUR",
+            pers_alnce: parseFloat(salaryForm.pers_alnce) || 0,
+            km_alnce: parseFloat(salaryForm.km_alnce) || 0,
+            house_rent: parseFloat(salaryForm.house_rent) || 0,
+            health_insu: parseFloat(salaryForm.health_insu) || 0,
+            nurs_care_insu: parseFloat(salaryForm.nurs_care_insu) || 0,
+            car_insu: parseFloat(salaryForm.car_insu) || 0,
+            others: parseFloat(salaryForm.others) || 0,
+            salary_notes: salaryForm.salary_notes || null,
+        };
+
+        const query = editingSalaryId
+            ? supabase.from("salary").update(salaryData).eq("id", editingSalaryId)
+            : supabase.from("salary").insert(salaryData);
+
+        const { error: saveError } = await query;
+
+        if (saveError) {
+            console.error(saveError);
+            setSalaryError(t("toasts.failedToSaveSalary"));
+            return;
+        }
+
+        showToast(editingSalaryId ? t("toasts.salaryUpdated") : t("toasts.salaryAdded"), "success");
+        await changeYear(year);
+        resetSalaryForm();
+        setOpenSalaryDialog(false);
+    };
+
+    const handleSalaryEdit = async (id: string) => {
+        const { data: currentSalary } = await supabase.from("salary").select("*").eq("id", id).maybeSingle();
+
+        if (!currentSalary) return;
+
+        setSalaryForm({
+            salary_amount: currentSalary.salary_amount != null ? String(currentSalary.salary_amount) : "",
+            salary_notes: currentSalary.salary_notes ?? "",
+            pers_alnce: currentSalary.pers_alnce != null ? String(currentSalary.pers_alnce) : "",
+            km_alnce: currentSalary.km_alnce != null ? String(currentSalary.km_alnce) : "",
+            house_rent: currentSalary.house_rent != null ? String(currentSalary.house_rent) : "",
+            health_insu: currentSalary.health_insu != null ? String(currentSalary.health_insu) : "",
+            nurs_care_insu: currentSalary.nurs_care_insu != null ? String(currentSalary.nurs_care_insu) : "",
+            car_insu: currentSalary.car_insu != null ? String(currentSalary.car_insu) : "",
+            others: currentSalary.others != null ? String(currentSalary.others) : "",
+            currency: currentSalary.currency ?? "EUR",
+        });
+        setDialogeMonth(currentSalary.month ? currentSalary.month.substring(0, 7) : "");
+        setEditingSalaryId(id);
+        setOpenSalaryDialog(true);
+    };
+
     useEffect(() => {
         if (!priestId || Array.isArray(priestId)) return;
         if (loading) return;
@@ -660,9 +703,7 @@ export default function AdminPriestDetail() {
                         </TabsContent>
                         <TabsContent value="salary" className="p-2 md:p-4">
                             <div className="w-full border border-gray-200 rounded-lg p-2">
-                                <div
-                                    className="flex gap-3 items-end"
-                                >
+                                <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
                                     <div className="flex flex-col">
                                         <label className="text-xs font-medium text-gray-600 mb-1">
                                             {t("adminPriestDetail.year")}
@@ -684,6 +725,14 @@ export default function AdminPriestDetail() {
                                                 </SelectContent>
                                             </Select>
                                         </div>
+                                    </div>
+                                    <div className="flex items-end">
+                                        <Button size="sm" type="button" onClick={() => {
+                                            resetSalaryForm();
+                                            setOpenSalaryDialog(true);
+                                        }}>
+                                            {t("adminSalary.addSalary")}
+                                        </Button>
                                     </div>
                                 </div>
                                 {salary.map((s) => (
@@ -713,49 +762,32 @@ export default function AdminPriestDetail() {
                                                         </TableHeader>
                                                         <TableBody>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]" >{t("adminPriestDetail.salaryPaid")}</TableCell>
-                                                                <TableCell className="text-right text-[1rem] pr-4">€ {s.salary_amount}</TableCell>
+                                                                <TableCell className="text-[1rem]">Personal Allowance</TableCell>
+                                                                <TableCell className="text-right text-[1rem] pr-4">€ {s.pers_alnce ?? 0}</TableCell>
                                                             </TableRow>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]" >{t("adminPriestDetail.houseRentPaid")}</TableCell>
-                                                                <TableCell className="text-right text-[1rem] pr-4">€ {s.house_rent_paid}</TableCell>
+                                                                <TableCell className="text-[1rem]">KM Allowance</TableCell>
+                                                                <TableCell className="text-right text-[1rem] pr-4">€ {s.km_alnce ?? 0}</TableCell>
                                                             </TableRow>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]" >{t("adminPriestDetail.insurancePaid")}</TableCell>
-                                                                <TableCell className="text-right text-[1rem] pr-4">€ {s.insurance_paid}</TableCell>
+                                                                <TableCell className="text-[1rem]">House Rent</TableCell>
+                                                                <TableCell className="text-right text-[1rem] pr-4">€ {s.house_rent ?? 0}</TableCell>
                                                             </TableRow>
-
                                                             <TableRow>
-                                                                <TableCell colSpan={2}>
-                                                                    <Table className="">
-                                                                        <TableBody>
-                                                                            <TableRow >
-                                                                                <TableCell className="" >{t("adminPriestDetail.health")}</TableCell>
-                                                                                <TableCell className="text-right">€ {s.health}</TableCell>
-                                                                            </TableRow>
-                                                                            <TableRow>
-                                                                                <TableCell >{t("adminPriestDetail.vehcleInsurance")}</TableCell>
-                                                                                <TableCell className="text-right">€ {s.vehicle_insurance}</TableCell>
-                                                                            </TableRow>
-                                                                            <TableRow>
-                                                                                <TableCell >{t("adminPriestDetail.kfzUnfallPrivate")}</TableCell>
-                                                                                <TableCell className="text-right">€ {s.kfz_unfall_private}</TableCell>
-                                                                            </TableRow>
-                                                                            <TableRow>
-                                                                                <TableCell >{t("adminPriestDetail.lebensUnd")}</TableCell>
-                                                                                <TableCell className="text-right">€ {s.lebens_und}</TableCell>
-                                                                            </TableRow>
-                                                                            <TableRow>
-                                                                                <TableCell >{t("adminPriestDetail.insuranceOther1")}</TableCell>
-                                                                                <TableCell className="text-right">€ {s.insurance_other_1}</TableCell>
-                                                                            </TableRow>
-                                                                            <TableRow>
-                                                                                <TableCell >{t("adminPriestDetail.insuranceOther2")}</TableCell>
-                                                                                <TableCell className="text-right">€ {s.insurance_other_2}</TableCell>
-                                                                            </TableRow>
-                                                                        </TableBody>
-                                                                    </Table>
-                                                                </TableCell>
+                                                                <TableCell className="text-[1rem]">Health Insurance</TableCell>
+                                                                <TableCell className="text-right text-[1rem] pr-4">€ {s.health_insu ?? 0}</TableCell>
+                                                            </TableRow>
+                                                            <TableRow>
+                                                                <TableCell className="text-[1rem]">Nurse Care Insurance</TableCell>
+                                                                <TableCell className="text-right text-[1rem] pr-4">€ {s.nurs_care_insu ?? 0}</TableCell>
+                                                            </TableRow>
+                                                            <TableRow>
+                                                                <TableCell className="text-[1rem]">Car Insurance</TableCell>
+                                                                <TableCell className="text-right text-[1rem] pr-4">€ {s.car_insu ?? 0}</TableCell>
+                                                            </TableRow>
+                                                            <TableRow>
+                                                                <TableCell className="text-[1rem]">Others</TableCell>
+                                                                <TableCell className="text-right text-[1rem] pr-4">€ {s.others ?? 0}</TableCell>
                                                             </TableRow>
                                                         </TableBody>
                                                         <TableFooter>
@@ -770,6 +802,197 @@ export default function AdminPriestDetail() {
                                         </AccordionItem>
                                     </Accordion>
                                 ))}
+                            </div>
+
+                            <div className="overflow-auto">
+                                <Dialog
+                                    open={openSalaryDialog}
+                                    onOpenChange={(isOpen) => {
+                                        setOpenSalaryDialog(isOpen);
+                                        if (!isOpen) {
+                                            resetSalaryForm();
+                                        }
+                                    }}
+                                >
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>{editingSalaryId ? t("adminSalary.editSalary") : t("adminSalary.addSalaryTitle")}</DialogTitle>
+                                        </DialogHeader>
+                                        {salaryError && (
+                                            <div className="bg-red-50 border text-sm border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center " >
+                                                {salaryError}
+                                                <button className="text-red-700" onClick={() => setSalaryError(null)}> x</button>
+                                            </div>
+                                        )}
+                                        <form onSubmit={handleSalaryAdd} className="bg-white flex flex-wrap gap-3 items-end">
+
+                                            <div className="flex flex-col gap-2 border border-gray-200 rounded-lg px-2 w-full">
+
+                                                <div className="grid grid-cols-2 gap-4">
+
+                                                    <div className="flex flex-col flex-1 py-3 w-full">
+                                                        <label className="text-xs font-medium text-gray-600 mb-1">{t("common.month")}</label>
+                                                        <input
+                                                            type="month"
+                                                            className="input"
+                                                            min="1997-01"
+                                                            max="2030-12"
+                                                            value={dialogeMonth}
+                                                            onChange={(e) => setDialogeMonth(e.target.value)}
+                                                            required
+                                                        />
+                                                    </div>
+
+                                                    {/* <div className="flex flex-col py-3 w-full">
+                                                        <label className="text-xs font-medium text-gray-600 mb-1">{t("common.month")}</label>
+
+                                                        <input
+                                                            type="text"
+                                                            className="input"
+                                                            onChange={(e) => updateSalaryField("currency", e.target.value)}
+                                                            value={salaryForm.currency}
+                                                            placeholder={t("adminSalary.currencyPlaceholder") || "Currency"}
+                                                        />
+                                                    </div> */}
+                                                    <div className="flex flex-col py-3 w-full ">
+                                                        <label className="text-xs font-medium text-gray-600 mb-1">{t("common.priest")}</label>
+                                                        <span className="text-sm font-medium p-2 border bg-gray-300 rounded-md">{priest?.full_name ?? String(priestId)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 border border-gray-200 rounded-lg w-full max-h-[350px] overflow-y-auto p-2">
+                                                <div className="flex flex-col w-full">
+                                                    <label className="text-xs font-medium text-gray-600 mb-1">{t("adminSalary.sum")}</label>
+                                                    <input
+                                                        type="number"
+                                                        className="input"
+                                                        onChange={(e) => updateSalaryField("salary_amount", e.target.value)}
+                                                        value={salaryForm.salary_amount}
+                                                        step="0.01"
+                                                        placeholder={t("adminSalary.amountColumn")}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col w-full">
+                                                    <label className="text-xs font-medium text-gray-600 mb-1">{t("adminSalary.salaryPaid")}</label>
+                                                    <input
+                                                        type="number"
+                                                        className="input"
+                                                        onChange={(e) => updateSalaryField("pers_alnce", e.target.value)}
+                                                        value={salaryForm.pers_alnce}
+                                                        step="0.01"
+                                                        placeholder={t("adminSalary.amountColumn")}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col w-full">
+                                                    <label className="text-xs font-medium text-gray-600 mb-1">{t("adminSalary.kMAllowance")}</label>
+                                                    <input
+                                                        type="number"
+                                                        className="input"
+                                                        onChange={(e) => updateSalaryField("km_alnce", e.target.value)}
+                                                        value={salaryForm.km_alnce}
+                                                        step="0.01"
+                                                        placeholder={t("adminSalary.amountColumn")}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col w-full">
+                                                    <label className="text-xs font-medium text-gray-600 mb-1">{t("adminSalary.houseRent")}</label>
+                                                    <input
+                                                        type="number"
+                                                        className="input"
+                                                        onChange={(e) => updateSalaryField("house_rent", e.target.value)}
+                                                        value={salaryForm.house_rent}
+                                                        step="0.01"
+                                                        placeholder={t("adminSalary.amountColumn")}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col w-full">
+                                                    <label className="text-xs font-medium text-gray-600 mb-1">{t("adminSalary.healthInsurance")}</label>
+                                                    <input
+                                                        type="number"
+                                                        className="input"
+                                                        onChange={(e) => updateSalaryField("health_insu", e.target.value)}
+                                                        value={salaryForm.health_insu}
+                                                        step="0.01"
+                                                        placeholder={t("adminSalary.amountColumn")}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col w-full">
+                                                    <label className="text-xs font-medium text-gray-600 mb-1">{t("adminSalary.nurseCareInsurance")}</label>
+                                                    <input
+                                                        type="number"
+                                                        className="input"
+                                                        onChange={(e) => updateSalaryField("nurs_care_insu", e.target.value)}
+                                                        value={salaryForm.nurs_care_insu}
+                                                        step="0.01"
+                                                        placeholder={t("adminSalary.amountColumn")}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col w-full">
+                                                    <label className="text-xs font-medium text-gray-600 mb-1">{t("adminSalary.carInsurance")}</label>
+                                                    <input
+                                                        type="number"
+                                                        className="input"
+                                                        onChange={(e) => updateSalaryField("car_insu", e.target.value)}
+                                                        value={salaryForm.car_insu}
+                                                        step="0.01"
+                                                        placeholder={t("adminSalary.amountColumn")}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col w-full">
+                                                    <label className="text-xs font-medium text-gray-600 mb-1">{t("adminSalary.others")}</label>
+                                                    <input
+                                                        type="number"
+                                                        className="input"
+                                                        onChange={(e) => updateSalaryField("others", e.target.value)}
+                                                        value={salaryForm.others}
+                                                        step="0.01"
+                                                        placeholder={t("adminSalary.amountColumn")}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col w-full">
+                                                <label className="text-xs font-medium text-gray-600 mb-1">
+                                                    {t("common.notes")} <span className="font-normal">{t("common.optional")}</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="input"
+                                                    onChange={(e) => updateSalaryField("salary_notes", e.target.value)}
+                                                    value={salaryForm.salary_notes}
+                                                    placeholder={t("common.notesPlaceholder")}
+                                                />
+                                            </div>
+                                        </form>
+                                        <DialogFooter>
+                                            <div className="flex justify-between gap-2 items-center w-full">
+
+                                                <div className="flex gap-2 w-full max-w-[15rem] overflow-hidden ellipsis items-center">
+                                                    <label className="text-lg font-medium text-gray-600 mb-1">{t("adminSalary.total")} : € {salaryTotal.toFixed(2)}</label>
+
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button size="sm" type="button" variant="outline" onClick={() => setOpenSalaryDialog(false)}>
+                                                        {t("common.cancel")}
+                                                    </Button>
+                                                    <Button size="sm" type="submit" className="btn" onClick={handleSalaryAdd}>
+                                                        {editingSalaryId ? t("adminSalary.updateSalary") : t("adminSalary.addSalary")}
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+
+
                             </div>
                         </TabsContent>
                         <TabsContent value="loan" className="p-2 md:p-4">
@@ -812,7 +1035,7 @@ export default function AdminPriestDetail() {
                                                                 })}
                                                             </td>
                                                             <td className="px-3 py-2 whitespace-nowrap">
-                                                                {loan.loan_notes??'N/A'}
+                                                                {loan.loan_notes ?? 'N/A'}
                                                             </td>
                                                             <td className="px-3 py-2 whitespace-nowrap">
                                                                 <Badge className={`text-xs font-medium text-white w-fit ${isActive ? "bg-green-500" : "bg-yellow-500"}`}>

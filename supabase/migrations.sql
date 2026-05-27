@@ -16,31 +16,51 @@ SET role = 'admin'
 WHERE id = 'eldocrazy@gmail.com';
 
 -- 2) Priests metadata
-create table if not exists public.priests (
-  id uuid primary key references public.profiles(id) on delete cascade,
-  ordinal integer,
-  address text,
-  notes text
-);
+create table public.priests (
+  id uuid not null,
+  address text null,
+  notes text null,
+  date_of_birth date null,
+  photo text null,
+  phone text null,
+  province uuid null,
+  diocese text null,
+  visa_number text null,
+  visa_category text null,
+  visa_expiry_date date null,
+  passport_number text null,
+  car_plate text null,
+  secondary text null,
+  constraint priests_pkey primary key (id),
+  constraint priests_id_fkey foreign KEY (id) references profiles (id) on delete CASCADE,
+  constraint priests_province_fkey foreign KEY (province) references provinces (id)
+) TABLESPACE pg_default;
 
 -- 3) Salary
-create table if not exists public.salary (
-  id uuid primary key default gen_random_uuid(),
-  priest_id uuid references public.profiles(id) on delete cascade,
-  salary_amount numeric(12,2) not null,
-  salary_notes text,
-  pers_alnce numeric(12,2) default 0 not null,
-  km_alnce numeric(12,2) default 0 not null,
-  house_rent numeric(12,2) default 0 not null,
-  health_insu numeric(12,2) default 0 not null,
-  nurs_care_insu numeric(12,2) default 0 not null,
-  car_insu numeric(12,2) default 0 not null,
-  others numeric(12,2) default 0 not null,
-  currency text default 'EUR',
-  month date not null, -- store as first day of month
-  created_by uuid references public.profiles(id),
-  created_at timestamptz default now()
-);
+create table public.salary (
+  id uuid not null default gen_random_uuid (),
+  priest_id uuid null,
+  salary_amount numeric(12, 2) not null,
+  currency text null default 'EUR'::text,
+  month date not null,
+  created_by uuid null,
+  created_at timestamp with time zone not null default now(),
+  salary_notes text null,
+  pers_alnce numeric(12, 2) not null default 0,
+  km_alnce numeric(12, 2) not null default 0,
+  house_rent numeric(12, 2) not null default 0,
+  health_insu numeric(12, 2) not null default 0,
+  nurs_care_insu numeric(12, 2) not null default 0,
+  car_insu numeric(12, 2) not null default 0,
+  others numeric(12, 2) not null default 0,
+  constraint salary_pkey primary key (id),
+  constraint salary_created_by_fkey foreign KEY (created_by) references profiles (id),
+  constraint salary_priest_id_fkey foreign KEY (priest_id) references profiles (id) on delete CASCADE
+) TABLESPACE pg_default;
+
+create index IF not exists salary_priest_idx on public.salary using btree (priest_id) TABLESPACE pg_default;
+
+create index IF not exists salary_month_idx on public.salary using btree (month) TABLESPACE pg_default;
 
 -- Update existing schema if this table already existed with legacy column names
 ALTER TABLE public.salary

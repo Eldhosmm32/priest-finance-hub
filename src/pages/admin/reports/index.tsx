@@ -16,10 +16,18 @@ type ReportRow = {
   month: string;
   salary_amount: number;
   salary_notes?: string | null;
-  profiles?: Array<{ full_name: string | null; email: string | null; province?: string | null }>;
+  pers_alnce?: number;
+  km_alnce?: number;
+  house_rent?: number;
+  health_insu?: number;
+  nurs_care_insu?: number;
+  car_insu?: number;
+  others?: number;
+  currency?: string | null;
+  profiles?: { full_name: string | null; email: string | null } | Array<{ full_name: string | null; email: string | null }>;
 };
 
-const REPORT_QUERY = "id, priest_id, salary_amount, month, salary_notes, profiles!salary_priest_id_fkey(full_name, email, province)";
+const REPORT_QUERY = "id, priest_id, salary_amount, month, salary_notes, pers_alnce, km_alnce, house_rent, health_insu, nurs_care_insu, car_insu, others, currency, profiles!salary_priest_id_fkey(full_name, email)";
 
 export default function AdminReports() {
   const { user, loading } = useUser();
@@ -55,10 +63,30 @@ export default function AdminReports() {
     const startDate = `${startMonth}-01`;
     const endDate = `${endMonth}-31`;
 
+    const { data: priestRows, error: priestError } = await supabase
+      .from("priests")
+      .select("id")
+      .eq("province", selectedProvinceId)
+      .limit(500);
+
+    if (priestError) {
+      console.error("Error loading priests for province:", priestError);
+      setEntries([]);
+      setTotalAmount(0);
+      return;
+    }
+
+    const priestIds = (priestRows ?? []).map((priest) => priest.id);
+    if (!priestIds.length) {
+      setEntries([]);
+      setTotalAmount(0);
+      return;
+    }
+
     const { data } = await supabase
       .from("salary")
       .select(REPORT_QUERY)
-      .eq("profiles.province", selectedProvinceId)
+      .in("priest_id", priestIds)
       .gte("month", startDate)
       .lte("month", endDate)
       .order("month", { ascending: false })
@@ -120,7 +148,7 @@ export default function AdminReports() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             {provinces.map((province) => {
               const isSelected = selectedProvinceId === province.id;
               return (
@@ -131,9 +159,7 @@ export default function AdminReports() {
                   className={`rounded-lg border px-4 py-4 text-left transition ${isSelected ? "border-indigo-600 bg-indigo-50 shadow-sm" : "border-gray-200 bg-white hover:border-indigo-500 hover:bg-indigo-50"}`}
                 >
                   <div className="text-base font-semibold text-gray-800">{province.province_name}</div>
-                  <div className="mt-2 text-sm text-gray-500">
-                    {isSelected ? t("adminReports.provinceSelected") : t("adminReports.selectProvinceCard")}
-                  </div>
+                 
                 </button>
               );
             })}
@@ -164,8 +190,15 @@ export default function AdminReports() {
                     <tr>
                       <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminReports.dateColumn")}</th>
                       <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminReports.accountColumn")}</th>
+                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.salaryColumn")}</th>
+                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.personalAllowanceColumn")}</th>
+                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.kmAllowanceColumn")}</th>
+                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.houseRentColumn")}</th>
+                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.healthInsuranceColumn")}</th>
+                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.nursingInsuranceColumn")}</th>
+                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.carInsuranceColumn")}</th>
+                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.otherExpensesColumn")}</th>
                       <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminReports.notesColumn")}</th>
-                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.amountColumn")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -179,14 +212,25 @@ export default function AdminReports() {
                               year: "numeric",
                             })}
                           </td>
-                          <td className="px-3 py-2 whitespace-nowrap text-gray-700">{entry.profiles?.[0]?.full_name || entry.profiles?.[0]?.email || entry.priest_id}</td>
+                          <td className="px-3 py-2 whitespace-nowrap text-gray-700">
+                            {((Array.isArray(entry.profiles) ? entry.profiles[0] : entry.profiles)?.full_name) ||
+                              ((Array.isArray(entry.profiles) ? entry.profiles[0] : entry.profiles)?.email) ||
+                              entry.priest_id}
+                          </td>
+                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {entry.salary_amount?.toFixed(2) ?? "0.00"}</td>
+                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.pers_alnce ?? 0).toFixed(2)}</td>
+                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.km_alnce ?? 0).toFixed(2)}</td>
+                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.house_rent ?? 0).toFixed(2)}</td>
+                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.health_insu ?? 0).toFixed(2)}</td>
+                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.nurs_care_insu ?? 0).toFixed(2)}</td>
+                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.car_insu ?? 0).toFixed(2)}</td>
+                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.others ?? 0).toFixed(2)}</td>
                           <td className="px-3 py-2 text-gray-700">{entry.salary_notes ?? "-"}</td>
-                          <td className="px-3 py-2 text-right whitespace-nowrap font-semibold text-gray-800">€ {entry.salary_amount.toFixed(2)}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={4} className="px-3 py-8 text-center text-gray-500">
+                        <td colSpan={11} className="px-3 py-8 text-center text-gray-500">
                           {selectedProvinceId ? t("adminReports.noReportEntries") : t("adminReports.noProvinceSelected")}
                         </td>
                       </tr>

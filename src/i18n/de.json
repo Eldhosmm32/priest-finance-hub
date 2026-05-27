@@ -504,6 +504,31 @@
       "failedToDeleteAnnouncement": "Ankündigung konnte nicht gelöscht werden"
     }
   },
+  "adminReports": {
+    "title": "Berichte",
+    "subtitle": "Wählen Sie eine Provinz und einen Zeitraum aus, um Berichtsdetails anzuzeigen.",
+    "startMonth": "Startmonat",
+    "endMonth": "Endmonat",
+    "provinceSelected": "Ausgewählte Provinz",
+    "selectProvinceCard": "Zum Auswählen klicken",
+    "noProvinceSelected": "Wählen Sie eine Provinzkarte aus, um Ergebnisse zu laden.",
+    "noneSelected": "Keine Provinz ausgewählt",
+    "reportSummary": "Berichtsübersicht",
+    "summaryDescription": "Summen für die ausgewählte Provinz und den Zeitraum.",
+    "totalRecords": "Einträge insgesamt",
+    "totalAmount": "Gesamtbetrag",
+    "noReportEntries": "Für den ausgewählten Zeitraum wurden keine Einträge gefunden.",
+    "dateColumn": "Datum",
+    "accountColumn": "Konto",
+    "notesColumn": "Notizen",
+    "amountColumn": "Betrag",
+    "allTime": "Gesamtzeit",
+    "searchLabel": "Suche nach Name",
+    "searchPlaceholder": "Suche nach Name",
+    "provincesCount": "Provinzen",
+    "noProvincesFound": "Keine Provinzen gefunden.",
+    "selectedProvince": "Ausgewählte Provinz"
+  },
   "adminPriestDetail": {
     "priestList": "Priesterliste",
     "financialSummary": "Finanzübersicht",

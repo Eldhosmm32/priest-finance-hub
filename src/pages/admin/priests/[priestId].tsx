@@ -77,6 +77,11 @@ type LoanRow = {
     total_months: number;
 };
 
+type ProvinceOption = {
+    id: string;
+    province_name: string;
+};
+
 const LOAN_QUERY = "id, priest_id, principal, emi, issued_on, created_at, loan_notes, profiles!loans_priest_id_fkey(full_name, email), closed_on, last_emi_amount, total_months";
 
 const INITIAL_SALARY_FORM_STATE = {
@@ -132,6 +137,8 @@ export default function AdminPriestDetail() {
         visa_expiry_date: "",
         passport_number: "",
     });
+    const [provinces, setProvinces] = useState<ProvinceOption[]>([]);
+    const [provinceName, setProvinceName] = useState<string | null>(null);
     const isDesktop = useMediaQuery("(min-width: 768px)");
     const { t } = useTranslation();
 
@@ -281,6 +288,7 @@ export default function AdminPriestDetail() {
             } as PriestProfile;
 
             setPriest(mergedPriestData);
+            setProvinceName(getProvinceNameById(priestData?.province));
             showToast(t("common.updated"), "success");
             handleCloseEditName();
         } catch (err: any) {
@@ -404,6 +412,7 @@ export default function AdminPriestDetail() {
             } as PriestProfile;
 
             setPriest(mergedPriestData);
+            setProvinceName(getProvinceNameById(priestData?.province));
             showToast(t("common.updated"), "success");
             handleCloseEdit();
         } catch (err: any) {
@@ -436,6 +445,11 @@ export default function AdminPriestDetail() {
             "others",
         ].reduce((sum, field) => sum + (parseFloat(salaryForm[field] || "0") || 0), 0);
     }, [salaryForm]);
+
+    const getProvinceNameById = (provinceId: string | null | undefined, list: ProvinceOption[] = provinces) => {
+        if (!provinceId) return null;
+        return list.find((province) => province.id === provinceId)?.province_name ?? null;
+    };
 
     const handleSalaryAdd = async (e?: React.FormEvent) => {
         e?.preventDefault();
@@ -538,6 +552,13 @@ export default function AdminPriestDetail() {
                 return;
             }
 
+            const { data: provinceRows } = await supabase
+                .from("provinces")
+                .select("id, province_name")
+                .order("province_name", { ascending: true });
+
+            setProvinces((provinceRows ?? []) as ProvinceOption[]);
+
             // Fetch profile data
             const { data: priestProfile } = await supabase
                 .from("profiles")
@@ -560,6 +581,7 @@ export default function AdminPriestDetail() {
             } as PriestProfile;
 
             setPriest(mergedPriestData);
+            setProvinceName(getProvinceNameById(priestData?.province, provinceRows ?? []));
 
             changeYear(year);
             loadLoanData();
@@ -658,7 +680,7 @@ export default function AdminPriestDetail() {
                                     {/* Province */}
                                     <div className="flex flex-col md:flex-row gap-2">
                                         <Label className="text-sm text-muted-foreground w-32">{t("common.province")}</Label>
-                                        <span className="text-base font-medium truncate">{priest?.province ?? 'N/A'}</span>
+                                        <span className="text-base font-medium truncate">{provinceName || priest?.province || 'N/A'}</span>
                                     </div>
 
                                     {/* Diocese */}
@@ -1463,13 +1485,18 @@ export default function AdminPriestDetail() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="flex flex-col gap-2">
                                         <span className="text-xs font-medium text-black-700">{t("adminPriestDetail.provinceLabel")}</span>
-                                        <Input
-                                            id="province"
-                                            type="text"
-                                            placeholder={t("adminPriestDetail.enterProvince")}
-                                            value={formData.province}
-                                            onChange={(e) => setFormData({ ...formData, province: e.target.value })}
-                                        />
+                                        <Select value={formData.province} onValueChange={(value) => setFormData({ ...formData, province: value })}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={t("adminPriestDetail.enterProvince")} />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {provinces.map((province) => (
+                                                    <SelectItem key={province.id} value={province.id}>
+                                                        {province.province_name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                     </div>
 
                                     <div className="flex flex-col gap-2">

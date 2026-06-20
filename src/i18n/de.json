@@ -74,14 +74,10 @@
     "signup": "Registrieren"
   },
   "dashboard": {
-    "adminTitle": "Admin-Dashboard",
-    "priestTitle": "Ihr Dashboard",
-    "recentSalary": "Letztes Gehalt",
     "insurance": "Versicherungen",
     "loans": "Darlehen",
     "noSalary": "Keine Gehaltsdaten.",
-    "noInsurance": "Keine Versicherungsdaten.",
-    "noLoans": "Keine Darlehen."
+    "noInsurance": "Keine Versicherungsdaten."
   },
   "layout": {
     "myAccount": "Mein Konto",
@@ -116,6 +112,7 @@
   "sidebar": {
     "title": "Admin",
     "dashboard": "Dashboard",
+    "accountSummary": "Kontenübersicht",
     "diocese": "Diözese",
     "reports": "Berichte",
     "priests": "Priester",
@@ -278,7 +275,7 @@
     "monthColumn": "Monat",
     "amountColumn": "Betrag",
     "total": "Gesamt",
-    "sum": "Summe"
+    "sum": "Diocese Überweisung (Salary)"
   },
   "adminLoans": {
     "title": "Darlehensverwaltung",

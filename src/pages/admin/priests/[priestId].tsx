@@ -156,7 +156,7 @@ export default function AdminPriestDetail() {
         const salaryData = salary ?? [];
 
         salaryData.forEach((s: any) => {
-            s.total = (s.salary_amount || 0) + (s.pers_alnce || 0) + (s.km_alnce || 0) + (s.house_rent || 0) + (s.health_insu || 0) + (s.nurs_care_insu || 0) + (s.car_insu || 0) + (s.others || 0);
+            s.total = (s.pers_alnce || 0) + (s.km_alnce || 0) + (s.house_rent || 0) + (s.health_insu || 0) + (s.nurs_care_insu || 0) + (s.car_insu || 0) + (s.others || 0);
         });
 
         setSalary(salaryData as Salary[] ?? []);
@@ -778,44 +778,50 @@ export default function AdminPriestDetail() {
                                                     <Table className="w-full">
                                                         <TableHeader>
                                                             <TableRow>
-                                                                <TableHead className="w-3/4">{t("adminPriestDetail.item")}</TableHead>
+                                                                <TableHead className="w-2/4">{t("adminPriestDetail.item")}</TableHead>
                                                                 <TableHead className="text-right pr-4">{t("common.amount")}</TableHead>
                                                             </TableRow>
                                                         </TableHeader>
                                                         <TableBody>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]">Personal Allowance</TableCell>
+                                                                <TableCell className="text-[1rem]">{t("adminSalary.sum")}</TableCell>
+                                                                <TableCell className="text-right text-[1rem] pr-4">€ {s.salary_amount ?? 0}</TableCell>
+                                                            </TableRow>
+                                                            <TableRow>
+                                                                <TableCell className="text-[1rem]">{t("adminSalary.personalAllowance")}</TableCell>
                                                                 <TableCell className="text-right text-[1rem] pr-4">€ {s.pers_alnce ?? 0}</TableCell>
                                                             </TableRow>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]">KM Allowance</TableCell>
+                                                                <TableCell className="text-[1rem]">{t("adminSalary.kmAllowance")}</TableCell>
                                                                 <TableCell className="text-right text-[1rem] pr-4">€ {s.km_alnce ?? 0}</TableCell>
                                                             </TableRow>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]">House Rent</TableCell>
+                                                                <TableCell className="text-[1rem]">{t("adminSalary.houseRent")}</TableCell>
                                                                 <TableCell className="text-right text-[1rem] pr-4">€ {s.house_rent ?? 0}</TableCell>
                                                             </TableRow>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]">Health Insurance</TableCell>
+                                                                <TableCell className="text-[1rem]">{t("adminSalary.healthInsurance")}</TableCell>
                                                                 <TableCell className="text-right text-[1rem] pr-4">€ {s.health_insu ?? 0}</TableCell>
                                                             </TableRow>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]">Nurse Care Insurance</TableCell>
+                                                                <TableCell className="text-[1rem]">{t("adminSalary.nurseCareInsurance")}</TableCell>
                                                                 <TableCell className="text-right text-[1rem] pr-4">€ {s.nurs_care_insu ?? 0}</TableCell>
                                                             </TableRow>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]">Car Insurance</TableCell>
+                                                                <TableCell className="text-[1rem]">{t("adminSalary.carInsurance")}</TableCell>
                                                                 <TableCell className="text-right text-[1rem] pr-4">€ {s.car_insu ?? 0}</TableCell>
                                                             </TableRow>
                                                             <TableRow>
-                                                                <TableCell className="text-[1rem]">Others</TableCell>
+                                                                <TableCell className="text-[1rem]">{t("adminSalary.others")}</TableCell>
                                                                 <TableCell className="text-right text-[1rem] pr-4">€ {s.others ?? 0}</TableCell>
                                                             </TableRow>
                                                         </TableBody>
                                                         <TableFooter>
                                                             <TableRow>
                                                                 <TableCell className="text-xl">{t("adminPriestDetail.total")}</TableCell>
-                                                                <TableCell className="text-right text-xl pr-4">€ {s.total}</TableCell>
+                                                                <TableCell className="text-right text-xl pr-4"> <span className="text-xs text-gray-500">{t("adminSalary.sum")} + {t("adminSalary.total")}<br /> ({s.total} + {s.salary_amount})</span>  € {s.total + s.salary_amount}  
+
+                                                                </TableCell>
                                                             </TableRow>
                                                         </TableFooter>
                                                     </Table>

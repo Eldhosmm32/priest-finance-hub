@@ -74,14 +74,10 @@
     "signup": "Sign up"
   },
   "dashboard": {
-    "adminTitle": "Admin Dashboard",
-    "priestTitle": "Your Dashboard",
-    "recentSalary": "Recent salary",
     "insurance": "Insurance",
     "loans": "Loans",
     "noSalary": "No salary records.",
-    "noInsurance": "No insurance records.",
-    "noLoans": "No loans."
+    "noInsurance": "No insurance records."
   },
   "layout": {
     "myAccount": "My Account",
@@ -116,6 +112,7 @@
   "sidebar": {
     "title": "Admin",
     "dashboard": "Dashboard",
+    "accountSummary": "Account Summary",
     "diocese": "Diocese",
     "reports": "Reports",
     "priests": "Priests",
@@ -265,12 +262,12 @@
     "salaryAmount": "Salary Amount",
     "salaryAmountPlaceholder": "Salary amount",
     "personalAllowance": "Personal Allowance",
-    "kMAllowance":"KM Allowance",
-    "houseRent":"House Rent",
-    "healthInsurance":"Health Insurance",
-    "nurseCareInsurance":"Nurse Care Insurance",
-    "carInsurance":"Car Insurance",
-    "others":"Others",
+    "kMAllowance": "KM Allowance",
+    "houseRent": "House Rent",
+    "healthInsurance": "Health Insurance",
+    "nurseCareInsurance": "Nurse Care Insurance",
+    "carInsurance": "Car Insurance",
+    "others": "Others",
     "updateSalary": "Update salary",
     "salarySummary": "Salary Summary",
     "noSalaryEntries": "No salary entries yet.",
@@ -278,8 +275,7 @@
     "monthColumn": "Month",
     "amountColumn": "Amount",
     "total": "Total",
-    "sum":"Sum"
-
+    "sum": "Diocese Remittance (Gehalt)"
   },
   "adminLoans": {
     "title": "Loan Management",

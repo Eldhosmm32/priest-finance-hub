@@ -16,6 +16,7 @@ type LinkItem = {
 
 const links: LinkItem[] = [
 	{ href: "/admin/dashboard", key: "sidebar.dashboard",icon: "dashboard.png" },
+	{ href: "/admin/account-summary", key: "sidebar.accountSummary",icon: "summary.png" },
 	{ href: "/admin/diocese", key: "sidebar.diocese",icon: "church.png" },
 	{ href: "/admin/reports", key: "sidebar.reports",icon: "circle.png" },
 	{

@@ -60,6 +60,7 @@
     "title": "Title",
     "type": "Type",
     "closed": "Closed",
+    "close": "Close",
     "uploading": "Uploading...",
     "upload": "Upload",
     "delete": "Delete",
@@ -129,19 +130,7 @@
     "intertransfer": "International Transfer",
     "donation": "Donation"
   },
-  "adminDashboard": {
-    "totalSalary": "Total Salary",
-    "totalRentPaid": "Total Rent Paid",
-    "totalInsurancePaid": "Total Insurance Paid",
-    "lastInternationalTransfers": "Last International Transfers",
-    "totalLoansIssued": "Total Loans Issued",
-    "numberOfActiveLoans": "Number of Active Loans",
-    "otherExpenses": "Other Expenses",
-    "lastDonationReceived": "Last Donation Received",
-    "noInsurancePayments": "No insurance payments",
-    "noTransfers": "No transfers",
-    "noDescription": "No description"
-  },
+  "adminDashboard": {},
   "priestDashboard": {
     "monthlySalary": "Monthly Salary",
     "insuranceDetails": "Insurance Details",
@@ -155,6 +144,7 @@
     "loanDetails": "Loan Details",
     "financialSummary": "Financial Summary"
   },
+  "adminAccountSummary": {},
   "adminPriests": {
     "title": "Priests",
     "searchPlaceholder": "Search by name or email",
@@ -432,6 +422,8 @@
     "nursingInsuranceColumn": "Nursing insurance",
     "carInsuranceColumn": "Car insurance",
     "otherExpensesColumn": "Other expenses",
+    "totalExpensesColumn": "Total expenses",
+    "balanceAmountColumn": "Balance Amount",
     "notesColumn": "Notes",
     "amountColumn": "Amount",
     "allTime": "All time",

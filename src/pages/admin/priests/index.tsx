@@ -16,6 +16,12 @@ type PriestRow = {
   address: string | null;
   active: boolean;
   photo: string | null;
+  province: string | null;
+};
+
+type ProvinceOption = {
+  id: string;
+  province_name: string;
 };
 
 export default function AdminPriests() {
@@ -23,6 +29,8 @@ export default function AdminPriests() {
   const router = useRouter();
   const { t } = useTranslation();
   const [priests, setPriests] = useState<PriestRow[]>([]);
+  const [provinces, setProvinces] = useState<ProvinceOption[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState<string>("");
   const [loadingData, setLoadingData] = useState(true);
   const [search, setSearch] = useState("");
   useEffect(() => {
@@ -44,16 +52,40 @@ export default function AdminPriests() {
         return;
       }
 
+      const { data: provinceRows } = await supabase
+        .from("provinces")
+        .select("id, province_name")
+        .order("province_name", { ascending: true });
+
+      setProvinces((provinceRows ?? []) as ProvinceOption[]);
+
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, full_name, active")
+        .select(`
+          id,
+          email,
+          full_name,
+          active,
+          priests!priests_id_fkey(province)
+        `)
         .eq("role", "priest")
         .order("full_name", { ascending: true });
 
       if (error) {
         console.error(error);
       } else {
-        setPriests((data ?? []) as PriestRow[]);
+        const mappedPriests = (data ?? []).map((row: any) => ({
+          id: row.id,
+          email: row.email,
+          full_name: row.full_name,
+          phone: row.phone ?? null,
+          address: row.address ?? null,
+          active: row.active,
+          photo: row.photo ?? null,
+          province: row.priests?.province ?? null,
+        })) as PriestRow[];
+
+        setPriests(mappedPriests);
       }
       setLoadingData(false);
     };
@@ -62,12 +94,13 @@ export default function AdminPriests() {
   }, [user, loading, router]);
 
   const filteredPriests = priests.filter((p) => {
-    if (!search.trim()) return true;
-    const q = search.toLowerCase();
-    return (
-      (p.full_name ?? "").toLowerCase().includes(q) ||
-      (p.email ?? "").toLowerCase().includes(q)
-    );
+    const matchesProvince = !selectedProvince || p.province === selectedProvince;
+    const matchesSearch = !search.trim()
+      ? true
+      : ((p.full_name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+        (p.email ?? "").toLowerCase().includes(search.toLowerCase()));
+
+    return matchesProvince && matchesSearch;
   });
 
   const toggleActive = async (id: string, value: boolean) => {
@@ -91,7 +124,7 @@ export default function AdminPriests() {
 
   if (loading || loadingData) {
     return (
-     <Loader />
+      <Loader />
     );
   }
 
@@ -99,19 +132,35 @@ export default function AdminPriests() {
     <div className="space-y-4 ">
       <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-3">{t("adminPriests.title")}</h1>
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row justify-between md:items-end gap-2">
-        <div className="flex flex-col flex-1 md:flex-none gap-1">
-          <label className="text-xs font-medium text-gray-600">{t("adminPriests.searchLabel")}</label>
-          <input
-            className="input w-full md:max-w-xs"
-            placeholder={t("adminPriests.searchPlaceholder")}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
 
-        <Badge
-          className="text-xs font-medium text-white bg-green-500 w-fit"
-        >
+        <div className="flex gap-2">
+          <div className="flex flex-col flex-1 md:flex-none gap-1">
+            <label className="text-xs font-medium text-gray-600">{t("adminPriests.searchLabel")}</label>
+            <input
+              className="input w-full md:max-w-xs"
+              placeholder={t("adminPriests.searchPlaceholder")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1 md:w-56">
+            <label className="text-xs font-medium text-gray-600">Province</label>
+            <select
+              className="input"
+              value={selectedProvince}
+              onChange={(e) => setSelectedProvince(e.target.value)}
+            >
+              <option value="">All Provinces</option>
+              {provinces.map((province) => (
+                <option key={province.id} value={province.id}>
+                  {province.province_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <Badge className="text-xs font-medium text-white bg-green-500 w-fit">
           {filteredPriests.length} {t("adminPriests.priestsCount")}
         </Badge>
       </div>

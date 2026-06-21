@@ -69,8 +69,8 @@ export default function AdminDashboard() {
         {t("common.dashboard")}
       </h1>
 
-      <div className="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 via-white to-rose-50 p-6 shadow-sm">
-        <h1 className="mt-2 text-2xl font-semibold text-gray-800">
+      <div className="rounded-md border border-amber-200 bg-white p-6 shadow-sm">
+        <h1 className="mt-2 text-2xl font-semibold text-gray-800 uppercase">
           Welcome, {role || "Administrator"} 🙏
         </h1>
         <p className="mt-1 text-sm text-gray-600">

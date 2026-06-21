@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Loader from "@/components/ui/loader";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useUser } from "../../../hooks/useUser";
 import { useRouter } from "next/router";
 import { supabase } from "../../../lib/supabaseClient";
@@ -22,12 +24,21 @@ type ReportRow = {
   health_insu?: number;
   nurs_care_insu?: number;
   car_insu?: number;
+  total?: number;
+  balance?: number;
   others?: number;
   currency?: string | null;
   profiles?: { full_name: string | null; email: string | null } | Array<{ full_name: string | null; email: string | null }>;
 };
 
 const REPORT_QUERY = "id, priest_id, salary_amount, month, salary_notes, pers_alnce, km_alnce, house_rent, health_insu, nurs_care_insu, car_insu, others, currency, profiles!salary_priest_id_fkey(full_name, email)";
+
+const getMonthEndDate = (value: string) => {
+  const [year, month] = value.split("-").map(Number);
+  const endOfMonth = new Date(year, month, 0);
+  const day = String(endOfMonth.getDate()).padStart(2, "0");
+  return `${value}-${day}`;
+};
 
 export default function AdminReports() {
   const { user, loading } = useUser();
@@ -43,6 +54,7 @@ export default function AdminReports() {
   const [startMonth, setStartMonth] = useState(`${currentYear}-${currentMonth}`);
   const [endMonth, setEndMonth] = useState(`${currentYear}-${currentMonth}`);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [selectedEntry, setSelectedEntry] = useState<ReportRow | null>(null);
 
   const loadProvinces = useCallback(async () => {
     const { data } = await supabase
@@ -51,6 +63,7 @@ export default function AdminReports() {
       .order("province_name", { ascending: true });
 
     setProvinces((data ?? []) as ProvinceCard[]);
+    setSelectedProvinceId(data && data.length > 0 ? data[0].id : null);
   }, []);
 
   const loadReportData = useCallback(async () => {
@@ -61,7 +74,7 @@ export default function AdminReports() {
     }
 
     const startDate = `${startMonth}-01`;
-    const endDate = `${endMonth}-31`;
+    const endDate = getMonthEndDate(endMonth);
 
     const { data: priestRows, error: priestError } = await supabase
       .from("priests")
@@ -93,8 +106,12 @@ export default function AdminReports() {
       .limit(500);
 
     const reportRows = (data ?? []) as ReportRow[];
+    reportRows.forEach((s: any) => {
+      s.total = (s.pers_alnce || 0) + (s.km_alnce || 0) + (s.house_rent || 0) + (s.health_insu || 0) + (s.nurs_care_insu || 0) + (s.car_insu || 0) + (s.others || 0);
+      s.balance = s.salary_amount - s.total;
+    });
     setEntries(reportRows);
-    setTotalAmount(reportRows.reduce((sum, row) => sum + (row.salary_amount || 0), 0));
+    setTotalAmount(reportRows.reduce((sum, row) => sum + (row.balance || 0), 0));
   }, [selectedProvinceId, startMonth, endMonth]);
 
   useEffect(() => {
@@ -114,14 +131,19 @@ export default function AdminReports() {
   }, [selectedProvinceId, startMonth, endMonth, loadReportData, user, loading]);
 
   const selectedProvinceName = provinces.find((province) => province.id === selectedProvinceId)?.province_name ?? "";
+  const selectedProfile = selectedEntry
+    ? Array.isArray(selectedEntry.profiles)
+      ? selectedEntry.profiles[0]
+      : selectedEntry.profiles
+    : null;
 
   return (
     <>
       {loading || loadingData ? (
         <Loader />
       ) : (
-        <div className="space-y-6">
-          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+        <div className="space-y-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-2xl font-semibold text-gray-800">{t("adminReports.title")}</h1>
               <p className="text-sm text-gray-500">{t("adminReports.subtitle")}</p>
@@ -156,10 +178,9 @@ export default function AdminReports() {
                   key={province.id}
                   type="button"
                   onClick={() => setSelectedProvinceId(province.id)}
-                  className={`rounded-lg border px-4 py-4 text-left transition ${isSelected ? "border-indigo-600 bg-indigo-50 shadow-sm" : "border-gray-200 bg-white hover:border-indigo-500 hover:bg-indigo-50"}`}
+                  className={`rounded-lg border p-3 text-left transition ${isSelected ? "border-indigo-600 bg-indigo-50 shadow-sm" : "border-gray-200 bg-white hover:border-indigo-500 hover:bg-indigo-50"}`}
                 >
-                  <div className="text-base font-semibold text-gray-800">{province.province_name}</div>
-                 
+                  <div className="text-md font-semibold text-gray-800">{province.province_name}</div>
                 </button>
               );
             })}
@@ -167,7 +188,7 @@ export default function AdminReports() {
 
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="w-full lg:w-2/3 bg-white border border-gray-200 rounded-lg overflow-x-auto p-4">
-              <div className="flex flex-col gap-2 mb-4">
+              <div className="flex flex-col gap-2 mb-2">
                 <div className="flex items-center justify-between gap-4 flex-wrap">
                   <div>
                     <p className="text-sm text-gray-500">{t("adminReports.selectedProvince")}</p>
@@ -179,32 +200,35 @@ export default function AdminReports() {
                       : t("adminReports.allTime")}
                   </div>
                 </div>
-                {!selectedProvinceId && (
-                  <p className="text-sm text-gray-500">{t("adminReports.noProvinceSelected")}</p>
-                )}
               </div>
 
-              <div className="overflow-auto rounded-lg">
-                <table className="min-w-full text-sm">
+              <div className="overflow-auto rounded-lg lg:h-[calc(100vh-27.5rem)] ">
+                <table className="min-w-full text-sm ">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminReports.dateColumn")}</th>
                       <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminReports.accountColumn")}</th>
-                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.salaryColumn")}</th>
-                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.personalAllowanceColumn")}</th>
-                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.kmAllowanceColumn")}</th>
-                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.houseRentColumn")}</th>
-                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.healthInsuranceColumn")}</th>
-                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.nursingInsuranceColumn")}</th>
-                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.carInsuranceColumn")}</th>
-                      <th className="px-3 py-2 text-right whitespace-nowrap">{t("adminReports.otherExpensesColumn")}</th>
+                      <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminReports.salaryColumn")}</th>
+                      <th className="px-3 py-2 whitespace-nowrap">{t("adminReports.personalAllowanceColumn")}</th>
+                      <th className="px-3 py-2 whitespace-nowrap">{t("adminReports.kmAllowanceColumn")}</th>
+                      <th className="px-3 py-2 whitespace-nowrap">{t("adminReports.houseRentColumn")}</th>
+                      <th className="px-3 py-2 whitespace-nowrap">{t("adminReports.healthInsuranceColumn")}</th>
+                      <th className="px-3 py-2 whitespace-nowrap">{t("adminReports.nursingInsuranceColumn")}</th>
+                      <th className="px-3 py-2 whitespace-nowrap">{t("adminReports.carInsuranceColumn")}</th>
+                      <th className="px-3 py-2 whitespace-nowrap">{t("adminReports.otherExpensesColumn")}</th>
+                      <th className="px-3 py-2 whitespace-nowrap">{t("adminReports.totalExpensesColumn")}</th>
+                      <th className="px-3 py-2 whitespace-nowrap">{t("adminReports.balanceAmountColumn")}</th>
                       <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminReports.notesColumn")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {selectedProvinceId && entries.length > 0 ? (
                       entries.map((entry) => (
-                        <tr key={entry.id} className="border-t border-gray-100">
+                        <tr
+                          key={entry.id}
+                          className="border-t border-gray-100 cursor-pointer hover:bg-gray-50"
+                          onClick={() => setSelectedEntry(entry)}
+                        >
                           <td className="px-3 py-2 whitespace-nowrap text-gray-700">
                             {new Date(entry.month).toLocaleDateString(undefined, {
                               day: "2-digit",
@@ -217,15 +241,17 @@ export default function AdminReports() {
                               ((Array.isArray(entry.profiles) ? entry.profiles[0] : entry.profiles)?.email) ||
                               entry.priest_id}
                           </td>
-                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {entry.salary_amount?.toFixed(2) ?? "0.00"}</td>
-                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.pers_alnce ?? 0).toFixed(2)}</td>
-                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.km_alnce ?? 0).toFixed(2)}</td>
-                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.house_rent ?? 0).toFixed(2)}</td>
-                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.health_insu ?? 0).toFixed(2)}</td>
-                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.nurs_care_insu ?? 0).toFixed(2)}</td>
-                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.car_insu ?? 0).toFixed(2)}</td>
-                          <td className="px-3 py-2 text-right whitespace-nowrap">{entry.currency ?? "€"} {(entry.others ?? 0).toFixed(2)}</td>
-                          <td className="px-3 py-2 text-gray-700">{entry.salary_notes ?? "-"}</td>
+                          <td className="px-3 py-2 whitespace-nowrap"><span className="text-slate-400">{"€"}</span> <span className="font-semibold"> {entry.salary_amount?.toFixed(2) ?? "0.00"}</span></td>
+                          <td className="px-3 py-2 whitespace-nowrap"><span className="text-slate-400">{"€"}</span> <span className="font-semibold"> {(entry.pers_alnce ?? 0).toFixed(2)}</span></td>
+                          <td className="px-3 py-2 whitespace-nowrap"><span className="text-slate-400">{"€"}</span> <span className="font-semibold"> {(entry.km_alnce ?? 0).toFixed(2)}</span></td>
+                          <td className="px-3 py-2 whitespace-nowrap"><span className="text-slate-400">{"€"}</span> <span className="font-semibold"> {(entry.house_rent ?? 0).toFixed(2)}</span></td>
+                          <td className="px-3 py-2 whitespace-nowrap"><span className="text-slate-400">{"€"}</span> <span className="font-semibold"> {(entry.health_insu ?? 0).toFixed(2)}</span></td>
+                          <td className="px-3 py-2 whitespace-nowrap"><span className="text-slate-400">{"€"}</span> <span className="font-semibold"> {(entry.nurs_care_insu ?? 0).toFixed(2)}</span></td>
+                          <td className="px-3 py-2 whitespace-nowrap"><span className="text-slate-400">{"€"}</span> <span className="font-semibold"> {(entry.car_insu ?? 0).toFixed(2)}</span></td>
+                          <td className="px-3 py-2 whitespace-nowrap"><span className="text-slate-400">{"€"}</span> <span className="font-semibold"> {(entry.others ?? 0).toFixed(2)}</span></td>
+                          <td className="px-3 py-2 whitespace-nowrap"><span className="text-slate-400">{"€"}</span> <span className="font-semibold"> {(entry.total ?? 0).toFixed(2)}</span></td>
+                          <td className="px-3 py-2 whitespace-nowrap"><span className="text-slate-400">{"€"}</span> <span className="font-semibold"> {(entry.balance ?? 0).toFixed(2)}</span></td>
+                          <td className="px-3 py-2 text-gray-700 whitespace-nowrap">{entry.salary_notes ?? "-"}</td>
                         </tr>
                       ))
                     ) : (
@@ -240,7 +266,7 @@ export default function AdminReports() {
               </div>
             </div>
 
-            <div className="w-full lg:w-1/3 bg-white border border-gray-200 rounded-lg p-4">
+            <div className="w-full h-full lg:w-1/3 bg-white border border-gray-200 rounded-lg p-4">
               <div className="mb-4">
                 <h2 className="text-lg font-semibold text-gray-800">{t("adminReports.reportSummary")}</h2>
                 <p className="text-sm text-gray-500">{t("adminReports.summaryDescription")}</p>
@@ -257,7 +283,105 @@ export default function AdminReports() {
               </div>
             </div>
           </div>
+
+          <Dialog
+            open={!!selectedEntry}
+            onOpenChange={(isOpen) => {
+              if (!isOpen) setSelectedEntry(null);
+            }}
+          >
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{selectedProfile?.full_name || selectedEntry?.priest_id}</DialogTitle>
+              </DialogHeader>
+
+              {selectedEntry && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-gray-500">{t("adminReports.dateColumn")}</p>
+                      <p className="font-medium text-gray-800">
+                        {new Date(selectedEntry.month).toLocaleDateString(undefined, {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">{t("common.email")}</p>
+                      <p className="font-medium text-gray-800">{selectedProfile?.email || "-"}</p>
+                    </div>
+                    {/* <div>
+                      <p className="text-gray-500">{t("adminReports.salaryColumn")}</p>
+                      <p className="font-medium text-gray-800">€ {selectedEntry.salary_amount?.toFixed(2) ?? "0.00"}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">{t("adminReports.balanceAmountColumn")}</p>
+                      <p className="font-medium text-gray-800">€ {(selectedEntry.balance ?? 0).toFixed(2)}</p>
+                    </div> */}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="rounded-md bg-blue-50 p-3">
+                      <p className="text-gray-500">{t("adminReports.salaryColumn")}</p>
+                      <p className="font-medium">€ {(selectedEntry.salary_amount ?? 0).toFixed(2)}</p>
+                    </div>
+
+                    <div className="rounded-md bg-gray-50 p-3">
+                      <p className="text-gray-500">{t("adminReports.personalAllowanceColumn")}</p>
+                      <p className="font-medium">€ {(selectedEntry.pers_alnce ?? 0).toFixed(2)}</p>
+                    </div>
+                    <div className="rounded-md bg-gray-50 p-3">
+                      <p className="text-gray-500">{t("adminReports.kmAllowanceColumn")}</p>
+                      <p className="font-medium">€ {(selectedEntry.km_alnce ?? 0).toFixed(2)}</p>
+                    </div>
+                    <div className="rounded-md bg-gray-50 p-3">
+                      <p className="text-gray-500">{t("adminReports.houseRentColumn")}</p>
+                      <p className="font-medium">€ {(selectedEntry.house_rent ?? 0).toFixed(2)}</p>
+                    </div>
+                    <div className="rounded-md bg-gray-50 p-3">
+                      <p className="text-gray-500">{t("adminReports.healthInsuranceColumn")}</p>
+                      <p className="font-medium">€ {(selectedEntry.health_insu ?? 0).toFixed(2)}</p>
+                    </div>
+                    <div className="rounded-md bg-gray-50 p-3">
+                      <p className="text-gray-500">{t("adminReports.nursingInsuranceColumn")}</p>
+                      <p className="font-medium">€ {(selectedEntry.nurs_care_insu ?? 0).toFixed(2)}</p>
+                    </div>
+                    <div className="rounded-md bg-gray-50 p-3">
+                      <p className="text-gray-500">{t("adminReports.carInsuranceColumn")}</p>
+                      <p className="font-medium">€ {(selectedEntry.car_insu ?? 0).toFixed(2)}</p>
+                    </div>
+                    <div className="rounded-md bg-gray-50 p-3">
+                      <p className="text-gray-500">{t("adminReports.otherExpensesColumn")}</p>
+                      <p className="font-medium">€ {(selectedEntry.others ?? 0).toFixed(2)}</p>
+                    </div>
+                    <div className="rounded-md bg-green-100 p-3">
+                      <p className="text-gray-500">{t("adminReports.totalExpensesColumn")}</p>
+                      <p className="font-medium">€ {(selectedEntry.total ?? 0).toFixed(2)}</p>
+                    </div>
+                    <div className="rounded-md bg-purple-100 p-3">
+                      <p className="text-gray-500">{t("adminReports.balanceAmountColumn")}</p>
+                      <p className="font-medium">€ {(selectedEntry.balance ?? 0).toFixed(2)}</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-gray-500">{t("common.notes")}</p>
+                    <p className="font-medium text-gray-800">{selectedEntry.salary_notes || "-"}</p>
+                  </div>
+                </div>
+              )}
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setSelectedEntry(null)}>
+                  {t("common.close")}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
+
       )}
     </>
   );

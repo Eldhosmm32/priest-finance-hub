@@ -819,7 +819,7 @@ export default function AdminPriestDetail() {
                                                         <TableFooter>
                                                             <TableRow>
                                                                 <TableCell className="text-xl">{t("adminPriestDetail.total")}</TableCell>
-                                                                <TableCell className="text-right text-xl pr-4"> <span className="text-xs text-gray-500">{t("adminSalary.sum")} + {t("adminSalary.total")}<br /> ({s.total} + {s.salary_amount})</span>  € {s.total + s.salary_amount}  
+                                                                <TableCell className="text-right text-xl pr-4"> <span className="text-xs text-gray-500">{t("adminSalary.sum")} + {t("adminSalary.total")}<br /> ({s.total} + {s.salary_amount})</span>  € {s.total + s.salary_amount}
 
                                                                 </TableCell>
                                                             </TableRow>
@@ -1019,8 +1019,6 @@ export default function AdminPriestDetail() {
                                         </DialogFooter>
                                     </DialogContent>
                                 </Dialog>
-
-
                             </div>
                         </TabsContent>
                         <TabsContent value="loan" className="p-2 md:p-4">

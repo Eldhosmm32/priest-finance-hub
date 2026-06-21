@@ -64,7 +64,7 @@ export default function AdminLayout({ children }: Props) {
               <div className="border border-1 border-gray-300 rounded-full flex gap-2 p-1 pl-1 md:pl-3">
                 <div className="hidden md:flex flex-col item">
                   <span className="text-xs font-semibold">
-                    {user?.full_name ?? "----"}
+                    {user?.email ?? "----"}
                   </span>
                   <span className="text-xs text-gray-600">
                     {t("layout.role.admin")}
@@ -84,7 +84,7 @@ export default function AdminLayout({ children }: Props) {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="block md:hidden" />
                     <DropdownMenuItem className="block md:hidden">
-                      {user?.full_name ?? "----"}
+                      {user?.email ?? "----"}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout}>
                       {t("common.logout")}

@@ -1,27 +1,114 @@
-import { useState } from "react";
-import { supabase } from "../lib/supabaseClient";
-import { useTranslation, useLanguage } from "../i18n/languageContext";
-import Link from "next/link";
 import Footer from "@/components/ui/footer";
 import Logo from "@/components/ui/logo";
+import { useRouter } from "next/router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useLanguage, useTranslation } from "../i18n/languageContext";
+import { supabase } from "../lib/supabaseClient";
 
 export default function ForgotPassword() {
+	const router = useRouter();
+
 	const { t } = useTranslation();
 	const { language, setLanguage } = useLanguage();
 
 	const [email, setEmail] = useState("");
+	const [oldPassword, setOldPassword] = useState("");
+	const [newPassword, setNewPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
 	const [message, setMessage] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		setMessage(null);
+
+		if (!email || !oldPassword || !newPassword || !confirmPassword) {
+			const text = t("priestPassword.enterAllFields") || "Please fill in all fields";
+			setMessage(text);
+			showToast(text, "error");
+			return;
+		}
+
+		if (newPassword !== confirmPassword) {
+			const text = t("errors.passwordsMismatch") || "Passwords do not match";
+			setMessage(text);
+			showToast(text, "error");
+			return;
+		}
+
+		if (newPassword.length < 6) {
+			const text = t("priestPassword.passwordMinLength") || "Password must be at least 6 characters";
+			setMessage(text);
+			showToast(text, "error");
+			return;
+		}
+
+		if (oldPassword === newPassword) {
+			const text = t("priestPassword.newPasswordDifferent") || "New password must be different from old password";
+			setMessage(text);
+			showToast(text, "error");
+			return;
+		}
+
 		setLoading(true);
-		const { error } = await supabase.auth.resetPasswordForEmail(email, {
-			redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/login`,
+
+		try {
+			const { error: signInError } = await supabase.auth.signInWithPassword({
+				email,
+				password: oldPassword,
+			});
+
+			if (signInError) {
+				setLoading(false);
+				const text = t("priestPassword.incorrectOldPassword") || "Current password is incorrect";
+				setMessage(text);
+				showToast(text, "error");
+				return;
+			}
+
+			const { error: updateError } = await supabase.auth.updateUser({
+				password: newPassword,
+			});
+
+			setLoading(false);
+
+			if (updateError) {
+				const text = updateError.message || t("priestPassword.failedToUpdate");
+				setMessage(text);
+				showToast(text, "error");
+				return;
+			}
+
+			setEmail("");
+			setOldPassword("");
+			setNewPassword("");
+			setConfirmPassword("");
+
+			const successText = t("priestPassword.passwordUpdated") || "Password updated successfully";
+			setMessage(successText);
+			showToast(successText, "success");
+
+			setTimeout(() => {
+				router.push("/login");
+			}, 1200);
+		} catch (err: any) {
+			setLoading(false);
+			const text = err?.message || t("priestPassword.failedToUpdate");
+			setMessage(text);
+			showToast(text, "error");
+		}
+	};
+
+	// Toast utilities
+	const showToast = (message: string, type: "success" | "error") => {
+		toast[type](message, {
+			position: "top-center",
+			style: {
+				backgroundColor: type === "success" ? "#4ade80" : "#f87171",
+				color: "#fff",
+			},
 		});
-		setLoading(false);
-		if (error) setMessage(error.message);
-		else setMessage(t("forgot.note"));
 	};
 
 	return (
@@ -47,10 +134,12 @@ export default function ForgotPassword() {
 			<div className="h-[calc(100vh-6.10rem)] flex items-center justify-center px-4">
 				<div className="w-full max-w-md bg-gray-50/50 backdrop-blur-lg rounded-xl shadow-sm p-6">
 					<h1 className="text-xl font-semibold text-gray-800 mb-2">
-						{t("forgot.title")}
+						{t("priestPassword.changePassword")}
 					</h1>
 					{message && (
-						<div className="text-sm text-gray-700 mb-3">{message}</div>
+						<div className={`text-sm mb-3 ${message.includes("success") || message === t("priestPassword.passwordUpdated") ? "text-green-700" : "text-gray-700"}`}>
+							{message}
+						</div>
 					)}
 					<form onSubmit={handleSubmit} className="space-y-3">
 						<div className="form-control">
@@ -65,14 +154,57 @@ export default function ForgotPassword() {
 								required
 							/>
 						</div>
+						<div className="form-control">
+							<label className="label">
+								<span className="label-text text-xs">{t("priestPassword.oldPassword")}</span>
+							</label>
+							<input
+								type="password"
+								className="input input-bordered w-full"
+								value={oldPassword}
+								onChange={(e) => setOldPassword(e.target.value)}
+								required
+							/>
+						</div>
+						<div className="form-control">
+							<label className="label">
+								<span className="label-text text-xs">{t("priestPassword.newPassword")}</span>
+							</label>
+							<input
+								type="password"
+								className="input input-bordered w-full"
+								value={newPassword}
+								onChange={(e) => setNewPassword(e.target.value)}
+								required
+							/>
+						</div>
+						<div className="form-control">
+							<label className="label">
+								<span className="label-text text-xs">{t("priestPassword.confirmPassword")}</span>
+							</label>
+							<input
+								type="password"
+								className="input input-bordered w-full"
+								value={confirmPassword}
+								onChange={(e) => setConfirmPassword(e.target.value)}
+								required
+							/>
+						</div>
 						<button
 							className="btn btn-primary w-full mt-2"
 							type="submit"
 							disabled={loading}
 						>
-							{loading ? t("forgot.sending") : t("forgot.button")}
+							{loading ? t("common.saving") : t("priestPassword.changePassword")}
 						</button>
 					</form>
+
+					<button
+						className="link link-primary text-xs mt-4"
+						onClick={() => router.push("/login")}
+					>
+						{t("signup.already")} <span className="text-indigo-600"> {t("signup.login")}</span>
+					</button>
 				</div>
 			</div>
 

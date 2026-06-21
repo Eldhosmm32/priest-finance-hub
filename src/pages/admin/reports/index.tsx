@@ -309,8 +309,8 @@ export default function AdminReports() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-500">{t("common.email")}</p>
-                      <p className="font-medium text-gray-800">{selectedProfile?.email || "-"}</p>
+                      <p className="text-gray-500">{t("common.name")}</p>
+                      <p className="font-medium text-gray-800">{selectedProfile?.full_name || "-"}</p>
                     </div>
                     {/* <div>
                       <p className="text-gray-500">{t("adminReports.salaryColumn")}</p>
@@ -324,7 +324,7 @@ export default function AdminReports() {
 
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="rounded-md bg-blue-50 p-3">
-                      <p className="text-gray-500">{t("adminReports.salaryColumn")}</p>
+                      <p className="text-gray-500">{t("sidebar.salary")}</p>
                       <p className="font-medium">€ {(selectedEntry.salary_amount ?? 0).toFixed(2)}</p>
                     </div>
 

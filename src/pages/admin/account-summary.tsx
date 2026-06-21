@@ -8,6 +8,7 @@ import { useTranslation } from "../../i18n/languageContext";
 type ProvinceCard = {
   id: string;
   province_name: string;
+  acc_number: string;
 };
 
 type SalaryRecord = {
@@ -27,6 +28,7 @@ type DioceseSummaryCard = {
   value: number;
   helper: string;
   icon?: string;
+  acc?: string;
   accent: string;
 };
 
@@ -35,7 +37,7 @@ const accountSummaryCards = [
     key: "MA",
     label: "Main Account",
     value: "12,450.00",
-    helper: "1234 5678 9012 3456",
+    helper: "152 889",
     icon: "/icons/bank-account.png",
     accent: "from-emerald-50 to-white",
   },
@@ -43,7 +45,7 @@ const accountSummaryCards = [
     key: "RA",
     label: "Reserve Account",
     value: "3,200.00",
-    helper: "1234 5678 9012 3456",
+    helper: "5500 152 889",
     icon: "/icons/bank-account.png",
     accent: "from-sky-50 to-white",
   },
@@ -51,7 +53,7 @@ const accountSummaryCards = [
     key: "DA",
     label: "Deposit Account",
     value: "2,890.00",
-    helper: "1234 5678 9012 3456",
+    helper: "600 152 889",
     icon: "/icons/bank-account.png",
     accent: "from-amber-50 to-white",
   },
@@ -59,7 +61,7 @@ const accountSummaryCards = [
     key: "FD",
     label: "Fixed Deposit",
     value: "12,450.00",
-    helper: "1234 5678 9012 3456",
+    helper: "8060 152889",
     icon: "/icons/bank-account.png",
     accent: "from-violet-50 to-white",
   },
@@ -108,7 +110,7 @@ export default function AdminDashboard() {
 
     const { data: provinceRows } = await supabase
       .from("provinces")
-      .select("id, province_name")
+      .select("id, province_name, acc_number")
       .order("province_name", { ascending: true });
 
     const provinces = (provinceRows ?? []) as ProvinceCard[];
@@ -165,6 +167,7 @@ export default function AdminDashboard() {
           value: balance,
           helper: `${records.length} records`,
           accent: dioceseAccentStyles[index % dioceseAccentStyles.length],
+          acc: `Ac No: ${province.acc_number ? province.acc_number : "N/A"}`,
         };
       }),
     );
@@ -201,7 +204,7 @@ export default function AdminDashboard() {
         {t("sidebar.accountSummary")}
       </h1>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 border-b-2 border-slate-100 pb-4">
         {accountSummaryCards.map((card) => (
           <div
             key={card.key}
@@ -225,16 +228,6 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="rounded-md border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-gray-500">Total Diocese Balance</p>
-            <p className="mt-1 text-3xl font-semibold text-gray-900">{totalDioceseDisplay}</p>
-          </div>
-          <p className="text-sm text-gray-500">{totalRecords} records across all dioceses</p>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {dioceseSummaryCards.map((card) => (
           <div
@@ -251,8 +244,9 @@ export default function AdminDashboard() {
               {formatCurrency(card.value)}
             </p>
             <p className="flex justify-between mt-3 border-t border-gray-200 pt-2 text-right text-xs text-gray-500  py-2 px-3">
-              <span>Ac No: 1234 5678 9012 3456</span>
               <span>{card.helper}</span>
+              <span>{card.acc}</span>
+
             </p>
           </div>
         ))}

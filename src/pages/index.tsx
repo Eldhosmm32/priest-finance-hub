@@ -28,7 +28,7 @@ export default function Home() {
         .maybeSingle();
 
       if (profile?.role === "admin") {
-        router.replace("/admin/dashboard");
+        router.replace("/admin/home");
       } else {
         router.replace("/priest/dashboard");
       }

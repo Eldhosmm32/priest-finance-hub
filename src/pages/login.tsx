@@ -55,7 +55,7 @@ export default function Login() {
 
 		// 4) Redirect based on role
 		if (profile.role === "admin") {
-			router.push("/admin/dashboard");
+			router.push("/admin/home");
 		} else {
 			router.push("/priest/dashboard");
 		}

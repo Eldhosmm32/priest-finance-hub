@@ -90,7 +90,7 @@ const getMonthEndDate = (value: string) => {
   return `${year}-${String(month).padStart(2, "0")}-${day}`;
 };
 
-export default function AdminDashboard() {
+export default function AdminAccountSummary() {
   const router = useRouter();
   const { user, loading } = useUser();
   const { t } = useTranslation();
@@ -98,6 +98,7 @@ export default function AdminDashboard() {
   const [dioceseSummaryCards, setDioceseSummaryCards] = useState<DioceseSummaryCard[]>([]);
   const [totalDioceseBalance, setTotalDioceseBalance] = useState(0);
   const [totalRecords, setTotalRecords] = useState(0);
+  const [isDioceseSummaryLoading, setIsDioceseSummaryLoading] = useState(true);
 
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -105,18 +106,20 @@ export default function AdminDashboard() {
   const currentMonthKey = `${currentYear}-${currentMonth}`;
 
   const fetchDioceseSummaries = useCallback(async () => {
+    setIsDioceseSummaryLoading(true);
     const startDate = `${currentMonthKey}-01`;
     const endDate = getMonthEndDate(currentMonthKey);
 
-    const { data: provinceRows } = await supabase
-      .from("provinces")
-      .select("id, province_name, acc_number")
-      .order("province_name", { ascending: true });
+    try {
+      const { data: provinceRows } = await supabase
+        .from("provinces")
+        .select("id, province_name, acc_number")
+        .order("province_name", { ascending: true });
 
-    const provinces = (provinceRows ?? []) as ProvinceCard[];
+      const provinces = (provinceRows ?? []) as ProvinceCard[];
 
-    const summaries = await Promise.all(
-      provinces.map(async (province, index) => {
+      const summaries = await Promise.all(
+        provinces.map(async (province, index) => {
         const { data: priestRows } = await supabase
           .from("priests")
           .select("id")
@@ -161,23 +164,29 @@ export default function AdminDashboard() {
         );
         const balance = totalSalary - totalExpenses;
 
-        return {
-          key: province.id,
-          label: province.province_name,
-          value: balance,
-          helper: `${records.length} records`,
-          accent: dioceseAccentStyles[index % dioceseAccentStyles.length],
-          acc: `Ac No: ${province.acc_number ? province.acc_number : "N/A"}`,
-        };
-      }),
-    );
+          return {
+            key: province.id,
+            label: province.province_name,
+            value: balance,
+            helper: `${records.length} records`,
+            accent: dioceseAccentStyles[index % dioceseAccentStyles.length],
+            acc: `Ac No: ${province.acc_number ? province.acc_number : "N/A"}`,
+          };
+        }),
+      );
 
-    const totalBalance = summaries.reduce((sum, card) => sum + card.value, 0);
-    const totalCount = summaries.reduce((sum, card) => sum + (card.helper.startsWith("0") ? 0 : Number(card.helper.split(" ")[0])), 0);
+      const totalBalance = summaries.reduce((sum, card) => sum + card.value, 0);
+      const totalCount = summaries.reduce(
+        (sum, card) => sum + (card.helper.startsWith("0") ? 0 : Number(card.helper.split(" ")[0])),
+        0,
+      );
 
-    setDioceseSummaryCards(summaries);
-    setTotalDioceseBalance(totalBalance);
-    setTotalRecords(totalCount);
+      setDioceseSummaryCards(summaries);
+      setTotalDioceseBalance(totalBalance);
+      setTotalRecords(totalCount);
+    } finally {
+      setIsDioceseSummaryLoading(false);
+    }
   }, [currentMonthKey]);
 
   useEffect(() => {
@@ -192,8 +201,6 @@ export default function AdminDashboard() {
     }
   }, [fetchDioceseSummaries, loading, user]);
 
-  const totalDioceseDisplay = useMemo(() => formatCurrency(totalDioceseBalance), [totalDioceseBalance]);
-
   if (loading) {
     return <Loader />;
   }
@@ -205,52 +212,61 @@ export default function AdminDashboard() {
       </h1>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 border-b-2 border-slate-100 pb-4">
-        {accountSummaryCards.map((card) => (
-          <div
-            key={card.key}
-            className={`relative rounded-md border border-gray-200 bg-gradient-to-br ${card.accent} shadow-sm transition-transform duration-200 hover:-translate-y-0.5`}
-          >
-            <div className="flex items-start justify-between gap-3 py-2 px-3">
-              <p className="text-md font-medium text-gray-600">{card.label}</p>
-              <img
-                className="h-8 w-8 opacity-70 absolute right-3 top-2"
-                src={card.icon}
-                alt={card.label}
-              />
-            </div>
-            <p className="px-3 text-2xl font-semibold text-gray-900">
-              € {card.value}
-            </p>
-            <p className="mt-3 text-right border-t border-gray-200 pt-2 text-xs text-gray-500 py-2 px-3">
-              Ac No: {card.helper}
-            </p>
+        {
+        accountSummaryCards.map((card) => (
+        <div
+          key={card.key}
+          className={`relative rounded-md border border-gray-200 bg-gradient-to-br ${card.accent} shadow-sm transition-transform duration-200 hover:-translate-y-0.5`}
+        >
+          <div className="flex items-start justify-between gap-3 py-2 px-3">
+            <p className="text-md font-medium text-gray-600">{card.label}</p>
+            <img
+              className="h-8 w-8 opacity-70 absolute right-3 top-2"
+              src={card.icon}
+              alt={card.label}
+            />
           </div>
+          <p className="px-3 text-2xl font-semibold text-gray-900">
+            € {card.value}
+          </p>
+          <p className="mt-3 text-right border-t border-gray-200 pt-2 text-xs text-gray-500 py-2 px-3">
+            Ac No: {card.helper}
+          </p>
+        </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {dioceseSummaryCards.map((card) => (
-          <div
-            key={card.key}
-            className={`relative rounded-md border border-gray-200 bg-gradient-to-br ${card.accent} shadow-sm transition-transform duration-200 hover:-translate-y-0.5`}
-          >
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-md font-medium text-gray-600 py-2 px-3">{card.label}</p>
-              <span className="flex h-10 w-10 items-center justify-center text-xl absolute right-0 top-0">
-                🏛️
-              </span>
-            </div>
-            <p className=" text-2xl font-semibold text-gray-900 px-3">
-              {formatCurrency(card.value)}
-            </p>
-            <p className="flex justify-between mt-3 border-t border-gray-200 pt-2 text-right text-xs text-gray-500  py-2 px-3">
-              <span>{card.helper}</span>
-              <span>{card.acc}</span>
-
-            </p>
+      {isDioceseSummaryLoading ? (
+        <div className="flex min-h-[220px] items-center justify-center rounded-md border border-gray-200 bg-white shadow-sm">
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
+            <p className="text-sm font-medium text-gray-600">Loading account summaries...</p>
           </div>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {dioceseSummaryCards.map((card) => (
+            <div
+              key={card.key}
+              className={`relative rounded-md border border-gray-200 bg-gradient-to-br ${card.accent} shadow-sm transition-transform duration-200 hover:-translate-y-0.5`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-md font-medium text-gray-600 py-2 px-3">{card.label}</p>
+                <span className="flex h-10 w-10 items-center justify-center text-xl absolute right-0 top-0">
+                  🏛️
+                </span>
+              </div>
+              <p className=" text-2xl font-semibold text-gray-900 px-3">
+                {formatCurrency(card.value)}
+              </p>
+              <p className="flex justify-between mt-3 border-t border-gray-200 pt-2 text-right text-xs text-gray-500  py-2 px-3">
+                <span>{card.helper}</span>
+                <span>{card.acc}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="rounded-md border border-gray-200 bg-white shadow-sm">
         <div className="flex flex-col gap-1">

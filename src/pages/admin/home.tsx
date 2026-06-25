@@ -13,7 +13,7 @@ const bibleQuotes = [
   "Peace I leave with you; my peace I give you. — John 14:27",
 ];
 
-export default function AdminDashboard() {
+export default function AdminHome() {
   const { user, loading } = useUser();
   const router = useRouter();
   const { t } = useTranslation();
@@ -62,41 +62,48 @@ export default function AdminDashboard() {
 
   if (loading) return <Loader />;
 
-  return (
+  // return (
+  //   <div className="space-y-4">
+
+  //     <h1 className="text-2xl font-semibold text-gray-800 mb-2">
+  //       {t("common.dashboard")}
+  //     </h1>
+
+  //     <div className="rounded-md border border-amber-200 bg-white p-6 shadow-sm">
+  //       <h1 className="mt-2 text-2xl font-semibold text-gray-800 uppercase">
+  //         Welcome, {role || "Administrator"} 🙏
+  //       </h1>
+  //       <p className="mt-1 text-sm text-gray-600">
+  //         May your work today be guided by wisdom, peace, and grace.
+  //       </p>
+  //       <div className="mt-4 overflow-hidden rounded-xl bg-white/80 p-4 shadow-sm transition-all duration-300">
+  //         <div className="flex flex-col items-center justify-between gap-3">
+  //           <div className="min-h-[72px] flex-1 text-sm text-gray-700 ">
+  //             <h1 className="mt-2 text-3xl font-semibold text-gray-800">“{welcomeQuotes[currentQuoteIndex] || ""}”</h1>
+  //           </div>
+  //           <div className="flex gap-1">
+  //             {welcomeQuotes.map((_, index) => (
+  //               <button
+  //                 key={index}
+  //                 type="button"
+  //                 onClick={() => setCurrentQuoteIndex(index)}
+  //                 className={`h-2 w-2 rounded-full ${index === currentQuoteIndex ? "bg-amber-600" : "bg-amber-200"
+  //                   }`}
+  //                 aria-label={`Show quote ${index + 1}`}
+  //               />
+  //             ))}
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+
+  //   </div>
+  // );
+
+  return(
     <div className="space-y-4">
-
-      <h1 className="text-2xl font-semibold text-gray-800 mb-2">
-        {t("common.dashboard")}
-      </h1>
-
-      <div className="rounded-md border border-amber-200 bg-white p-6 shadow-sm">
-        <h1 className="mt-2 text-2xl font-semibold text-gray-800 uppercase">
-          Welcome, {role || "Administrator"} 🙏
-        </h1>
-        <p className="mt-1 text-sm text-gray-600">
-          May your work today be guided by wisdom, peace, and grace.
-        </p>
-        <div className="mt-4 overflow-hidden rounded-xl bg-white/80 p-4 shadow-sm transition-all duration-300">
-          <div className="flex flex-col items-center justify-between gap-3">
-            <div className="min-h-[72px] flex-1 text-sm text-gray-700 ">
-              <h1 className="mt-2 text-3xl font-semibold text-gray-800">“{welcomeQuotes[currentQuoteIndex] || ""}”</h1>
-            </div>
-            <div className="flex gap-1">
-              {welcomeQuotes.map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => setCurrentQuoteIndex(index)}
-                  className={`h-2 w-2 rounded-full ${index === currentQuoteIndex ? "bg-amber-600" : "bg-amber-200"
-                    }`}
-                  aria-label={`Show quote ${index + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <img src="/home.png" alt=""  className="w-full h-auto"/>
     </div>
-  );
+  )
+  
 }

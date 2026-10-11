@@ -43,7 +43,7 @@ export default function AdminLayout({ children }: Props) {
 	return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#E8CBC0] to-[#636FA4] relative">
       <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="flex max-w-6xl mx-auto p-2 ">
+        <div className="flex mx-auto p-2 ">
           <div className="flex-1 flex items-center">
             <Link href="/" className="font-semibold text-indigo-700">
               <Logo />
@@ -107,7 +107,7 @@ export default function AdminLayout({ children }: Props) {
         <Menu />
       </Button>
 
-      <main className="flex flex-1 max-w-6xl mx-auto w-full p-2 overflow-y-auto">
+      <main className="flex flex-1 mx-auto w-full overflow-y-auto scrollbar-thin">
         {/* Mobile hamburger */}
 
         {/* Desktop sidebar (hidden on small screens) */}
@@ -116,8 +116,8 @@ export default function AdminLayout({ children }: Props) {
         </div>
 
         {/* Main content / router outlet */}
-        <div className="flex-1 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] rounded-[0.5rem] md:rounded-[0_0.5rem_0.5rem_0] overflow-hidden">
-          <div className="flex flex-col p-2 md:p-4 h-[calc(100vh-7.1rem)] overflow-auto">
+        <div className="flex-1 bg-gradient-to-b from-[#f3e7e9] to-[#e3eeff] overflow-hidden">
+          <div className="flex flex-col p-2 md:p-4 h-[calc(100vh-6.1rem)] overflow-auto">
             {children}
           </div>
             <FooterBlur />

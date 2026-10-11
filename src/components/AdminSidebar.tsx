@@ -10,7 +10,7 @@ type Props = {
 type LinkItem = {
 	href: string;
 	key: string;
-  icon?: string;
+		icon?: string;
 	children?: LinkItem[];
 };
 
@@ -51,7 +51,7 @@ export default function AdminSidebar({ onNavigate }: Props) {
 	const { t } = useTranslation();
 
 	return (
-		<aside className="md:w-56 w-full shrink-0 bg-indigo-800 rounded-tl-lg rounded-bl-lg p-4 space-y-2 h-[calc(100vh-4.6rem)] overflow-y-auto thin-scroll">
+		<aside className="md:w-56 w-full shrink-0 bg-indigo-800 p-4 space-y-2 h-full overflow-y-auto thin-scroll">
 			<h2 className="text-sm font-semibold text-gray-200 mb-2">
 				{t("sidebar.title")}
 			</h2>
@@ -65,79 +65,79 @@ export default function AdminSidebar({ onNavigate }: Props) {
 					const isOpen = open[link.href] ?? (parentActive || childActive);
 
 					return (
-            <div key={link.href}>
-             
-              <div
-                className={`flex items-center justify-between rounded group ${
-                  parentActive || childActive
-                    ? "bg-indigo-50 text-indigo-700 font-medium"
-                    : "text-gray-300 hover:bg-indigo-600"
-                }`}
-              >
-                
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => onNavigate?.()}
-                  className={`block px-2 py-1 rounded text-sm  flex gap-2 `}
-                >
-                 {link.icon && (
-                <img src={`/icons/${link.icon}`} alt={t(link.key)} className="w-5 h-5 mr-2" />
-              )}  {t(link.key)}
-                </Link>
-                {hasChildren && (
-                  <button
-                    aria-expanded={isOpen}
-                    onClick={() =>
-                      setOpen((s) => ({ ...s, [link.href]: !isOpen }))
-                    }
-                    className={`ml-2  px-2 ${
-                      isOpen ? "text-indigo-700" : "text-white"
-                    }`}
-                  >
-                    {isOpen ? "−" : "+"}
-                  </button>
-                )}
-              </div>
-              {hasChildren && (
-                <nav
-                  ref={(el) => {
-                    contentRefs.current[link.href] = el;
-                  }}
-                  className="pl-4 mt-1 space-y-1"
-                  style={
-                    {
-                      maxHeight: isOpen
-                        ? `${contentRefs.current[link.href]?.scrollHeight ?? 999}px`
-                        : "0px",
-                      overflow: "hidden",
-                      transition: "max-height 220ms ease, opacity 160ms ease",
-                      opacity: isOpen ? 1 : 0,
-                    } as React.CSSProperties
-                  }
-                  aria-hidden={!isOpen}
-                >
-                  {link.children!.map((child) => {
-                    const activeChild = router.pathname.startsWith(child.href);
-                    return (
-                      <Link
-                        key={child.href}
-                        href={child.href}
-                        onClick={() => onNavigate?.()}
-                        className={`block px-2 py-1 rounded text-sm ${
-                          activeChild
-                            ? "bg-indigo-50 text-indigo-700 font-medium"
-                            : "text-gray-300 hover:bg-indigo-600"
-                        }`}
-                      >
-                        {t(child.key)}
-                      </Link>
-                    );
-                  })}
-                </nav>
-              )}
-            </div>
-          );
+						<div key={link.href}>
+
+							<div
+								className={`flex items-center justify-between rounded group ${
+									parentActive || childActive
+										? "bg-indigo-50 text-indigo-700 font-medium"
+										: "text-gray-300 hover:bg-indigo-600"
+								}`}
+							>
+
+								<Link
+									key={link.href}
+									href={link.href}
+									onClick={() => onNavigate?.()}
+									className={`block px-2 py-1 rounded text-sm flex gap-2 `}
+								>
+									{link.icon && (
+								<img src={`/icons/${link.icon}`} alt={t(link.key)} className="w-5 h-5 mr-2" />
+							)} {t(link.key)}
+								</Link>
+								{hasChildren && (
+									<button
+										aria-expanded={isOpen}
+										onClick={() =>
+											setOpen((s) => ({ ...s, [link.href]: !isOpen }))
+										}
+										className={`ml-2 px-2 ${
+											isOpen ? "text-indigo-700" : "text-white"
+										}`}
+									>
+										{isOpen ? "−" : "+"}
+									</button>
+								)}
+							</div>
+							{hasChildren && (
+								<nav
+									ref={(el) => {
+										contentRefs.current[link.href] = el;
+									}}
+									className="pl-4 mt-1 space-y-1"
+									style={
+										{
+											maxHeight: isOpen
+												? `${contentRefs.current[link.href]?.scrollHeight ?? 999}px`
+												: "0px",
+											overflow: "hidden",
+											transition: "max-height 220ms ease, opacity 160ms ease",
+											opacity: isOpen ? 1 : 0,
+										} as React.CSSProperties
+									}
+									aria-hidden={!isOpen}
+								>
+									{link.children!.map((child) => {
+										const activeChild = router.pathname.startsWith(child.href);
+										return (
+											<Link
+												key={child.href}
+												href={child.href}
+												onClick={() => onNavigate?.()}
+												className={`block px-2 py-1 rounded text-sm ${
+													activeChild
+														? "bg-indigo-50 text-indigo-700 font-medium"
+														: "text-gray-300 hover:bg-indigo-600"
+												}`}
+											>
+												{t(child.key)}
+											</Link>
+										);
+									})}
+								</nav>
+							)}
+						</div>
+						);
 				})}
 			</nav>
 		</aside>

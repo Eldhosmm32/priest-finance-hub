@@ -1,6 +1,7 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import "../styles/globals.css";
+import "../styles/landing.css";
 import "../styles/styles.scss";
 import { useRouter } from "next/router";
 import { LanguageProvider } from "../i18n/languageContext";

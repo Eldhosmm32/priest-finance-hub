@@ -36,7 +36,7 @@ export default function AdminPriests() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      router.replace("/login");
+      router.replace("/login-admin");
       return;
     }
 
@@ -48,7 +48,7 @@ export default function AdminPriests() {
         .maybeSingle();
 
       if (!profile || profile.role !== "admin") {
-        router.replace("/login");
+        router.replace("/login-admin");
         return;
       }
 
@@ -66,7 +66,7 @@ export default function AdminPriests() {
           email,
           full_name,
           active,
-          priests!priests_id_fkey(province)
+          priests!priests_id_fkey(province,diocese)
         `)
         .eq("role", "priest")
         .order("full_name", { ascending: true });
@@ -83,6 +83,7 @@ export default function AdminPriests() {
           active: row.active,
           photo: row.photo ?? null,
           province: row.priests?.province ?? null,
+          diocese: row.priests?.diocese ?? null,
         })) as PriestRow[];
 
         setPriests(mappedPriests);

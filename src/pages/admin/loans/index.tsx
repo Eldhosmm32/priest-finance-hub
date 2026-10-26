@@ -88,7 +88,7 @@ export default function AdminLoans() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      router.replace("/login");
+      router.replace("/login-admin");
       return;
     }
 
@@ -304,7 +304,7 @@ export default function AdminLoans() {
             resetForm();
             setOpen(true);
           }}
-          className="w-full md:w-auto"
+          className="btn w-full md:w-auto"
         >
           <Plus /> {t("adminLoans.addLoan")}
         </Button>

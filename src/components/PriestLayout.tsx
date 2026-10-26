@@ -57,7 +57,7 @@ export default function PriestLayout({ children }: Props) {
 
 	const handleLogout = async () => {
 		await supabase.auth.signOut();
-		router.push("/login");
+		router.push("/login-priest");
 	};
 
 	useEffect(() => {
@@ -86,7 +86,7 @@ export default function PriestLayout({ children }: Props) {
 		<UserDetailsContext.Provider value={{ userDetails, loading: loadingDetails }}>
 			<div className="min-h-screen flex flex-col bg-gradient-to-b from-[#f3e7e987] to-[#e3eeff8d] rounded-none md:rounded-lg">
 				<header className="bg-white shadow-sm sticky top-0 z-50">
-					<div className="flex mx-auto p-2 ">
+					<div className="flex m-auto max-w-7xl p-2 ">
 						<div className="flex-1 flex items-center">
 							<Link href="/" className="font-semibold text-indigo-700">
 								<Logo />

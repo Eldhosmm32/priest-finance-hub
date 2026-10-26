@@ -110,7 +110,7 @@ export default function AdminFundTransfer() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      router.replace("/login");
+      router.replace("/login-admin");
       return;
     }
 

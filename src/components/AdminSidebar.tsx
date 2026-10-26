@@ -51,7 +51,7 @@ export default function AdminSidebar({ onNavigate }: Props) {
 	const { t } = useTranslation();
 
 	return (
-		<aside className="md:w-56 w-full shrink-0 bg-indigo-800 p-4 space-y-2 h-full overflow-y-auto thin-scroll">
+		<aside className="md:w-56 w-full shrink-0 bg-indigo-800 p-4 space-y-2 h-[calc(100vh-3.6rem)] overflow-y-auto thin-scroll">
 			<h2 className="text-sm font-semibold text-gray-200 mb-2">
 				{t("sidebar.title")}
 			</h2>

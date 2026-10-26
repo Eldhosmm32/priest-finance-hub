@@ -62,7 +62,7 @@ export default function PriestProfile() {
     useEffect(() => {
         if (loading) return;
         if (!user) {
-            router.replace("/login");
+            router.replace("/login-priest");
             return;
         }
 
@@ -292,7 +292,7 @@ export default function PriestProfile() {
                 <div className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0">
                     {icon}
                 </div>
-                <div className="flex flex-col gap-1 flex-1">
+                <div className="flex flex-col gap-1">
                     <span className="text-xs font-medium text-muted-foreground capitalize tracking-wide">
                         {label}
                     </span>

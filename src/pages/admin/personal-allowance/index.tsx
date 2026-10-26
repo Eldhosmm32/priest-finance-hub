@@ -51,7 +51,7 @@ export default function AdminPersonalAllowance() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      router.replace("/login");
+      router.replace("/login-admin");
       return;
     }
 
@@ -76,7 +76,7 @@ export default function AdminPersonalAllowance() {
 
       {/* Month Range Filter */}
       <div className="bg-white border border-gray-200 rounded-lg px-2 py-2 flex flex-col md:flex-row gap-2">
-        <div className="flex flex-col gap-1 flex-1">
+        <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-gray-600">{t("common.startMonth")}</label>
           <input
             type="month"
@@ -85,7 +85,7 @@ export default function AdminPersonalAllowance() {
             value={startMonth}
           />
         </div>
-        <div className="flex flex-col gap-1 flex-1">
+        <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-gray-600">{t("common.endMonth")}</label>
           <input
             type="month"

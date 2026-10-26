@@ -100,7 +100,7 @@ export default function AdminDonation() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      router.replace("/login");
+      router.replace("/login-admin");
       return;
     }
 
@@ -333,7 +333,6 @@ export default function AdminDonation() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminDonation.senderColumn")}</th>
-                    <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminDonation.reciverColumn")}</th>
                     <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminDonation.dateCreditedColumn")}</th>
                     <th className="px-3 py-2 text-right whitespace-nowrap">{t("common.amount")}</th>
                     <th className="px-3 py-2 text-left whitespace-nowrap">{t("adminDonation.notesColumn")}</th>
@@ -343,9 +342,6 @@ export default function AdminDonation() {
                 <tbody>
                   {donations.map((donation) => (
                     <tr key={donation.id} className="border-t border-gray-100">
-                      <td className="px-3 py-2 whitespace-nowrap">
-                        {donation.sender}
-                      </td>
                       <td className="px-3 py-2 whitespace-nowrap">
                         {donation.sender}
                       </td>

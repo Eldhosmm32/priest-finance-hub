@@ -26,7 +26,7 @@ export default function AdminHome() {
 
   useEffect(() => {
     if (loading || !user) {
-      if (!loading && !user) router.replace("/login");
+      if (!loading && !user) router.replace("/login-admin");
       return;
     }
 

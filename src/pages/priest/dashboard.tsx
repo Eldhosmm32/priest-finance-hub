@@ -171,7 +171,7 @@ export default function PriestDashboard() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      router.replace("/login");
+      router.replace("/login-priest");
       return;
     }
 

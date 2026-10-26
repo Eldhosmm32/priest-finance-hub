@@ -62,94 +62,94 @@ export default function Login() {
 	};
 
 	return (
-    <div className="bg-white/50">
-      <header className="h-[3.6rem] px-4 ">
-        <div className="flex items-center h-full justify-between m-auto max-w-6xl">
-          <Logo />
-          <div className="bg-white rounded-full flex gap-2 px-3">
-            <select
-              value={language}
-              onChange={(e) =>
-                setLanguage(e.target.value === "de" ? "de" : "en")
-              }
-              className="rounded-md text-sm font-semibold bg-white h-[2.5rem]"
-            >
-              <option value="en">{t("common.language.en")}</option>
-              <option value="de">{t("common.language.de")}</option>
-            </select>
-          </div>
-        </div>
-      </header>
+		<div className="bg-white/50">
+			<header className="h-[3.6rem] px-4 bg-white/50 backdrop-blur-sm">
+				<div className="flex items-center h-full justify-between m-auto max-w-6xl">
+					<Logo />
+					<div className="bg-white rounded-full flex gap-2 px-3">
+						<select
+							value={language}
+							onChange={(e) =>
+								setLanguage(e.target.value === "de" ? "de" : "en")
+							}
+							className="rounded-md text-sm font-semibold bg-white h-[2.5rem]"
+						>
+							<option value="en">{t("common.language.en")}</option>
+							<option value="de">{t("common.language.de")}</option>
+						</select>
+					</div>
+				</div>
+			</header>
 
-      <div className="h-[calc(100vh-6.10rem)] flex items-center justify-center px-4">
-        <div className="w-full max-w-sm bg-white rounded-xl shadow-sm p-8">
-          <h1 className="text-2xl font-semibold text-gray-800 mb-1">
-            {t("login.title")}
-          </h1>
-          <p className="text-sm text-gray-500 mb-4">{t("login.subtitle")}</p>
-          {error && <div className="text-sm text-red-600 mb-3">{error}</div>}
+			<div className="h-[calc(100vh-6.10rem)] flex items-center justify-center px-4">
+				<div className="w-full max-w-sm bg-white rounded-xl shadow-sm p-8">
+					<h1 className="text-2xl font-semibold text-gray-800 mb-1">
+						{t("login.title")}
+					</h1>
+					<p className="text-sm text-gray-500 mb-4">{t("login.subtitle")}</p>
+					{error && <div className="text-sm text-red-600 mb-3">{error}</div>}
 
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="form-control">
-              <label className="label-text text-xs">{t("common.email")}</label>
-              <input
-                id="email"
-                type="email"
-                className="input input-ghost input-bordered w-full"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-xs">
-                  {t("common.password")}
-                </span>
-              </label>
-              <input
-                type="password"
-                className="input input-bordered w-full"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <div className="flex justify-end my-4 ">
-              <button
-                className="link link-primary text-xs font-semibold text-indigo-600"
-                type="button"
-                onClick={() => router.push("/forgot-password")}
-              >
-                {t("login.forgot")}
-              </button>
-            </div>
-            <button
-              className="btn w-full mt-2"
-              type="submit"
-              disabled={loading}
-            >
-              {loading ? t("login.button") + "…" : t("login.button")}
-            </button>
-          </form>
+					<form onSubmit={handleSubmit} className="space-y-3">
+						<div className="form-control">
+							<label className="label-text text-xs">{t("common.email")}</label>
+							<input
+								id="email"
+								type="email"
+								className="input input-ghost input-bordered w-full"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								required
+							/>
+						</div>
+						<div className="form-control">
+							<label className="label">
+								<span className="label-text text-xs">
+									{t("common.password")}
+								</span>
+							</label>
+							<input
+								type="password"
+								className="input input-bordered w-full"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								required
+							/>
+						</div>
+						<div className="flex justify-end my-4 ">
+							<button
+								className="link link-primary text-xs font-semibold text-indigo-600"
+								type="button"
+								onClick={() => router.push("/forgot-password")}
+							>
+								{t("login.forgot")}
+							</button>
+						</div>
+						<button
+							className="btn w-full mt-2"
+							type="submit"
+							disabled={loading}
+						>
+							{loading ? t("login.button") + "…" : t("login.button")}
+						</button>
+					</form>
 
-          <div className="flex justify-center mt-4">
-            <button
-              className="link link-primary text-xs block"
-              type="button"
-              onClick={() => router.push("/signup")}
-            >
-              {t("login.signupLink")}
-              <span className="text-indigo-600 font-semibold ">
-                {" "}
-                {t("login.signup")}
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
+					<div className="flex justify-center mt-4">
+						<button
+							className="link link-primary text-xs block"
+							type="button"
+							onClick={() => router.push("/signup")}
+						>
+							{t("login.signupLink")}
+							<span className="text-indigo-600 font-semibold">
+								{" "}
+								{t("login.signup")}
+							</span>
+						</button>
+					</div>
+				</div>
+			</div>
 
-      <Footer />
-    </div>
-  );
+			<Footer />
+		</div>
+		);
 }

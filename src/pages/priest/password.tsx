@@ -25,7 +25,7 @@ export default function PriestPasswordChange() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      router.replace("/login");
+      router.replace("/login-priest");
       return;
     }
   }, [user, loading, router]);

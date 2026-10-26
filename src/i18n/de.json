@@ -105,6 +105,20 @@
     "button": "Zurücksetzungslink senden",
     "sending": "Wird gesendet..."
   },
+  "forgotPassword": {
+    "enterEmail": "Bitte geben Sie Ihre E-Mail-Adresse ein",
+    "failedToSendResetEmail": "Fehler beim Senden der E-Mail zum Zurücksetzen des Passworts. Bitte versuchen Sie es erneut.",
+    "resetEmailSent": "E-Mail zum Zurücksetzen des Passworts gesendet. Überprüfen Sie Ihren Posteingang!",
+    "title": "Passwort vergessen",
+    "sendResetEmail": "Link zum Zurücksetzen senden"
+  },
+  "resetPassword": {
+    "title": "Neues Passwort festlegen",
+    "enterNewPassword": "Bitte geben Sie Ihr neues Passwort ein",
+    "failedToUpdatePassword": "Fehler beim Aktualisieren des Passworts. Bitte versuchen Sie es erneut.",
+    "passwordUpdated": "Passwort erfolgreich aktualisiert",
+    "setNewPassword": "Neues Passwort festlegen"
+  },
   "errors": {
     "passwordsMismatch": "Passwörter stimmen nicht überein",
     "unableToLoadUser": "Benutzer nach der Anmeldung konnte nicht geladen werden",
@@ -115,7 +129,7 @@
     "dashboard": "Dashboard",
     "home": "Home",
     "accountSummary": "Kontenübersicht",
-    "diocese": "Diözese",
+    "diocese": "Zusammenfassung zur Diözese",
     "reports": "Berichte",
     "priests": "Priester",
     "salary": "Diocese Überweisung (Salary)",
@@ -164,6 +178,7 @@
     "priestsCount": "Priester",
     "noPriestsFound": "Keine Priester gefunden."
   },
+
   "priestProfile": {
     "professionalPhoto": "Professionelles Foto",
     "editProfile": "Profil bearbeiten",
@@ -414,6 +429,14 @@
     "amountColumn": "Betrag",
     "notesColumn": "Absicht",
     "lastDonationReceived": "Letzte erhaltene Spende"
+  },
+  "adminDiocese": {
+    "title": "Zusammenfassung zur Diözese",
+    "searchPlaceholder": "Suche nach Name oder E-Mail",
+    "searchLabel": "Suche nach Name oder E-Mail", 
+    "diocesesCount": "Diözesen",
+    "noDiocesesFound": "Keine Diözesen gefunden.",
+    "remittance": "Diocese Überweisung"
   },
   "adminPersonalAllowance": {
     "title": "Unterhaltsgeldverwaltung",

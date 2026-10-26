@@ -191,7 +191,7 @@ export default function AdminAccountSummary() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.replace("/login");
+      router.replace("/login-admin");
     }
   }, [user, loading, router]);
 
@@ -211,7 +211,7 @@ export default function AdminAccountSummary() {
         {t("sidebar.accountSummary")}
       </h1>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 border-b-2 border-slate-100 pb-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5 border-b-2 border-slate-100 pb-4">
         {
         accountSummaryCards.map((card) => (
         <div
@@ -244,7 +244,7 @@ export default function AdminAccountSummary() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           {dioceseSummaryCards.map((card) => (
             <div
               key={card.key}
